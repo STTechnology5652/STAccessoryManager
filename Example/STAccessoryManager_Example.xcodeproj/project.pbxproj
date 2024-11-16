@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7FE452792CE897FB0084DC60 /* STDevPlayViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7FE452782CE897FB0084DC60 /* STDevPlayViewController.xib */; };
+		7FE4527A2CE897FB0084DC60 /* STDevPlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FE452772CE897FB0084DC60 /* STDevPlayViewController.swift */; };
 		B0E3B6D3D78868A1A5D52BB5 /* Pods_STAccessoryManager_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF4B01AB9B55C3E6F0460A05 /* Pods_STAccessoryManager_Example.framework */; };
 		FDDD8566299DED6500EAB62E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDDD8565299DED6500EAB62E /* AppDelegate.swift */; };
 		FDDD8568299DED6500EAB62E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDDD8567299DED6500EAB62E /* SceneDelegate.swift */; };
@@ -19,6 +21,8 @@
 /* Begin PBXFileReference section */
 		55E97C9A08AF44D7EACF743C /* Pods-STAccessoryManager_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-STAccessoryManager_Example.debug.xcconfig"; path = "Target Support Files/Pods-STAccessoryManager_Example/Pods-STAccessoryManager_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		69BEA441E112E4D2A703881B /* Pods-STAccessoryManager_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-STAccessoryManager_Example.release.xcconfig"; path = "Target Support Files/Pods-STAccessoryManager_Example/Pods-STAccessoryManager_Example.release.xcconfig"; sourceTree = "<group>"; };
+		7FE452772CE897FB0084DC60 /* STDevPlayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = STDevPlayViewController.swift; sourceTree = "<group>"; };
+		7FE452782CE897FB0084DC60 /* STDevPlayViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = STDevPlayViewController.xib; sourceTree = "<group>"; };
 		DF4B01AB9B55C3E6F0460A05 /* Pods_STAccessoryManager_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_STAccessoryManager_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FDDD8562299DED6500EAB62E /* STAccessoryManager_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = STAccessoryManager_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FDDD8565299DED6500EAB62E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -83,6 +87,8 @@
 				FDDD8565299DED6500EAB62E /* AppDelegate.swift */,
 				FDDD8567299DED6500EAB62E /* SceneDelegate.swift */,
 				FDDD8569299DED6500EAB62E /* ViewController.swift */,
+				7FE452772CE897FB0084DC60 /* STDevPlayViewController.swift */,
+				7FE452782CE897FB0084DC60 /* STDevPlayViewController.xib */,
 				FDDD856B299DED6500EAB62E /* Main.storyboard */,
 				FDDD856E299DED6600EAB62E /* Assets.xcassets */,
 				FDDD8570299DED6600EAB62E /* LaunchScreen.storyboard */,
@@ -154,6 +160,7 @@
 				FDDD8572299DED6600EAB62E /* LaunchScreen.storyboard in Resources */,
 				FDDD856F299DED6600EAB62E /* Assets.xcassets in Resources */,
 				FDDD856D299DED6500EAB62E /* Main.storyboard in Resources */,
+				7FE452792CE897FB0084DC60 /* STDevPlayViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -192,6 +199,7 @@
 				FDDD856A299DED6500EAB62E /* ViewController.swift in Sources */,
 				FDDD8566299DED6500EAB62E /* AppDelegate.swift in Sources */,
 				FDDD8568299DED6500EAB62E /* SceneDelegate.swift in Sources */,
+				7FE4527A2CE897FB0084DC60 /* STDevPlayViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

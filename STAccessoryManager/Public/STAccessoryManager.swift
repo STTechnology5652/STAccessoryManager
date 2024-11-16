@@ -6,11 +6,9 @@
 //
 // @_exported import XXXXXX //这个是为了对外暴露下层依赖的Pod
 
-import ExternalAccessory
+@_exported import ExternalAccessory
 
-struct STModuleTag {
- static let AccessoryManager = "AccessoryManager"
-}
+let STTag_STAccessoryModule = "STAccessoryModule"
 
 @objc public protocol STAccessoryManagerDelegate {
     @objc optional func didConnect(device: EAAccessory)
@@ -23,7 +21,8 @@ public class STAccessoryManager: NSObject {
     
     private var registedDevices = [String]()
     private var delegateArr: NSPointerArray = NSPointerArray.weakObjects()
-    public private(set) var accessoryArr = [EAAccessory]()
+    
+    public private(set) var connectedAccessory = [EAAccessory]()
     
     private override init() {
         super.init()
@@ -65,29 +64,32 @@ extension STAccessoryManager {
         let notCenter = NotificationCenter.default
         notCenter.addObserver(self, selector: #selector(self.didConnectDevice(_:)), name: .EAAccessoryDidConnect, object: nil)
         notCenter.addObserver(self, selector: #selector(self.didDisconenctDevice(_:)), name: .EAAccessoryDidDisconnect, object: nil)
-        EAAccessoryManager.shared().registerForLocalNotifications()
+        let manager = EAAccessoryManager.shared()
+        manager.registerForLocalNotifications()
+        connectedAccessory = manager.connectedAccessories
     }
     
     @objc func didConnectDevice(_ noti: Notification) {
-        STLog.info(tag: STModuleTag.AccessoryManager)
         guard let oneAccessory = noti.userInfo?[EAAccessoryKey] as? EAAccessory else {
-            STLog.err(tag: STModuleTag.AccessoryManager, "no accessory")
+            STLog.err(tag: STTag_STAccessoryModule, "no accessory")
             return
         }
-        accessoryArr.append(oneAccessory)
+        
+        STLog.info(tag: STTag_STAccessoryModule, "\(oneAccessory.name) \(oneAccessory.serialNumber) \(oneAccessory.manufacturer) \(oneAccessory.modelNumber) \(oneAccessory.firmwareRevision) \(oneAccessory.hardwareRevision) \(oneAccessory.protocolStrings)")
+        
+        connectedAccessory = EAAccessoryManager.shared().connectedAccessories
         self.allDelegates().forEach { (oneDelegate: STAccessoryManagerDelegate) in
             oneDelegate.didConnect?(device: oneAccessory)
         }
     }
     
     @objc func didDisconenctDevice(_ noti: Notification) {
-        STLog.info(tag: STModuleTag.AccessoryManager)
         guard let oneAccessory = noti.userInfo?[EAAccessoryKey] as? EAAccessory else {
-            STLog.err(tag: STModuleTag.AccessoryManager, "no accessory")
+            STLog.err(tag: STTag_STAccessoryModule, "no accessory")
             return
         }
-        
-        accessoryArr.removeAll { one in oneAccessory.serialNumber == one.serialNumber }
+        STLog.info(tag: STTag_STAccessoryModule, "\(oneAccessory.name) \(oneAccessory.serialNumber) \(oneAccessory.manufacturer) \(oneAccessory.modelNumber) \(oneAccessory.firmwareRevision) \(oneAccessory.hardwareRevision) \(oneAccessory.protocolStrings)")
+        connectedAccessory = EAAccessoryManager.shared().connectedAccessories
         self.allDelegates().forEach { (oneDelegate: STAccessoryManagerDelegate) in
             oneDelegate.didDisconnect?(device: oneAccessory)
         }

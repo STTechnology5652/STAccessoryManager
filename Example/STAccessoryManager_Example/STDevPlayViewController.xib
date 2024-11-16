@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="STDevPlayViewController" customModule="STAccessoryManager_Example" customModuleProvider="target">
+            <connections>
+                <outlet property="controlBackView" destination="V0r-NF-F1E" id="ViA-7I-Chf"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wW0-oL-veC" userLabel="preViewView">
+                    <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                    <color key="backgroundColor" systemColor="systemTealColor"/>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="V0r-NF-F1E" userLabel="controlView">
+                    <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                    <subviews>
+                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="n95-Ym-APl">
+                            <rect key="frame" x="10" y="0.0" width="150" height="759"/>
+                            <subviews>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="l7l-Ma-FhL" userLabel="emptyT">
+                                    <rect key="frame" x="0.0" y="0.0" width="150" height="337"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </view>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Hyi-1g-aqx">
+                                    <rect key="frame" x="0.0" y="342" width="150" height="35"/>
+                                    <color key="backgroundColor" systemColor="systemGreenColor"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="35" id="Jdt-Kv-hNY"/>
+                                    </constraints>
+                                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                    <state key="normal" title="Open Stream"/>
+                                    <connections>
+                                        <action selector="uiActionOpenStream:" destination="-1" eventType="touchUpInside" id="sDQ-Vz-azT"/>
+                                    </connections>
+                                </button>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SeU-be-9zL">
+                                    <rect key="frame" x="0.0" y="382" width="150" height="35"/>
+                                    <color key="backgroundColor" systemColor="systemGreenColor"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="35" id="xwQ-Fo-wj4"/>
+                                    </constraints>
+                                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                    <state key="normal" title="Close Stream"/>
+                                    <connections>
+                                        <action selector="uiActionCloseStream:" destination="-1" eventType="touchUpInside" id="lpq-Zn-3g7"/>
+                                    </connections>
+                                </button>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Rzo-nE-6FH" userLabel="emptyB">
+                                    <rect key="frame" x="0.0" y="422" width="150" height="337"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </view>
+                            </subviews>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="150" id="L6r-HM-AMt"/>
+                                <constraint firstItem="Rzo-nE-6FH" firstAttribute="height" secondItem="l7l-Ma-FhL" secondAttribute="height" id="n6o-w9-Tle"/>
+                            </constraints>
+                        </stackView>
+                    </subviews>
+                    <color key="backgroundColor" red="1" green="0.80000000000000004" blue="0.0" alpha="0.064120960884353748" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstItem="n95-Ym-APl" firstAttribute="leading" secondItem="V0r-NF-F1E" secondAttribute="leading" constant="10" id="BY5-WQ-kZ7"/>
+                        <constraint firstAttribute="bottom" secondItem="n95-Ym-APl" secondAttribute="bottom" id="Vkq-hy-dAV"/>
+                        <constraint firstItem="n95-Ym-APl" firstAttribute="top" secondItem="V0r-NF-F1E" secondAttribute="top" id="xlZ-Pi-o1a"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="wW0-oL-veC" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="Qo1-6o-Q9C"/>
+                <constraint firstItem="V0r-NF-F1E" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" id="YhD-Za-Pfy"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="wW0-oL-veC" secondAttribute="trailing" id="m6K-sP-slH"/>
+                <constraint firstItem="wW0-oL-veC" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="mng-yY-PzX"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="V0r-NF-F1E" secondAttribute="trailing" id="r6K-VF-Gk4"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="bottom" secondItem="V0r-NF-F1E" secondAttribute="bottom" id="u5v-Fl-LxK"/>
+                <constraint firstAttribute="bottom" secondItem="wW0-oL-veC" secondAttribute="bottom" id="zG1-Gq-IFO"/>
+                <constraint firstItem="V0r-NF-F1E" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="zzO-37-pIp"/>
+            </constraints>
+            <point key="canvasLocation" x="50" y="9"/>
+        </view>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemGreenColor">
+            <color red="0.20392156862745098" green="0.7803921568627451" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemTealColor">
+            <color red="0.18823529411764706" green="0.69019607843137254" blue="0.7803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>
