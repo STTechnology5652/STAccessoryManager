@@ -1,0 +1,16 @@
+PODS:
+  - STAccessoryManager (0.0.1)
+
+DEPENDENCIES:
+  - STAccessoryManager (from `../../STAccessoryManager`)
+
+EXTERNAL SOURCES:
+  STAccessoryManager:
+    :path: "../../STAccessoryManager"
+
+SPEC CHECKSUMS:
+  STAccessoryManager: bee2d44775315cff61f3aef98cdcf95e08327499
+
+PODFILE CHECKSUM: f60c09ee042754b24188ea229d23c867b2d1f3e7
+
+COCOAPODS: 1.15.2
