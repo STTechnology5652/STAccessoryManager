@@ -10,8 +10,8 @@ import STAccessoryManager
 
 class STDevPlayViewController: UIViewController {
     var devIdentifier: String = ""
-    
-    private var curDev: EAAccessory?
+    private var devHandler: STAccesoryHandlerInterface?
+    private var cmdTag: UInt8 = 0x0a
     
     @IBOutlet weak var controlBackView: UIView!
     override func viewDidLoad() {
@@ -30,8 +30,19 @@ class STDevPlayViewController: UIViewController {
     }
     
     private func initData() {
-        STAccessoryManager.share().config(delegate: self)
-        checkDevState()
+        Task { [weak self] in
+            guard let self else {
+                return
+            }
+            
+            let manager = STAccessoryManager.share()
+            manager.config(delegate: self)
+            devHandler = await manager.accessoryHander(devSerialNumber: devIdentifier)
+            
+            DispatchQueue.main.async { [weak self] in
+                self?.checkDevState()
+            }
+        }
     }
     
     private func checkDevState() {
@@ -63,27 +74,49 @@ extension STDevPlayViewController {
         controlBackView.isHidden = !controlBackView.isHidden
         navigationController?.navigationBar.isHidden = controlBackView.isHidden
     }
+    
+    @IBAction func uiActionGetDevConfig(_ sender: UIButton) {
+        STLog.debug()
+        
+        cmdTag %= 0x0F
+        cmdTag += 1
+        
+        let cmd = STACommandserialization.getDevConfig(cmdTag)
+        devHandler?.sendCommand(cmd, protocol: nil)
+    }
+
     @IBAction func uiActionOpenStream(_ sender: UIButton) {
         STLog.debug()
+        Task {
+            await devHandler?.openSteam(true, protocol: nil)
+        }
+        
+        cmdTag %= 0x0F
+        cmdTag += 1
+        
+        let cmd = STACommandserialization.openStreamCmd(withTag: cmdTag, open: 1)
+        devHandler?.sendCommand(cmd, protocol: nil)
     }
     
     @IBAction func uiActionCloseStream(_ sender: UIButton) {
         STLog.debug()
+        Task {
+            await devHandler?.openSteam(false, protocol: nil)
+        }
     }
 }
 
 //MARK: - STAccessoryManagerDelegate
-extension STDevPlayViewController: STAccessoryManagerDelegate {
+extension STDevPlayViewController: STAccessoryConnectDelegate {
     func didConnect(device: EAAccessory) {
         checkDevState()
     }
     
     func didDisconnect(device: EAAccessory) {
-        if let curDev, curDev.serialNumber == device.serialNumber { //当前正在错误的设备，需要关闭流
+        if devIdentifier == device.serialNumber { //当前正在错误的设备，需要关闭流
             
         }
         
         checkDevState()
-        
     }
 }

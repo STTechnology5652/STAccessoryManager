@@ -18,27 +18,33 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpUI()
-        let manager = STAccessoryManager.share()
-        devList = manager.connectedAccessory
-        manager.config(delegate: self)
-        tableView.reloadData()
+        initData()
     }
     
-    func setUpUI() {
+    private func setUpUI() {
         tableView.delegate = self
         tableView.dataSource = self
     }
-}
-
-extension ViewController: STAccessoryManagerDelegate {
-    func didConnect(device: EAAccessory) {
+    
+    private func initData() {
+        STAccessoryManager.share().config(delegate: self)
+        checktDevList()
+    }
+    
+    private func checktDevList() {
         devList = STAccessoryManager.share().connectedAccessory
         tableView.reloadData()
+        statusLabel.isHidden = devList.count > 0
+    }
+}
+
+extension ViewController: STAccessoryConnectDelegate {
+    func didConnect(device: EAAccessory) {
+        checktDevList()
     }
     
     func didDisconnect(device: EAAccessory) {
-        devList = STAccessoryManager.share().connectedAccessory
-        tableView.reloadData()
+        checktDevList()
     }
 }
 
@@ -54,6 +60,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         } else {
             cell = UITableViewCell(style: .subtitle, reuseIdentifier: cellIdentifier)
             cell.selectionStyle = .none
+            cell.backgroundColor = .clear
         }
         
         let dev = devList[indexPath.row]
