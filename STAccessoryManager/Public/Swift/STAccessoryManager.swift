@@ -7,6 +7,7 @@
 // @_exported import XXXXXX //这个是为了对外暴露下层依赖的Pod
 
 @_exported import ExternalAccessory
+@_exported import STLog
 
 let STTag_STAccessoryModule = "STAccessoryModule"
 let kTag_STStream = "STStream"

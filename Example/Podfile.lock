@@ -1,16 +1,23 @@
 PODS:
-  - STAccessoryManager (0.0.1)
+  - STAccessoryManager (0.0.1):
+    - STLog
+  - STLog (0.0.1)
 
 DEPENDENCIES:
   - STAccessoryManager (from `../../STAccessoryManager`)
+
+SPEC REPOS:
+  https://github.com/STTechnology5652/STSpecs.git:
+    - STLog
 
 EXTERNAL SOURCES:
   STAccessoryManager:
     :path: "../../STAccessoryManager"
 
 SPEC CHECKSUMS:
-  STAccessoryManager: 082180bf4c5936206922cb3cc4310f7e180b84fe
+  STAccessoryManager: 200399c4743a621c5dca748b7e8464941c7ea0b8
+  STLog: 2ad44ae697ed8332529877f0a861315b5ed8263a
 
-PODFILE CHECKSUM: bca6fac5bf97af17734e0d5336b59a91d2a66848
+PODFILE CHECKSUM: 1d45ca67241b447ecb19a40a1aa92f0ee7f86ecc
 
 COCOAPODS: 1.15.2

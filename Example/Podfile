@@ -2,6 +2,7 @@
 # source 'xxxxx'
 
 #cocoapods源 最后声明, 可以解决私有源pod 与 公共源pod 重名的问题
+source 'https://github.com/STTechnology5652/STSpecs.git'
 source 'https://github.com/CocoaPods/Specs.git'
 
 # Uncomment the next line to define a global platform for your project
