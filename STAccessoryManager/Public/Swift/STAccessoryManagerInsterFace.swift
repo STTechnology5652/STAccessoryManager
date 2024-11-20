@@ -8,8 +8,7 @@
 import Combine
 
 /// 业务结果
-@objcMembers
-public class STAccessoryWorkResult: NSObject {
+public class STAccessoryWorkResult<T> : NSObject {
     /// 业务状态
     public internal(set) var status: Bool = true
     /// 设备标识
@@ -17,12 +16,15 @@ public class STAccessoryWorkResult: NSObject {
     /// 状态描述
     public internal(set) var workDes: String = "default work result description"
     
+    public var workData: T?
+    
     internal override init() {}
     
-    init(status: Bool, devSerialNumber: String, workDes: String) {
+    init(status: Bool = true, devSerialNumber: String = "", workDes: String = "", workData: T? = nil) {
         self.status = status
         self.devSerialNumber = devSerialNumber
         self.workDes = workDes
+        self.workData = workData
     }
     
     public func jsonString() -> String {
@@ -34,7 +36,33 @@ public class STAccessoryWorkResult: NSObject {
     }
 }
 
-extension STAccessoryWorkResult: Encodable {}
+extension STAccessoryWorkResult: Encodable {
+    // 实现了 `Encodable` 协议
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(status, forKey: .status)
+        try container.encode(devSerialNumber, forKey: .devSerialNumber)
+        try container.encode(workDes, forKey: .workDes)
+        
+        // 如果 workData 存在且能够编码，尝试编码 workData
+        
+        var workDataEncoder = encoder.singleValueContainer()
+        if let workData = workData as? Encodable {
+            try workDataEncoder.encode(workData)
+        } else {
+            STLog.warning("Work data is not Encodable")
+        }
+    }
+    
+    // 用来定义编码的字段名称，注意：这里我们使用了蛇形命名风格
+    private enum CodingKeys: String, CodingKey {
+        case status
+        case devSerialNumber
+        case workDes
+        case workData
+    }
+}
 
 //MARK: - STAccessoryManager 对外接口
 /// STAccessoryManager 对外接口
@@ -43,9 +71,8 @@ public protocol STAccessoryManagerInsterFace {
     /// - Returns: 单例
     @discardableResult static func share() -> STAccessoryManager
     
-    
     var connectedAccessory: [EAAccessory] {get}
-
+    
     /// 配置代理
     /// - Parameter delegate: 代理
     /// - Returns: 单例

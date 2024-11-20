@@ -33,7 +33,7 @@ typedef NS_ENUM(NSUInteger, STCmdDir) {
    return [self createCmdWithTag:tag cmdId:STCmdIdStreamOnOff dir:STcmdDirSet cmdData:[NSData dataWithBytes:&open length:1]];
 }
 
-+ (NSData *)createCmdWithTag:(UInt8)tag cmdId:(UInt8)cmdId dir:(UInt8)dir cmdData:(NSData *)cmdData {
++ (NSData *)createCmdWithTag:(UInt8)tag cmdId:(STRACmdId)cmdId dir:(UInt8)dir cmdData:(NSData *)cmdData {
     NSMutableData *result = [NSMutableData new];
     UInt8 cmdDataLenH = 0, cmdDataLenL = 0;
     UInt32 cmdLen = (UInt32)[cmdData length];

@@ -11,7 +11,6 @@ import STAccessoryManager
 class STDevPlayViewController: UIViewController {
     var devIdentifier: String = ""
     private var devHandler: STAccesoryHandlerInterface?
-    private var cmdTag: UInt8 = 0x0a
     
     @IBOutlet weak var controlBackView: UIView!
     override func viewDidLoad() {
@@ -77,12 +76,15 @@ extension STDevPlayViewController {
     
     @IBAction func uiActionGetDevConfig(_ sender: UIButton) {
         STLog.debug()
+        guard let devHandler else {
+            STLog.err("no device handler")
+            return
+        }
         
-        cmdTag %= 0x0F
-        cmdTag += 1
-        
+        let cmdTag = devHandler.getNextCmdTag()
         let cmd = STACommandserialization.getDevConfig(cmdTag)
-        devHandler?.sendCommand(cmd, protocol: nil)
+        let command = STAccesoryCmdData(tag: cmdTag, data: cmd)
+        devHandler.sendCommand(command, protocol: nil)
     }
 
     @IBAction func uiActionOpenStream(_ sender: UIButton) {
@@ -90,12 +92,6 @@ extension STDevPlayViewController {
         Task {
             await devHandler?.openSteam(true, protocol: nil)
         }
-        
-        cmdTag %= 0x0F
-        cmdTag += 1
-        
-        let cmd = STACommandserialization.openStreamCmd(withTag: cmdTag, open: 1)
-        devHandler?.sendCommand(cmd, protocol: nil)
     }
     
     @IBAction func uiActionCloseStream(_ sender: UIButton) {

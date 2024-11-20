@@ -18,7 +18,7 @@ public class STAccessoryManager: NSObject {
     private static let shareIns = STAccessoryManager()
     private var registedDevices = [String]()
     private var delegateArr: NSPointerArray = NSPointerArray.weakObjects()
-    private var deviceHandlerMap = [String: STAccesoryHandlerInterface]()
+    private var deviceHandlerMap = [String: STAccesoryHandlerInterface_pri]()
     
     public private(set) var connectedAccessory = [EAAccessory]()
     
@@ -120,6 +120,8 @@ extension STAccessoryManager {
         
         // 删除对应设备操作句柄， 句柄中也会知道设备断开连接，所以句柄中的设备通讯事件，由句柄自己处理
         DispatchQueue.main.async {
+            let hand = self.deviceHandlerMap[oneAccessory.serialNumber]
+            hand?.deviceDisconnected(dev: oneAccessory)
             self.deviceHandlerMap[oneAccessory.serialNumber] = nil
         }
         

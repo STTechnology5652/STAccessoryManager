@@ -18,13 +18,11 @@ class STAReadStream: NSObject {
 
     private var streamRunloop: RunLoop?
     let stream: InputStream
-    let readQueue: DispatchQueue = {
+    let readCallBackQueue: DispatchQueue = {
         let uuidStr = UUID().uuidString
         let queue = DispatchQueue(label: "com.stream.stMfi.read_\(uuidStr)", qos: .default)
         return queue
     }()
-    
-    private var buffer: Data = Data()
     
     deinit {
         STLog.info()
@@ -53,52 +51,39 @@ class STAReadStream: NSObject {
     
     private func readData() {
         if stream.hasBytesAvailable {
-            readQueue.async { [weak self] in
+            readCallBackQueue.async { [weak self] in
                 guard let self else {
                     STLog.warning("read stream has ben relase")
                     return
                 }
-                readDataExe(retryCount: 0)
+                readDataExe()
             }
         }
     }
     
     // 必须是串行队列调用， 防止资源竞争
-    private func readDataExe(retryCount: Int) {
+    private func readDataExe() {
         if stream.hasBytesAvailable == false {
             STLog.info("stream has no bytes, wait reading")
             return
         }
         
-        if retryCount > 4 { // 重试超过 4 次， 业务失败
-            STLog.err("read stream retry one mor time: \(retryCount)")
-            return
-        }
-        
         var byts = [UInt8](repeating: 0, count: maxReadBufferSize)  // 1KB buffer
         let bytesRead = stream.read(&byts, maxLength: byts.count)
-        if let err = stream.streamError { //读取错误， 尝试 3 次
-            STLog.err("read stream error: \(err)")
-            readDataExe(retryCount: retryCount + 1)
-            return
-        }
-        
         if bytesRead > 0 { // 读取到字节
             let dataRead = Data(byts.prefix(bytesRead))
-            buffer.append(dataRead)
-            STLog.debug(kTag_STStream, "read stream get bytes: \(buffer as NSData)")
-            STLog.info(kTag_STStream, "read stream get byte: \(buffer)")
+            STLog.debug(kTag_STStream, "read stream get bytes: \(dataRead as NSData)")
+            STLog.info(kTag_STStream, "read stream get byte: \(dataRead)")
             
             if let delegate {
-                let dataBack  = buffer
-                buffer.removeAll()
-                DispatchQueue.global().async {
-                    delegate.didReadData(data: dataBack)
+                readCallBackQueue.async { [weak delegate] in
+                    autoreleasepool {
+                        delegate?.didReadData(data: dataRead)
+                    }
                 }
             }
         } else { // 没有读取到字节，尝试再次读取
-            STLog.warning("read stream get empty bytes, retry reading")
-            readDataExe(retryCount: retryCount + 1)
+            STLog.warning("read stream get empty bytes")
             return
         }
     }
