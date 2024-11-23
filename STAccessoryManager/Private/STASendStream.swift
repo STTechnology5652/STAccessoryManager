@@ -7,6 +7,8 @@
 
 import Foundation
 
+private let kTag_STStream_send = "kTag_STStream_send"
+
 private class STASendParamater {
     let paramaterId = UUID().uuidString
     let callBack: STASendStream.SendCallBack
@@ -71,7 +73,7 @@ class STASendStream: NSObject {
     }
     
     func sendData(_ data: Data) async -> (success: Bool, des: String) {
-        STLog.debug(kTag_STStream, "add task, [total:\(data as NSData)]")
+        STLog.debug(tag: kTag_STStream_send, "add task, [total:\(data as NSData)]")
         return await withCheckedContinuation { (continuation: CheckedContinuation<(Bool, String), Never>) in
             sendDataExe(data) { success, des in
                 continuation.resume(returning: (success, des))
@@ -81,15 +83,17 @@ class STASendStream: NSObject {
     
     private func sendDataExe(_ data: Data, complete: @escaping ((_ success: Bool, _ des: String)->Void)) {
         let para = STASendParamater(data: data, callBack: complete)
-        sendParamaterArr.append(para)
-        startSend()
+        startSend(para)
     }
     
-    private func startSend() {
+    private func startSend(_ para: STASendParamater? = nil) {
         sendQueue.async { [weak self] in
             guard let self else {
-                STLog.err("send stream has been release")
+                STLog.err(tag: kTag_STStream_send, "send stream has been release")
                 return
+            }
+            if let para {
+                sendParamaterArr.append(para)
             }
             startSendExe(retryTime: 0)
         }
@@ -103,19 +107,19 @@ class STASendStream: NSObject {
                 sendParamaterArr.removeFirst()
                 // 递归调用，发送下一个数据包
                 if let newPara = sendingPara {
-                    STLog.debug(kTag_STStream, "send data start, [id:\(newPara.paramaterId)][total:\(newPara.dataTotal)]")
+                    STLog.debug(tag: kTag_STStream_send, "send data start, [id:\(newPara.paramaterId)][total:\(newPara.dataTotal)]")
                 }
                 startSendExe(retryTime: 0)
             } else {
                 //所有数据包发送完毕
-                STLog.info("no data to be send, stream not in use")
+                STLog.info(tag: kTag_STStream_send, "no data to be send, stream not in use")
             }
             return
         }
         
         guard curPara.dataToSend.count > 0 else { //当前数据包发送完毕， 需要回调任务完成
-            STLog.debug(kTag_STStream, "send data finish, [id:\(curPara.paramaterId)][bytes:\(curPara.dataTotal as NSData)]")
-            STLog.info(kTag_STStream, "send data finish, [id:\(curPara.paramaterId)][total:\(curPara.totalLen)]")
+            STLog.debug(tag: kTag_STStream_send, "send data finish, [id:\(curPara.paramaterId)][bytes:\(curPara.dataTotal as NSData)]")
+            STLog.info(tag: kTag_STStream_send, "send data finish, [id:\(curPara.paramaterId)][total:\(curPara.totalLen)]")
             sendingPara = nil
             let callBack = curPara.callBack
             let identifier = curPara.paramaterId
@@ -142,7 +146,7 @@ class STASendStream: NSObject {
         }
 
         guard stream.hasSpaceAvailable else {
-            STLog.warning("out put stream has no available space, should wait")
+            STLog.warning(tag: kTag_STStream_send, "out put stream has no available space, should wait")
             return
         }
         
@@ -151,45 +155,45 @@ class STASendStream: NSObject {
         guard let bufferPointer:UnsafePointer<UInt8> = dataToSend.withUnsafeBytes { (rawBufferPointer: UnsafeRawBufferPointer) -> UnsafePointer<UInt8>? in
             return rawBufferPointer.baseAddress?.assumingMemoryBound(to: UInt8.self) // 将 UnsafeRawBufferPointer 转换为 UnsafePointer<UInt8>
         } as? UnsafePointer<UInt8> else {
-            STLog.warning("write data failed, since read data byte failed, try one more")
+            STLog.warning(tag: kTag_STStream_send, "write data failed, since read data byte failed, try one more")
             startSendExe(retryTime: retryTime + 1) //再尝试一次
             return
         }
         
         let writedCount = stream.write(bufferPointer, maxLength: dataToSend.count)
         if let err = stream.streamError { //写入失败
-            STLog.warning("write data failed, and retry 3 times, error: \(err) ")
+            STLog.warning(tag: kTag_STStream_send, "write data failed, and retry 3 times, error: \(err) ")
             startSendExe(retryTime: retryTime + 1)
             return
         }
         
         if writedCount <= 0 { //没有写入失败， 但是也没有发送出去数据， 重新尝试， 会尝试 3 次
-            STLog.debug("send data less than 1, should retry: \(retryTime + 1) ")
+            STLog.debug(tag: kTag_STStream_send, "send data less than 1, should retry: \(retryTime + 1) ")
             startSendExe(retryTime: retryTime + 1)
             return
         }
         
         let dataSuccess: Data = curPara.deleteSuccessBytes(writedCount) //删除已经发送成功的数据
-        STLog.debug(kTag_STStream, "write bytes succees[\(curPara.paramaterId)]: \(dataSuccess as NSData)")
+        STLog.debug(tag: kTag_STStream_send, "send data succees[\(curPara.paramaterId)]: \(dataSuccess as NSData)")
         startSendExe(retryTime: 0) // 继续发送数据
     }
 }
 
 extension STASendStream: StreamDelegate {
     func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
-        STLog.info("outPutStatus: \(eventCode.rawValue)")
+        STLog.info(tag: kTag_STStream_send, "outPutStatus: \(eventCode.rawValue)")
         switch eventCode {
         case .openCompleted:
-            STLog.debug("openCompleted")
+            STLog.debug(tag: kTag_STStream_send, "openCompleted")
         case .hasSpaceAvailable:
-            STLog.debug("hasSpaceAvailable, start send buffer data")
+            STLog.debug(tag: kTag_STStream_send, "hasSpaceAvailable, start send buffer data")
             startSend()
         case .endEncountered:
-            STLog.debug("endEncountered")
+            STLog.debug(tag: kTag_STStream_send, "endEncountered")
         case .errorOccurred:
-            STLog.err("errorOccurred")
+            STLog.err(tag: kTag_STStream_send, "errorOccurred")
         default:
-            STLog.err("un deal status")
+            STLog.err(tag: kTag_STStream_send, "un deal status")
         }
     }
 }

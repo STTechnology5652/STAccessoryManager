@@ -37,6 +37,7 @@ class STDevPlayViewController: UIViewController {
             let manager = STAccessoryManager.share()
             manager.config(delegate: self)
             devHandler = await manager.accessoryHander(devSerialNumber: devIdentifier)
+            await devHandler?.configImage(receiver: self, protocol: nil)
             
             DispatchQueue.main.async { [weak self] in
                 self?.checkDevState()
@@ -84,20 +85,26 @@ extension STDevPlayViewController {
         let cmdTag = devHandler.getNextCmdTag()
         let cmd = STACommandserialization.getDevConfig(cmdTag)
         let command = STAccesoryCmdData(tag: cmdTag, data: cmd)
-        devHandler.sendCommand(command, protocol: nil)
+        
+        Task{
+            let cmdResult: STAccessoryWorkResult<STAResponse> = await devHandler.sendCommand(command, protocol: nil)
+            STLog.debug("get device config result:\(cmdResult.workData?.jsonString())")
+        }
     }
 
     @IBAction func uiActionOpenStream(_ sender: UIButton) {
         STLog.debug()
         Task {
-            await devHandler?.openSteam(true, protocol: nil)
+            let openResult: STAccessoryWorkResult<STAResponse>? = await devHandler?.openSteam(true, protocol: nil)
+            STLog.debug("open stream result:\(openResult?.workData?.jsonString())")
         }
     }
     
     @IBAction func uiActionCloseStream(_ sender: UIButton) {
         STLog.debug()
         Task {
-            await devHandler?.openSteam(false, protocol: nil)
+            let openResult: STAccessoryWorkResult<STAResponse>? = await devHandler?.openSteam(false, protocol: nil)
+            STLog.debug("close stream result:\(openResult?.workData?.jsonString())")
         }
     }
 }
@@ -114,5 +121,14 @@ extension STDevPlayViewController: STAccessoryConnectDelegate {
         }
         
         checkDevState()
+    }
+}
+
+//mark: - image receivew
+extension STDevPlayViewController: STAccesoryHandlerImageReceiver {
+    func didReceiveDeviceImageResponse(_ imgRes: STAResponse) {
+        let imgData = imgRes.imageData
+        STLog.debug("did receive image:\(imgData)")
+        
     }
 }

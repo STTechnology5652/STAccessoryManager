@@ -38,27 +38,34 @@ extension STAccesoryHandler: STAccesoryHandlerInterface_pri {
     func getNextCmdTag() -> UInt8 {
         return cmdTag.getNextCmdTag()
     }
-
-    func sendCommand(_ cmgData: STAccesoryCmdData, protocol proStr: String?) -> STAccessoryWorkResult<Any> {
-        let result = Task{
-            let sesionInfo = await getDevSession(proStr: proStr)
-            guard sesionInfo.status == true, let session: STAccesorySession = sesionInfo.workData else {
-                return STAccessoryWorkResult<Any>(status: false, devSerialNumber: devSerinalNumber, workDes: sesionInfo.workDes)
-            }
-            await session.sendData(cmgData.data)
-            return STAccessoryWorkResult()
+    
+    func configImage(receiver: STAccesoryHandlerImageReceiver, protocol proStr: String?) async -> STAccessoryWorkResult<String> {
+        let sesionInfo = await getDevSession(proStr: proStr)
+        guard sesionInfo.status == true, let session: STAccesorySession = sesionInfo.workData else {
+            return STAccessoryWorkResult<String>(status: false, devSerialNumber: devSerinalNumber, workDes: sesionInfo.workDes)
         }
-        
-        return STAccessoryWorkResult()
+
+        session.configImageReceive(receiver)
+        return STAccessoryWorkResult(devSerialNumber: devSerinalNumber, workDes: sesionInfo.workDes, workData: "config session delegate success")
     }
     
-    func openSteam(_ open: Bool, protocol proStr: String?) async -> STAccessoryWorkResult<Any> {
+    func sendCommand(_ cmgData: STAccesoryCmdData, protocol proStr: String?) async -> STAccessoryWorkResult<STAResponse> {
+        let sesionInfo = await getDevSession(proStr: proStr)
+        guard sesionInfo.status == true, let session: STAccesorySession = sesionInfo.workData else {
+            return STAccessoryWorkResult<STAResponse>(status: false, devSerialNumber: devSerinalNumber, workDes: sesionInfo.workDes)
+        }
+        
+        let cmdResponse = await session.sendData(cmgData.data, cmdTag: cmgData.tag)
+        return STAccessoryWorkResult(workData: cmdResponse)
+    }
+    
+    func openSteam(_ open: Bool, protocol proStr: String?) async -> STAccessoryWorkResult<STAResponse> {
         let sesionInfo = await getDevSession(proStr: proStr)
         let cmdTag = cmdTag.getNextCmdTag()
         let cmdData: Data = STACommandserialization.openStreamCmd(withTag: cmdTag, open: open ? 0x01 : 0x00)
         
         let command = STAccesoryCmdData(tag: cmdTag, data: cmdData)
-        let openResult = sendCommand(command, protocol: proStr)
+        let openResult = await sendCommand(command, protocol: proStr)
         return openResult
     }
     

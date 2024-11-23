@@ -46,7 +46,7 @@ typedef NS_ENUM(NSUInteger, STCmdDir) {
     [result appendBytes:&cmdId length:1]; // CMD ID
     [result appendBytes:&dir length:1]; // CMD Dir (Get:0, Set:1)
     [result appendData:cmdData]; // Data
-    STLogInfo(@"command to device: %@", result);
+    STLogInfo(@"command to device >>>>: %@", result);
     return result;
 }
 @end

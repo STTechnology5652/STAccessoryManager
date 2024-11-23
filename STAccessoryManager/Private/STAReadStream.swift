@@ -7,12 +7,13 @@
 
 import Foundation
 
-let maxReadBufferSize = 1024 * 1024 // 1M
+let maxReadBufferSize = 1024 * 1024 * 5 // 5M
 
 protocol STAReaderStreamDelegate: NSObject {
     func didReadData(data: Data)
 }
 
+private let kTag_STAReadStream = "kTag_STAReadStream"
 class STAReadStream: NSObject {
     private weak var delegate: STAReaderStreamDelegate?
 
@@ -51,20 +52,14 @@ class STAReadStream: NSObject {
     
     private func readData() {
         if stream.hasBytesAvailable {
-            readCallBackQueue.async { [weak self] in
-                guard let self else {
-                    STLog.warning("read stream has ben relase")
-                    return
-                }
-                readDataExe()
-            }
+            readDataExe()
         }
     }
     
     // 必须是串行队列调用， 防止资源竞争
     private func readDataExe() {
         if stream.hasBytesAvailable == false {
-            STLog.info("stream has no bytes, wait reading")
+            STLog.info(tag: kTag_STAReadStream, "stream has no bytes, wait reading")
             return
         }
         
@@ -72,18 +67,16 @@ class STAReadStream: NSObject {
         let bytesRead = stream.read(&byts, maxLength: byts.count)
         if bytesRead > 0 { // 读取到字节
             let dataRead = Data(byts.prefix(bytesRead))
-            STLog.debug(kTag_STStream, "read stream get bytes: \(dataRead as NSData)")
-            STLog.info(kTag_STStream, "read stream get byte: \(dataRead)")
+            STLog.debug(tag: kTag_STAReadStream, justLogFile: true, "read stream get bytes [\(dataRead.count)]: \((dataRead as NSData).hexString())")
+            STLog.info(tag: kTag_STAReadStream, "read stream get byte <<<<< : \(dataRead)")
             
             if let delegate {
-                readCallBackQueue.async { [weak delegate] in
-                    autoreleasepool {
-                        delegate?.didReadData(data: dataRead)
-                    }
+                autoreleasepool { [weak delegate] in
+                    delegate?.didReadData(data: dataRead)
                 }
             }
         } else { // 没有读取到字节，尝试再次读取
-            STLog.warning("read stream get empty bytes")
+            STLog.warning(tag: kTag_STAReadStream, "read stream get empty bytes")
             return
         }
     }
@@ -91,19 +84,18 @@ class STAReadStream: NSObject {
 
 extension STAReadStream: StreamDelegate {
     func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
-        STLog.info("intPutStatus:\(eventCode.rawValue)")
         switch eventCode {
         case .openCompleted:
-            STLog.info("openCompleted")
+            STLog.info(tag: kTag_STAReadStream, "openCompleted")
         case .hasBytesAvailable:
-            STLog.info("hasBytesAvailable")
+            STLog.info(tag: kTag_STAReadStream, "hasBytesAvailable")
             readData()
         case .endEncountered:
-            STLog.info("endEncountered")
+            STLog.info(tag: kTag_STAReadStream, "endEncountered")
         case .errorOccurred:
-            STLog.info("errorOccurred")
+            STLog.info(tag: kTag_STAReadStream, "errorOccurred")
         default:
-            STLog.err("un deal status")
+            STLog.err(tag: kTag_STAReadStream, "un deal status")
         }
     }
 }

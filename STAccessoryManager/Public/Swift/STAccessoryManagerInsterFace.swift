@@ -9,7 +9,7 @@ import Combine
 
 /// 业务结果
 public class STAccessoryWorkResult<T> : NSObject {
-    /// 业务状态
+    /// 业务应答
     public internal(set) var status: Bool = true
     /// 设备标识
     public internal(set) var devSerialNumber: String = ""

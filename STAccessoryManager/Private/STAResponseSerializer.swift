@@ -15,9 +15,11 @@ class STAResponseSeriaLizer: NSObject, STAResponseSeriaLizerProtocol {
         self.protocolIdv = protocolIdv
     }
     
-    func shouldAnalysisBuffer(buffer: Data) -> STACmdResponse {
+    func shouldAnalysisBuffer(buffer: Data) -> (resArr: [STAResponse], usedByts: UInt64) {
         STLog.debug("start analysis data: \(buffer)")
-        return STACmdResponse(success: false)
+        var usedLength: UInt64 = 0
+        let responseArr: [STAResponse] = STAResponse.analysisiBuffer(buffer, byteUsed: &usedLength)
+        return (responseArr, usedLength)
     }
 }
 
