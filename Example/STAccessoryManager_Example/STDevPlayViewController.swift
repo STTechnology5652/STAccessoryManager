@@ -11,8 +11,13 @@ import STAccessoryManager
 class STDevPlayViewController: UIViewController {
     var devIdentifier: String = ""
     private var devHandler: STAccesoryHandlerInterface?
+    private var speedTool = STASpeedTool()
     
+    @IBOutlet weak var labStreamInfo: UILabel!
     @IBOutlet weak var controlBackView: UIView!
+    @IBOutlet weak var btnSaveLog: UIButton!
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpUI()
@@ -26,9 +31,18 @@ class STDevPlayViewController: UIViewController {
     private func setUpUI() {
         let tapGes = UITapGestureRecognizer(target: self, action: #selector(self.uiActionControlBackTaped(_:)))
         view.addGestureRecognizer(tapGes)
+        btnSaveLog.setTitle(btnSaveLog.isSelected ? "Log Writing" : "Log Print", for: .normal)
     }
     
     private func initData() {
+        speedTool.startCaculted { [weak self] (speedDes: String) in
+            guard let self else {
+                return
+            }
+            
+            labStreamInfo.text = "\(devIdentifier) \t: \(speedDes)/s"
+        }
+        
         Task { [weak self] in
             guard let self else {
                 return
@@ -48,11 +62,14 @@ class STDevPlayViewController: UIViewController {
     private func checkDevState() {
         if let dev = STAccessoryManager.share().connectedAccessory.filter({$0.serialNumber == devIdentifier }).first, dev.isConnected == true {
             STLog.info("dev enable")
+            labStreamInfo.text = "Device Connected"
         } else {
             alertDevDisConnected()
+            labStreamInfo.text = "Device disconnectd"
         }
     }
     
+   
     private func alertDevDisConnected() {
         let alert = UIAlertController(title: "提示", message: "设备连接端口", preferredStyle: .alert)
         let sure = UIAlertAction(title: "确定", style: .default) { [weak self] _ in
@@ -91,7 +108,7 @@ extension STDevPlayViewController {
             STLog.debug("get device config result:\(cmdResult.workData?.jsonString())")
         }
     }
-
+    
     @IBAction func uiActionOpenStream(_ sender: UIButton) {
         STLog.debug()
         Task {
@@ -106,6 +123,13 @@ extension STDevPlayViewController {
             let openResult: STAccessoryWorkResult<STAResponse>? = await devHandler?.openSteam(false, protocol: nil)
             STLog.debug("close stream result:\(openResult?.workData?.jsonString())")
         }
+    }
+    
+    @IBAction func uiActionBtnSaveLog(_ sender: UIButton) {
+        STLog.debug()
+        sender.isSelected = !sender.isSelected
+        sender.setTitle(sender.isSelected ? "Log Writing" : "Log Print", for: .normal)
+        STLog.openFileLog(sender.isSelected)
     }
 }
 
@@ -128,7 +152,10 @@ extension STDevPlayViewController: STAccessoryConnectDelegate {
 extension STDevPlayViewController: STAccesoryHandlerImageReceiver {
     func didReceiveDeviceImageResponse(_ imgRes: STAResponse) {
         let imgData = imgRes.imageData
+        guard imgData.count > 0 else {
+            return
+        }
         STLog.debug("did receive image:\(imgData)")
-        
+        speedTool.appendCount(imgData.count)
     }
 }

@@ -31,4 +31,3 @@ public protocol STAccesoryHandlerInterface: NSObjectProtocol {
 protocol STAccesoryHandlerInterface_pri: STAccesoryHandlerInterface {
     func deviceDisconnected(dev: EAAccessory)
 }
-

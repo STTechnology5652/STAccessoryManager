@@ -11,7 +11,9 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="STDevPlayViewController" customModule="STAccessoryManager_Example" customModuleProvider="target">
             <connections>
+                <outlet property="btnSaveLog" destination="wn1-qY-pCu" id="p8F-Um-N5S"/>
                 <outlet property="controlBackView" destination="V0r-NF-F1E" id="ViA-7I-Chf"/>
+                <outlet property="labStreamInfo" destination="aJx-CQ-Uxj" id="RMH-EC-4te"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -27,15 +29,15 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="V0r-NF-F1E" userLabel="controlView">
                     <rect key="frame" x="0.0" y="59" width="393" height="759"/>
                     <subviews>
-                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="n95-Ym-APl">
-                            <rect key="frame" x="10" y="0.0" width="150" height="759"/>
+                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="n95-Ym-APl" userLabel="StackHor">
+                            <rect key="frame" x="10" y="65" width="150" height="694"/>
                             <subviews>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="l7l-Ma-FhL" userLabel="emptyT">
-                                    <rect key="frame" x="0.0" y="0.0" width="150" height="317"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="150" height="264.66666666666669"/>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </view>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vXZ-oG-dSJ">
-                                    <rect key="frame" x="0.0" y="322" width="150" height="35"/>
+                                    <rect key="frame" x="0.0" y="269.66666666666669" width="150" height="35"/>
                                     <color key="backgroundColor" systemColor="systemGreenColor"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="35" id="7Qt-iZ-I18"/>
@@ -47,7 +49,7 @@
                                     </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Hyi-1g-aqx">
-                                    <rect key="frame" x="0.0" y="362" width="150" height="35"/>
+                                    <rect key="frame" x="0.0" y="309.66666666666669" width="150" height="35"/>
                                     <color key="backgroundColor" systemColor="systemGreenColor"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="35" id="Jdt-Kv-hNY"/>
@@ -59,7 +61,7 @@
                                     </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SeU-be-9zL">
-                                    <rect key="frame" x="0.0" y="402" width="150" height="35"/>
+                                    <rect key="frame" x="0.0" y="349.66666666666669" width="150" height="35"/>
                                     <color key="backgroundColor" systemColor="systemGreenColor"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="35" id="xwQ-Fo-wj4"/>
@@ -70,8 +72,20 @@
                                         <action selector="uiActionCloseStream:" destination="-1" eventType="touchUpInside" id="lpq-Zn-3g7"/>
                                     </connections>
                                 </button>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wn1-qY-pCu" userLabel="SaveLog">
+                                    <rect key="frame" x="0.0" y="389.66666666666663" width="150" height="35"/>
+                                    <color key="backgroundColor" systemColor="systemGreenColor"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="35" id="Fbu-mn-WOF"/>
+                                    </constraints>
+                                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                    <state key="normal" title="Save Log"/>
+                                    <connections>
+                                        <action selector="uiActionBtnSaveLog:" destination="-1" eventType="touchUpInside" id="4R9-sy-g0X"/>
+                                    </connections>
+                                </button>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Rzo-nE-6FH" userLabel="emptyB">
-                                    <rect key="frame" x="0.0" y="442" width="150" height="317"/>
+                                    <rect key="frame" x="0.0" y="429.66666666666663" width="150" height="264.33333333333337"/>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </view>
                             </subviews>
@@ -80,12 +94,24 @@
                                 <constraint firstItem="Rzo-nE-6FH" firstAttribute="height" secondItem="l7l-Ma-FhL" secondAttribute="height" id="n6o-w9-Tle"/>
                             </constraints>
                         </stackView>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aJx-CQ-Uxj">
+                            <rect key="frame" x="10" y="0.0" width="373" height="60"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="60" id="KHL-AH-Qev"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <color key="textColor" systemColor="systemRedColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
                     </subviews>
                     <color key="backgroundColor" red="1" green="0.80000000000000004" blue="0.0" alpha="0.064120960884353748" colorSpace="custom" customColorSpace="sRGB"/>
                     <constraints>
+                        <constraint firstAttribute="trailing" secondItem="aJx-CQ-Uxj" secondAttribute="trailing" constant="10" id="96B-oB-pM9"/>
                         <constraint firstItem="n95-Ym-APl" firstAttribute="leading" secondItem="V0r-NF-F1E" secondAttribute="leading" constant="10" id="BY5-WQ-kZ7"/>
                         <constraint firstAttribute="bottom" secondItem="n95-Ym-APl" secondAttribute="bottom" id="Vkq-hy-dAV"/>
-                        <constraint firstItem="n95-Ym-APl" firstAttribute="top" secondItem="V0r-NF-F1E" secondAttribute="top" id="xlZ-Pi-o1a"/>
+                        <constraint firstItem="aJx-CQ-Uxj" firstAttribute="leading" secondItem="V0r-NF-F1E" secondAttribute="leading" constant="10" id="cK5-ur-oqM"/>
+                        <constraint firstItem="aJx-CQ-Uxj" firstAttribute="top" secondItem="V0r-NF-F1E" secondAttribute="top" id="ePZ-c6-tZZ"/>
+                        <constraint firstItem="n95-Ym-APl" firstAttribute="top" secondItem="aJx-CQ-Uxj" secondAttribute="bottom" constant="5" id="xlZ-Pi-o1a"/>
                     </constraints>
                 </view>
             </subviews>
@@ -101,7 +127,7 @@
                 <constraint firstAttribute="bottom" secondItem="wW0-oL-veC" secondAttribute="bottom" id="zG1-Gq-IFO"/>
                 <constraint firstItem="V0r-NF-F1E" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="zzO-37-pIp"/>
             </constraints>
-            <point key="canvasLocation" x="50" y="9"/>
+            <point key="canvasLocation" x="49.618320610687022" y="8.4507042253521139"/>
         </view>
     </objects>
     <resources>
@@ -109,10 +135,13 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGreenColor">
-            <color red="0.20392156862745098" green="0.7803921568627451" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemRedColor">
+            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemTealColor">
-            <color red="0.18823529411764706" green="0.69019607843137254" blue="0.7803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.18823529410000001" green="0.69019607839999997" blue="0.78039215689999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
