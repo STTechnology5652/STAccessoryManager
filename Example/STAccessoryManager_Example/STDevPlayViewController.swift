@@ -98,7 +98,7 @@ extension STDevPlayViewController {
             let command = STAccesoryCmdData(tag: cmdTag, data: cmd)
             
             let cmdResult: STAccessoryWorkResult<STAResponse> = devHandler.sendCommand(command, protocol: nil)
-            STLog.debug("get device config result:\(cmdResult.workData?.jsonString())")
+            STLog.debug("get device config result:\(String(describing: cmdResult.workData?.jsonString()))")
         }
     }
     
@@ -106,7 +106,7 @@ extension STDevPlayViewController {
         STLog.debug()
         DispatchQueue.global().async { [weak self] in
             let openResult: STAccessoryWorkResult<STAResponse>? = self?.devHandler?.openSteam(true, protocol: nil)
-            STLog.debug("open stream result:\(openResult?.workData?.jsonString())")
+            STLog.debug("open stream result:\(String(describing: openResult?.workData?.jsonString()))")
         }
     }
     
@@ -114,7 +114,7 @@ extension STDevPlayViewController {
         STLog.debug()
         DispatchQueue.global().async { [weak self] in
             let openResult: STAccessoryWorkResult<STAResponse>? = self?.devHandler?.openSteam(false, protocol: nil)
-            STLog.debug("close stream result:\(openResult?.workData?.jsonString())")
+            STLog.debug("close stream result:\(String(describing: openResult?.workData?.jsonString()))")
         }
     }
     

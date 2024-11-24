@@ -77,12 +77,12 @@ class STASendStream: NSObject {
         
         let sem = DispatchSemaphore(value: 0)
         var result: (success: Bool, des: String) = (false, "time out")
-        sem.wait(timeout: DispatchTime.now())
         sendDataExe(data) { success, des in
             result = (success, des)
             sem.signal()
         }
         
+        sem.wait(timeout: DispatchTime.now() + 2)
         return result
     }
     

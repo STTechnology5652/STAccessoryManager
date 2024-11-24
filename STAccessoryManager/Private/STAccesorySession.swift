@@ -205,14 +205,13 @@ extension STAccesorySession {
         }
         
         let sem = DispatchSemaphore(value: 0)
-        
         var result: STAResponse?
-        sem.wait(timeout: DispatchTime.now() + 1)
         sendDataExe(data, cmdTag: cmdTag) { resp in
             result = resp
             sem.signal()
         }
         
+        sem.wait(timeout: DispatchTime.now() + 2)
         return result
     }
     
