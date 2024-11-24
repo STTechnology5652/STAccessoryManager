@@ -23,9 +23,9 @@ public protocol STAccesoryHandlerImageReceiver: NSObjectProtocol {
 /// 操作设备的接口
 public protocol STAccesoryHandlerInterface: NSObjectProtocol {
     func getNextCmdTag() -> UInt8
-    @discardableResult func openSteam(_ open: Bool, protocol: String?) async -> STAccessoryWorkResult<STAResponse>
-    @discardableResult func sendCommand(_ cmdData:STAccesoryCmdData, protocol: String?) async -> STAccessoryWorkResult<STAResponse>
-    @discardableResult func configImage(receiver: STAccesoryHandlerImageReceiver, protocol: String?) async -> STAccessoryWorkResult<String>
+    @discardableResult func openSteam(_ open: Bool, protocol: String?) -> STAccessoryWorkResult<STAResponse>
+    @discardableResult func sendCommand(_ cmdData:STAccesoryCmdData, protocol: String?) -> STAccessoryWorkResult<STAResponse>
+    @discardableResult func configImage(receiver: STAccesoryHandlerImageReceiver, protocol: String?) -> STAccessoryWorkResult<String>
 }
 
 protocol STAccesoryHandlerInterface_pri: STAccesoryHandlerInterface {

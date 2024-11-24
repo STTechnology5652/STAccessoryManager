@@ -42,21 +42,14 @@ class STDevPlayViewController: UIViewController {
             
             labStreamInfo.text = "\(devIdentifier) \t: \(speedDes)/s"
         }
-        
-        Task { [weak self] in
-            guard let self else {
-                return
-            }
-            
             let manager = STAccessoryManager.share()
             manager.config(delegate: self)
-            devHandler = await manager.accessoryHander(devSerialNumber: devIdentifier)
-            await devHandler?.configImage(receiver: self, protocol: nil)
+            devHandler = manager.accessoryHander(devSerialNumber: devIdentifier)
+            devHandler?.configImage(receiver: self, protocol: nil)
             
             DispatchQueue.main.async { [weak self] in
                 self?.checkDevState()
             }
-        }
     }
     
     private func checkDevState() {
@@ -94,33 +87,33 @@ extension STDevPlayViewController {
     
     @IBAction func uiActionGetDevConfig(_ sender: UIButton) {
         STLog.debug()
-        guard let devHandler else {
-            STLog.err("no device handler")
-            return
-        }
-        
-        let cmdTag = devHandler.getNextCmdTag()
-        let cmd = STACommandserialization.getDevConfig(cmdTag)
-        let command = STAccesoryCmdData(tag: cmdTag, data: cmd)
-        
-        Task{
-            let cmdResult: STAccessoryWorkResult<STAResponse> = await devHandler.sendCommand(command, protocol: nil)
+        DispatchQueue.global().async { [weak self] in
+            guard let self, let devHandler else {
+                STLog.err("no device handler")
+                return
+            }
+            
+            let cmdTag = devHandler.getNextCmdTag()
+            let cmd = STACommandserialization.getDevConfig(cmdTag)
+            let command = STAccesoryCmdData(tag: cmdTag, data: cmd)
+            
+            let cmdResult: STAccessoryWorkResult<STAResponse> = devHandler.sendCommand(command, protocol: nil)
             STLog.debug("get device config result:\(cmdResult.workData?.jsonString())")
         }
     }
     
     @IBAction func uiActionOpenStream(_ sender: UIButton) {
         STLog.debug()
-        Task {
-            let openResult: STAccessoryWorkResult<STAResponse>? = await devHandler?.openSteam(true, protocol: nil)
+        DispatchQueue.global().async { [weak self] in
+            let openResult: STAccessoryWorkResult<STAResponse>? = self?.devHandler?.openSteam(true, protocol: nil)
             STLog.debug("open stream result:\(openResult?.workData?.jsonString())")
         }
     }
     
     @IBAction func uiActionCloseStream(_ sender: UIButton) {
         STLog.debug()
-        Task {
-            let openResult: STAccessoryWorkResult<STAResponse>? = await devHandler?.openSteam(false, protocol: nil)
+        DispatchQueue.global().async { [weak self] in
+            let openResult: STAccessoryWorkResult<STAResponse>? = self?.devHandler?.openSteam(false, protocol: nil)
             STLog.debug("close stream result:\(openResult?.workData?.jsonString())")
         }
     }

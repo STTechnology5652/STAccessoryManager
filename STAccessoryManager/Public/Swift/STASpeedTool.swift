@@ -10,7 +10,7 @@ import Combine
 
 public class STASpeedTool {
     private var countPerSec: UInt64 = 0
-    private var timer: Cancellable?
+    private var timer: DispatchSourceTimer?
     private var displayAction: ((_: String)->Void)?
     
     public init() {}
@@ -21,10 +21,13 @@ public class STASpeedTool {
     
     public func startCaculted(_ action: @escaping ((_ speedDes: String)->Void)) {
         displayAction = action
-        timer = Timer.publish(every: 1.0, on: RunLoop.main, in: .common)
-            .autoconnect().sink { [weak self] _ in
+        let timer = DispatchSource.makeTimerSource()
+        timer.schedule(deadline: DispatchTime.now() + 1, repeating: 1.0, leeway: .nanoseconds(1))
+        timer.setEventHandler { [weak self] in
                 self?.timerAction()
-            }
+        }
+        self.timer = timer
+        timer.activate()
     }
     
     public func appendCount(_ count: Int) {
@@ -49,6 +52,8 @@ public class STASpeedTool {
         }
         
         let des = String(format: "%.2f", toDisplay) + "\t" + cUint
-        displayAction?(des)
+        DispatchQueue.main.async { [weak self] in
+            self?.displayAction?(des)
+        }
     }
 }

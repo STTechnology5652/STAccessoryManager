@@ -115,7 +115,7 @@ class STAccesorySession: NSObject{
         commandQueue.cancelAll()
     }
     
-    @discardableResult func cancelWork() async -> STAccessoryWorkResult<Any> {
+    @discardableResult func cancelWork() -> STAccessoryWorkResult<Any> {
         STLog.info()
         return STAccessoryWorkResult()
     }
@@ -198,23 +198,26 @@ extension STAccesorySession {
         imageReceiverArr.addPointer(Unmanaged.passUnretained(receiver).toOpaque())
     }
     
-    func sendData(_ data: Data, cmdTag: UInt8 = 0x08) async -> STAResponse? {
+    func sendData(_ data: Data, cmdTag: UInt8 = 0x08) -> STAResponse? {
         guard let sender else {
             STLog.err(tag: kTag_STAccesorySession, "no sender")
             return nil
         }
         
-        return await withCheckedContinuation { continuation in // block 回调 转为协程回调
-            sendDataExe(data, cmdTag: cmdTag) { resp in
-                return continuation.resume(returning: resp)
-            }
+        let sem = DispatchSemaphore(value: 0)
+        
+        var result: STAResponse?
+        sem.wait(timeout: DispatchTime.now() + 1)
+        sendDataExe(data, cmdTag: cmdTag) { resp in
+            result = resp
+            sem.signal()
         }
+        
+        return result
     }
     
     private func sendDataExe(_ data: Data, cmdTag: UInt8, complete: @escaping ((_ resp: STAResponse) -> Void)) {
         commandQueue.appendCmdData(cmdTag: cmdTag, data: data, callBack: complete)
-        Task {
-            await sender?.sendData(data)
-        }
+           sender?.sendData(data)
     }
 }

@@ -54,7 +54,7 @@ extension STAccessoryManager: STAccessoryManagerInsterFace {
         return delegates
     }
     
-    public func accessoryHander(devSerialNumber: String) async -> STAccesoryHandlerInterface? {
+    public func accessoryHander(devSerialNumber: String) -> STAccesoryHandlerInterface? {
         guard let dev = device(devSerialNumber) else { // 对应设备已经断开连接
             let des = "设备已经断开连接"
             STLog.err(des)
