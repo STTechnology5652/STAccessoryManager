@@ -3,19 +3,18 @@
 [![Version](https://img.shields.io/cocoapods/v/STAccessoryManager.svg?style=flat)](https://cocoapods.org/pods/STAccessoryManager) [![License](https://img.shields.io/cocoapods/l/STAccessoryManager.svg?style=flat)](https://github.com/coder/STAccessoryManager/blob/701ff106db3caa805f9dab12df7749c03c889c47/LICENSE) [![Platform](https://img.shields.io/cocoapods/p/STAccessoryManager.svg?style=flat)](https://cocoapods.org/pods/STAccessoryManager)
 
 <!--toc:start-->
-
 - [STAccessoryManager](#staccessorymanager)
   - [时间拆解](#时间拆解)
     - [1. 时间统计](#1-时间统计)
     - [2. 功能细节](#2-功能细节)
   - [摘要](#摘要)
   - [用法](#用法)
+    - [运行demo](#运行demo)
     - [集成](#集成)
   - [调用](#调用)
     - [引用](#引用)
     - [调用接口](#调用接口)
   - [历史版本](#历史版本)
-
 <!--toc:end-->
 
 ## 时间拆解
@@ -92,6 +91,32 @@ STAccessoryManager 组件主要用于：
 - 1 定制的MFI设备通讯
 
 ## 用法
+
+### 运行demo
+
+- 1. 下载项目：
+    打开mac终端， cd 到想要存放项目的目录，执行如下指令：
+    ```shelll
+    git clone https://github.com/STTechnology5652/STAccessoryManager.git --verbose
+    ```
+- 2. 加载项目过：
+    还是在mac终端， cd 到工程目录， 然后 cd 到 /Example 文件夹， 在这个文件夹能看到 Podfile 文件；
+    然后在执行如下指令：
+    ```shelll
+    pod install --verbose
+    ```
+
+- 3. pod 指令执行成功后，会看到有一个 STAccessoryManager_Example.xcworkspace 文件；
+    用Xcode 打开 STAccessoryManager_Example.xcworkspace 文件。
+
+- 4. 至此，项目打开完成。
+- 5. 手机连接mac电脑， 工程中需要使用自己的账号，并修改bundleId。
+- 6. 以上步骤没问题之后， 项目即可运行到手机。
+
+> 疑难问题：
+> - 1. 由于是调试MFI设备， 需要设备连接到手机， 因而手机和xcode之间，需要使用无线联调的形式来运行项目；
+> - 2. 项目引入了 DoraemonKit ，用以查看沙盒。
+> - 3. 为了方便分析日志， 项目log写入了文件， 而且log文件很大， 很占用磁盘。 请注意， 或者关闭long写文件。
 
 ### 集成
 
