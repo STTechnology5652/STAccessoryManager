@@ -20,6 +20,7 @@ typedef NS_ENUM(unsigned char, STRACmdId) {
 
 @interface STACommandserialization : NSObject
 + (NSData *)getDevConfig: (UInt8) tag;
++ (NSData *)setStreamFormatter: (UInt8) tag;
 + (NSData *)openStreamCmdWithTag: (UInt8) tag open:(UInt8)open;
 + (NSData *)createCmdWithTag:(UInt8)tag cmdId:(STRACmdId)cmdId dir:(UInt8)scr cmdData:(NSData *)cmdData;
 @end

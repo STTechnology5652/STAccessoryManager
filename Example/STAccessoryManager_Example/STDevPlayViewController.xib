@@ -13,6 +13,7 @@
             <connections>
                 <outlet property="btnSaveLog" destination="wn1-qY-pCu" id="p8F-Um-N5S"/>
                 <outlet property="controlBackView" destination="V0r-NF-F1E" id="ViA-7I-Chf"/>
+                <outlet property="imgPreView" destination="mpw-mY-mxy" id="ZA6-5E-BYe"/>
                 <outlet property="labStreamInfo" destination="aJx-CQ-Uxj" id="RMH-EC-4te"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
@@ -24,7 +25,18 @@
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wW0-oL-veC" userLabel="preViewView">
                     <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                    <subviews>
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="mpw-mY-mxy">
+                            <rect key="frame" x="10" y="50" width="373" height="782"/>
+                        </imageView>
+                    </subviews>
                     <color key="backgroundColor" systemColor="systemTealColor"/>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="mpw-mY-mxy" secondAttribute="trailing" constant="10" id="2Po-1T-KdZ"/>
+                        <constraint firstItem="mpw-mY-mxy" firstAttribute="leading" secondItem="wW0-oL-veC" secondAttribute="leading" constant="10" id="Eoz-bz-kFB"/>
+                        <constraint firstAttribute="bottom" secondItem="mpw-mY-mxy" secondAttribute="bottom" constant="20" id="NvT-rF-p60"/>
+                        <constraint firstItem="mpw-mY-mxy" firstAttribute="top" secondItem="wW0-oL-veC" secondAttribute="top" constant="50" id="oEB-7B-npP"/>
+                    </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="V0r-NF-F1E" userLabel="controlView">
                     <rect key="frame" x="0.0" y="59" width="393" height="759"/>
@@ -33,11 +45,11 @@
                             <rect key="frame" x="10" y="65" width="150" height="694"/>
                             <subviews>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="l7l-Ma-FhL" userLabel="emptyT">
-                                    <rect key="frame" x="0.0" y="0.0" width="150" height="264.66666666666669"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="150" height="244.66666666666666"/>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </view>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vXZ-oG-dSJ">
-                                    <rect key="frame" x="0.0" y="269.66666666666669" width="150" height="35"/>
+                                    <rect key="frame" x="0.0" y="249.66666666666669" width="150" height="35"/>
                                     <color key="backgroundColor" systemColor="systemGreenColor"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="35" id="7Qt-iZ-I18"/>
@@ -48,8 +60,20 @@
                                         <action selector="uiActionGetDevConfig:" destination="-1" eventType="touchUpInside" id="tTT-Gf-D7I"/>
                                     </connections>
                                 </button>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qe5-Br-Fy4" userLabel="SetStreamFormatter">
+                                    <rect key="frame" x="0.0" y="289.66666666666669" width="150" height="35"/>
+                                    <color key="backgroundColor" systemColor="systemGreenColor"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="35" id="Mtn-Ln-I3u"/>
+                                    </constraints>
+                                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                    <state key="normal" title="Set stream format"/>
+                                    <connections>
+                                        <action selector="uiActionSetStreamFormatter:" destination="-1" eventType="touchUpInside" id="WYZ-uF-aLz"/>
+                                    </connections>
+                                </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Hyi-1g-aqx">
-                                    <rect key="frame" x="0.0" y="309.66666666666669" width="150" height="35"/>
+                                    <rect key="frame" x="0.0" y="329.66666666666669" width="150" height="35"/>
                                     <color key="backgroundColor" systemColor="systemGreenColor"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="35" id="Jdt-Kv-hNY"/>
@@ -61,7 +85,7 @@
                                     </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SeU-be-9zL">
-                                    <rect key="frame" x="0.0" y="349.66666666666669" width="150" height="35"/>
+                                    <rect key="frame" x="0.0" y="369.66666666666669" width="150" height="35"/>
                                     <color key="backgroundColor" systemColor="systemGreenColor"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="35" id="xwQ-Fo-wj4"/>
@@ -73,7 +97,7 @@
                                     </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wn1-qY-pCu" userLabel="SaveLog">
-                                    <rect key="frame" x="0.0" y="389.66666666666663" width="150" height="35"/>
+                                    <rect key="frame" x="0.0" y="409.66666666666663" width="150" height="35"/>
                                     <color key="backgroundColor" systemColor="systemGreenColor"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="35" id="Fbu-mn-WOF"/>
@@ -85,7 +109,7 @@
                                     </connections>
                                 </button>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Rzo-nE-6FH" userLabel="emptyB">
-                                    <rect key="frame" x="0.0" y="429.66666666666663" width="150" height="264.33333333333337"/>
+                                    <rect key="frame" x="0.0" y="449.66666666666657" width="150" height="244.33333333333331"/>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </view>
                             </subviews>

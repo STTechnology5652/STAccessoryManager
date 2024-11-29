@@ -19,7 +19,7 @@ public extension STLogLevel {
 
 public class STLog: NSObject {
     public static func debug(tag: String = "", justLogFile: Bool = false, _ items: Any..., separator: String = " ", terminator: String = "\n", line: Int = #line, file: String = #file, function: String = #function) {
-        e(level: .debug, line: line, file: file, function: function, tag: tag, justLogFile: justLogFile, items: items, separator: separator, terminator: terminator)
+//        e(level: .debug, line: line, file: file, function: function, tag: tag, justLogFile: justLogFile, items: items, separator: separator, terminator: terminator)
     }
     
     public static func info(tag: String = "", justLogFile: Bool = false, _ items: Any..., separator: String = " ", terminator: String = "\n", line: Int = #line, file: String = #file, function: String = #function) {
@@ -27,7 +27,7 @@ public class STLog: NSObject {
     }
     
     public static func warning(tag: String = "", justLogFile: Bool = false, _ items: Any..., separator: String = " ", terminator: String = "\n", line: Int = #line, file: String = #file, function: String = #function) {
-        e(level: .warning, line: line, file: file, function: function, tag: tag, justLogFile: justLogFile, items: items, separator: separator, terminator: terminator)
+//        e(level: .warning, line: line, file: file, function: function, tag: tag, justLogFile: justLogFile, items: items, separator: separator, terminator: terminator)
     }
     
     public static func err(tag: String = "", justLogFile: Bool = false, _ items: Any..., separator: String = " ", terminator: String = "\n",line: Int = #line, file: String = #file, function: String = #function) {

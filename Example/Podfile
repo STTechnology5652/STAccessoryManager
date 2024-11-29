@@ -31,7 +31,9 @@ project 'STAccessoryManager_Example.xcodeproj'
 target 'STAccessoryManager_Example' do
   # Pods for STAccessoryManager_Example
   pod 'DoraemonKit', '~> 3.1.3'
-  pod 'STLog', :path => '../Cmoponents/STLog' 
+  pod 'SnapKit', '~> 5.7.1'
+  pod 'Toast-Swift', '~> 5.1.1'
+  pod 'STLog', :path => '../Cmoponents/STLog'
   pod_develop
 
 end

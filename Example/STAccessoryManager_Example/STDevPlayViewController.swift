@@ -7,15 +7,18 @@
 
 import UIKit
 import STAccessoryManager
+import SnapKit
 
 class STDevPlayViewController: UIViewController {
     var devIdentifier: String = ""
     private var devHandler: STAccesoryHandlerInterface?
     private var speedTool = STASpeedTool()
+    private let mjpegUtil = MjpegUtil()
     
     @IBOutlet weak var labStreamInfo: UILabel!
     @IBOutlet weak var controlBackView: UIView!
     @IBOutlet weak var btnSaveLog: UIButton!
+    @IBOutlet weak var imgPreView: UIImageView!
     
     
     override func viewDidLoad() {
@@ -92,6 +95,23 @@ extension STDevPlayViewController {
         navigationController?.navigationBar.isHidden = controlBackView.isHidden
     }
     
+    @IBAction func uiActionSetStreamFormatter(_ sender: UIButton) {
+        STLog.debug()
+        guard let devHandler else {
+            STLog.err("no device handler")
+            return
+        }
+        
+        let cmdTag = devHandler.getNextCmdTag()
+        let cmd = STACommandserialization.setStreamFormatter(cmdTag)
+        let command = STAccesoryCmdData(tag: cmdTag, data: cmd)
+
+        Task{
+            let cmdResult: STAccessoryWorkResult<STAResponse> = await devHandler.sendCommand(command, protocol: nil)
+            STLog.debug("set stream formatter result:\(String(describing: cmdResult.workData?.jsonString()))")
+        }
+    }
+    
     @IBAction func uiActionGetDevConfig(_ sender: UIButton) {
         STLog.debug()
         guard let devHandler else {
@@ -155,7 +175,14 @@ extension STDevPlayViewController: STAccesoryHandlerImageReceiver {
         guard imgData.count > 0 else {
             return
         }
-        STLog.debug("did receive image:\(imgData)")
-        speedTool.appendCount(imgData.count)
+        DispatchQueue.main.async { [weak self] in
+            guard let self else {return}
+            mjpegUtil.receive(NSData(data: imgData) as Data) { [weak self] (img: UIImage) in
+                STLog.debug("receive image to preview:\(img)")
+                self?.imgPreView.image = img
+            }
+            STLog.debug("did receive image data:\(imgData)")
+            speedTool.appendCount(imgData.count)
+        }
     }
 }

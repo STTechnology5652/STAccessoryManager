@@ -87,6 +87,13 @@ class STAccesorySession: NSObject{
         return queue
     }()
     
+    // 数据回调的线程
+    private let dataBackQueue = {
+        let queueId = UUID().uuidString
+        let queue = DispatchQueue(label: "STAccesorySession_dataBackQueue_\(queueId)")
+        return queue
+    }()
+
     private var imageReceiverArr: NSPointerArray = NSPointerArray.weakObjects()
 
     deinit {
@@ -166,7 +173,7 @@ extension STAccesorySession {
     
     private func analysisDevDataSuccess(response: STAResponse) {
         let callBack = commandQueue.deleteCmd(tag: response.resHeader.cmdTag)
-        DispatchQueue.global().async { [weak self] in
+        dataBackQueue.async { [weak self] in
             callBack?(response)
             if response.imageData.count > 0 { //收到图像的回调
                 if let self {
