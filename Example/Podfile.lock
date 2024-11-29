@@ -25,25 +25,37 @@ PODS:
   - Toast-Swift (5.1.1)
 
 DEPENDENCIES:
-  - DoraemonKit (~> 3.1.3)
-  - SnapKit (~> 5.7.1)
+  - DoraemonKit (from `https://github.com/didi/DoraemonKit.git`, tag `3.1.3`)
+  - SnapKit (from `https://github.com/SnapKit/SnapKit.git`, tag `5.7.1`)
   - STAccessoryManager (from `../../STAccessoryManager`)
   - STLog (from `../Cmoponents/STLog`)
   - Toast-Swift (~> 5.1.1)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
-    - DoraemonKit
     - FMDB
     - GCDWebServer
-    - SnapKit
     - Toast-Swift
 
 EXTERNAL SOURCES:
+  DoraemonKit:
+    :git: https://github.com/didi/DoraemonKit.git
+    :tag: 3.1.3
+  SnapKit:
+    :git: https://github.com/SnapKit/SnapKit.git
+    :tag: 5.7.1
   STAccessoryManager:
     :path: "../../STAccessoryManager"
   STLog:
     :path: "../Cmoponents/STLog"
+
+CHECKOUT OPTIONS:
+  DoraemonKit:
+    :git: https://github.com/didi/DoraemonKit.git
+    :tag: 3.1.3
+  SnapKit:
+    :git: https://github.com/SnapKit/SnapKit.git
+    :tag: 5.7.1
 
 SPEC CHECKSUMS:
   DoraemonKit: 7448814a80d9ca56bc8db9105c464b7ec2e62623
@@ -54,6 +66,6 @@ SPEC CHECKSUMS:
   STLog: 2f46e6e919b59ddcd0779c3e2acb58985d8355df
   Toast-Swift: 7a03a532afe3a560d4044bc7c237e2864d295173
 
-PODFILE CHECKSUM: 0151bc5d4df31ba3357d5995cffcea3c09910021
+PODFILE CHECKSUM: dd8a926cc5e79b0ce822a3c5508e9db45c1b647d
 
 COCOAPODS: 1.15.2
