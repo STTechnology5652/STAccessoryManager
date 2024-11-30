@@ -151,7 +151,7 @@
                 <constraint firstAttribute="bottom" secondItem="wW0-oL-veC" secondAttribute="bottom" id="zG1-Gq-IFO"/>
                 <constraint firstItem="V0r-NF-F1E" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="zzO-37-pIp"/>
             </constraints>
-            <point key="canvasLocation" x="49.618320610687022" y="8.4507042253521139"/>
+            <point key="canvasLocation" x="103" y="26"/>
         </view>
     </objects>
     <resources>

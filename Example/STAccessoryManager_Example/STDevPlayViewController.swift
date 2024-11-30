@@ -9,6 +9,7 @@ import UIKit
 import STAccessoryManager
 import SnapKit
 
+
 class STDevPlayViewController: UIViewController {
     var devIdentifier: String = ""
     private var devHandler: STAccesoryHandlerInterface?
@@ -72,7 +73,6 @@ class STDevPlayViewController: UIViewController {
         }
     }
     
-   
     private func alertDevDisConnected() {
         let alert = UIAlertController(title: "提示", message: "设备连接端口", preferredStyle: .alert)
         let sure = UIAlertAction(title: "确定", style: .default) { [weak self] _ in

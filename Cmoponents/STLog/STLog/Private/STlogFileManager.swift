@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import os.log
 
 class STlogFileManager {
     private var fileDir: String = NSTemporaryDirectory()
@@ -16,8 +17,9 @@ class STlogFileManager {
     private var isAllowWriteLog: Bool = false
     
     private var currentLogFileName: String = "Default.log"
-    private let logQueue = DispatchQueue(label: "STLogWriteQueue", qos: .background)
-    
+    private let logQueue = DispatchQueue(label: "STLogWriteQueue")
+    private let printQueue = DispatchQueue(label: "STLogWriteQueue_print")
+
     private func configDefault() -> Self {
         if logHandle == nil {
             let date = Date()
@@ -53,6 +55,12 @@ class STlogFileManager {
         logHandle = nil
         
         return false
+    }
+    
+    func displayLog(_ logStr: String) {
+        printQueue.async {
+            print(logStr)
+        }
     }
     
     func writeLog(_ log: String) {

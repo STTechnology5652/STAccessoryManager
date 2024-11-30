@@ -19,7 +19,7 @@ public extension STLogLevel {
 
 public class STLog: NSObject {
     public static func debug(tag: String = "", justLogFile: Bool = false, _ items: Any..., separator: String = " ", terminator: String = "\n", line: Int = #line, file: String = #file, function: String = #function) {
-//        e(level: .debug, line: line, file: file, function: function, tag: tag, justLogFile: justLogFile, items: items, separator: separator, terminator: terminator)
+        e(level: .debug, line: line, file: file, function: function, tag: tag, justLogFile: justLogFile, items: items, separator: separator, terminator: terminator)
     }
     
     public static func info(tag: String = "", justLogFile: Bool = false, _ items: Any..., separator: String = " ", terminator: String = "\n", line: Int = #line, file: String = #file, function: String = #function) {
@@ -27,7 +27,7 @@ public class STLog: NSObject {
     }
     
     public static func warning(tag: String = "", justLogFile: Bool = false, _ items: Any..., separator: String = " ", terminator: String = "\n", line: Int = #line, file: String = #file, function: String = #function) {
-//        e(level: .warning, line: line, file: file, function: function, tag: tag, justLogFile: justLogFile, items: items, separator: separator, terminator: terminator)
+        e(level: .warning, line: line, file: file, function: function, tag: tag, justLogFile: justLogFile, items: items, separator: separator, terminator: terminator)
     }
     
     public static func err(tag: String = "", justLogFile: Bool = false, _ items: Any..., separator: String = " ", terminator: String = "\n",line: Int = #line, file: String = #file, function: String = #function) {
@@ -42,7 +42,7 @@ public class STLog: NSObject {
     public static func console(str: String = "", justToFile: Bool) {
         if str.count > 0 {
             if justToFile == false {
-                print(str)
+                STlogFileManager.share.displayLog(str)
             }
             STlogFileManager.share.writeLog(str)
         }
@@ -62,7 +62,7 @@ public class STLog: NSObject {
         let df = DateFormatter()
         let str = "[\(level)][\(dateStr())][\((file as NSString).lastPathComponent) :\(line)][\(function)]\(tag.count > 0 ? "[\(tag)]" : "") \(items.map { "\($0)" }.joined(separator: separator))"
         if justLogFile {
-             console(str: str, justToFile: false) //忽略大日志， 提升调试速率
+            console(str: str, justToFile: false) //忽略大日志， 提升调试速率
         } else {
             console(str: str, justToFile: justLogFile)
         }

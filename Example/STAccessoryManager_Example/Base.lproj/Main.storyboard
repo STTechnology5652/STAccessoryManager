@@ -58,11 +58,11 @@
                                 </constraints>
                             </imageView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="3pM-bl-ohM">
-                                <rect key="frame" x="20" y="252" width="353" height="489"/>
+                                <rect key="frame" x="20" y="252" width="353" height="454"/>
                                 <color key="backgroundColor" systemColor="systemMintColor"/>
                             </tableView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="未发现可识别的MFI设备" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yY4-Id-2wr">
-                                <rect key="frame" x="20" y="751" width="353" height="25"/>
+                                <rect key="frame" x="20" y="716" width="353" height="25"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="25" id="WeD-ha-9RV"/>
                                 </constraints>
@@ -70,12 +70,24 @@
                                 <color key="textColor" systemColor="systemPinkColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cC7-2G-mbC" userLabel="logTestBtn">
+                                <rect key="frame" x="10" y="746" width="373" height="35"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="35" id="b0G-FK-owV"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="LogTest"/>
+                                <connections>
+                                    <action selector="uiActionLogTest:" destination="BYZ-38-t0r" eventType="touchUpInside" id="QEq-RM-bBd"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="gzb-4I-vvV" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="1Yc-Vi-0iy"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="iEE-t8-eTf" secondAttribute="trailing" constant="20" id="1oe-LB-wVD"/>
+                            <constraint firstItem="cC7-2G-mbC" firstAttribute="bottom" secondItem="iEE-t8-eTf" secondAttribute="top" constant="-5" id="1yo-D3-2fB"/>
                             <constraint firstItem="7M7-U5-alR" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="2Cu-Kd-Ubi"/>
                             <constraint firstItem="3pM-bl-ohM" firstAttribute="top" secondItem="gzb-4I-vvV" secondAttribute="bottom" constant="5" id="34T-zX-1pF"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="3pM-bl-ohM" secondAttribute="trailing" constant="20" id="3IC-yj-UOd"/>
@@ -85,11 +97,13 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="iEE-t8-eTf" secondAttribute="bottom" constant="20" id="JmC-PR-xK2"/>
                             <constraint firstItem="yY4-Id-2wr" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="NPg-Nz-PMn"/>
                             <constraint firstItem="7M7-U5-alR" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Ud3-8t-LHa"/>
-                            <constraint firstItem="iEE-t8-eTf" firstAttribute="top" secondItem="yY4-Id-2wr" secondAttribute="bottom" constant="10" id="dKY-Zt-g3a"/>
                             <constraint firstItem="yY4-Id-2wr" firstAttribute="top" secondItem="3pM-bl-ohM" secondAttribute="bottom" constant="10" id="of0-Wx-2Nv"/>
+                            <constraint firstItem="cC7-2G-mbC" firstAttribute="top" secondItem="yY4-Id-2wr" secondAttribute="bottom" constant="5" id="qDC-Oj-cs0"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="yY4-Id-2wr" secondAttribute="trailing" constant="20" id="sbO-Fg-0N5"/>
                             <constraint firstItem="7M7-U5-alR" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="40" id="uFq-Ei-c8b"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="gzb-4I-vvV" secondAttribute="trailing" constant="20" id="vHN-nt-xo8"/>
+                            <constraint firstItem="cC7-2G-mbC" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="vVQ-wb-9S3"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="cC7-2G-mbC" secondAttribute="trailing" constant="10" id="yz3-RU-5wp"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="4BD-M1-yND"/>
@@ -100,7 +114,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1028" y="-61"/>
+            <point key="canvasLocation" x="-1028.2442748091603" y="-61.267605633802823"/>
         </scene>
     </scenes>
     <resources>
@@ -109,10 +123,10 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemMintColor">
-            <color red="0.0" green="0.7803921568627451" blue="0.74509803921568629" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.78039215689999997" blue="0.74509803919999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemPinkColor">
-            <color red="1" green="0.17647058823529413" blue="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

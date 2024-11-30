@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
  * 将 NSData 转换为十六进制字符串
  */
 - (NSString *)hexString;
-
++ (NSData *)dataFromHexString:(NSString *)hexString;
 @end
 
 NS_ASSUME_NONNULL_END
