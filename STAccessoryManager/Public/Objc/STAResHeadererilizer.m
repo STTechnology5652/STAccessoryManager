@@ -44,10 +44,11 @@
         @"cmdStatus" : [NSString stringWithFormat:@"%02x", self.cmdStatus],
         @"cmdTag" : [NSString stringWithFormat:@"%02x", self.cmdTag],
         @"cmdDataLen" : [NSString stringWithFormat:@"%04x", self.cmdDataLen],
-        @"cmdDataLenIntValue" : [NSString stringWithFormat:@"%d", self.cmdDataLen],
+        @"cmdDataLenIntValue" : [NSString stringWithFormat:@"%06d", self.cmdDataLen],
         @"cmdId" : [NSString stringWithFormat:@"%02x", self.cmdId],
         
         @"imageDataLen" : [NSString stringWithFormat:@"%04x", self.imageDataLen],
+        @"imageDataLenIntValue" : [NSString stringWithFormat:@"%06d", self.imageDataLen],
         @"b2" : [NSString stringWithFormat:@"%02x", self.b2],
         @"b3" : [NSString stringWithFormat:@"%02x", self.b3],
         @"b4" : [NSString stringWithFormat:@"%02x", self.b4],
@@ -97,22 +98,27 @@
     self.cmdId = b10;
     self.cmdStatus = b11;
     self.cmdTag = b9 >> 4;
-    self.cmdDataLen = (b9 & 0x0F) << 4 << 8 | b8;
     
-    self.cmdEOH = (b1 & 0x80) >> 7;
-    self.cmdERR = (b1 & 0x40) >> 6;
-    self.cmdSTI = (b1 & 0x20) >> 5;
-    self.cmdRES = (b1 & 0x10) >> 4;
-    self.cmdSCR = (b1 & 0x08) >> 3;
-    self.cmdPTS = (b1 & 0x04) >> 2;
-    self.cmdEOF = (b1 & 0x02) >> 1;
-    self.cmdFID = (b1 & 0x01) >> 0;
+    if (self.cmdId != 0 && self.cmdTag != 0) { // 这是指令报文， 需要解析指令应答长度
+        self.cmdDataLen = (b9 & 0x0F) << 4 << 8 | b8;
+    }
     
-    self.imageDataLen = b7 << 8 | b6;
-    self.b2 = b2;
-    self.b3 = b3;
-    self.b4 = b4;
-    self.b5 = b5;
+//    self.cmdEOH = (b1 & 0x80) >> 7;
+//    self.cmdERR = (b1 & 0x40) >> 6;
+//    self.cmdSTI = (b1 & 0x20) >> 5;
+//    self.cmdRES = (b1 & 0x10) >> 4;
+//    self.cmdSCR = (b1 & 0x08) >> 3;
+//    self.cmdPTS = (b1 & 0x04) >> 2;
+//    self.cmdEOF = (b1 & 0x02) >> 1;
+//    self.cmdFID = (b1 & 0x01) >> 0;
+    if (self.cmdId == 0 && self.cmdTag == 0 && self.cmdStatus == 0) { //这是图像包
+        self.imageDataLen = b7 << 8 | b6;
+        self.b2 = b2;
+        self.b3 = b3;
+        self.b4 = b4;
+        self.b5 = b5;
+    }
+    
     self.headerLen = offset;
 
     return offset;

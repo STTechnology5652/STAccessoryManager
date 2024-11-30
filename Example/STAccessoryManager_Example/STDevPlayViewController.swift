@@ -8,7 +8,7 @@
 import UIKit
 import STAccessoryManager
 import SnapKit
-
+import SwiftUI
 
 class STDevPlayViewController: UIViewController {
     var devIdentifier: String = ""
@@ -125,7 +125,12 @@ extension STDevPlayViewController {
         
         Task{
             let cmdResult: STAccessoryWorkResult<STAResponse> = await devHandler.sendCommand(command, protocol: nil)
-            STLog.debug("get device config result:\(cmdResult.workData?.jsonString())")
+            STLog.debug("get device config result:\(String(describing: cmdResult.workData?.jsonString()))")
+            if let configData = cmdResult.workData?.responseData {
+                let devConfig: [STARespDevConfig] = STARespDevConfig.analysisConfigData(configData)
+                let devDes = devConfig.map{$0.jsonString()}
+                STLog.debug("device config info:\(devDes)")
+            }
         }
     }
     

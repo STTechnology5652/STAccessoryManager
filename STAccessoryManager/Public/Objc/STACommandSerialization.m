@@ -32,9 +32,9 @@ typedef NS_ENUM(NSUInteger, STCmdDir) {
 
 + (NSData *)setStreamFormatter: (UInt8) tag {
     NSMutableData *cmdData = [NSMutableData new];
-    UInt8 b4 = 0x02; //MJ
-    UInt8 b5 = 0x00;
-    UInt8 b6 = 30;
+    UInt8 b4 = 0x02; // Format ID  0x01: YUV 0x02: MJ
+    UInt8 b5 = 0x02; // Resolution ID
+    UInt8 b6 = 30; // FPS
     [cmdData appendBytes:&b4 length:1];
     [cmdData appendBytes:&b5 length:1];
     [cmdData appendBytes:&b6 length:1];

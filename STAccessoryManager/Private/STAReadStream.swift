@@ -7,7 +7,7 @@
 
 import Foundation
 
-let maxReadBufferSize =  1024 * 1024 * 5 // 5M
+let maxReadBufferSize =  1024 * 1024 // 1M
 
 protocol STAReaderStreamDelegate: NSObject {
     func didReadData(data: Data)
