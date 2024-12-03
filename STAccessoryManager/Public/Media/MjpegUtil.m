@@ -102,7 +102,7 @@ static NSData *_dhtMarkerData = nil;
             }
             
             [_receivedData replaceBytesInRange:NSMakeRange(0, endLocation) withBytes:NULL length:0];
-            UIImageWriteToSavedPhotosAlbum(receivedImage, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
+//            UIImageWriteToSavedPhotosAlbum(receivedImage, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
         } else {
             //解析图失败， 也需要释放内存
             [_receivedData replaceBytesInRange:NSMakeRange(0, endLocation) withBytes:NULL length:0];

@@ -68,7 +68,7 @@ class STAReadStream: NSObject {
             let bytesRead = stream.read(&byts, maxLength: byts.count)
             if bytesRead > 0 { // 读取到字节
                 let dataRead = Data(byts.prefix(bytesRead))
-                STLog.debug(tag: kTag_STAReadStream, justLogFile: true, "read stream get bytes [\(dataRead.count)]: \((dataRead as NSData).hexString())")
+//                STLog.debug(tag: kTag_STAReadStream, justLogFile: true, "read stream get bytes [\(dataRead.count)]: \((dataRead as NSData).hexString())")
                 STLog.info(tag: kTag_STAReadStream, "read stream get byte <<<<< : \(dataRead)")
                 self?.delegate?.didReadData(data: dataRead)
             }

@@ -53,7 +53,7 @@ const NSString *kTag_cmdRes = @"kTag_STAResponse";
     STAResponse *preRes = nil;
     @autoreleasepool {
         STLogDebug_resp(@"analysis_start[%@] len_to_analysis:[%lu]", taskId, data.length);
-        STLogDebug_file_resp(@"analysis_start[%@] len_to_analysis:%lu byts:%@", taskId, data.length, data.hexString);
+//        STLogDebug_file_resp(@"analysis_start[%@] len_to_analysis:%lu byts:%@", taskId, data.length, data.hexString);
         
         while (offset < len) {
             taskNum ++;
@@ -80,18 +80,18 @@ const NSString *kTag_cmdRes = @"kTag_STAResponse";
     NSUInteger offset = 0;
     
     NSData* debugData = [NSData dataWithBytes:byt length:len];
-    STLogDebug_resp(@"analysis_start_onece[%@](num:%lu) len_to_analysis:%lu", taskId, taskNum, len);
-    STLogDebug_file_resp(@"analysis_start_onece[%@](num:%lu) len_to_analysis[%lu]:%@", taskId, taskNum, len, debugData);
+//    STLogDebug_resp(@"analysis_start_onece[%@](num:%lu) len_to_analysis:%lu", taskId, taskNum, len);
+//    STLogDebug_file_resp(@"analysis_start_onece[%@](num:%lu) len_to_analysis[%lu]:%@", taskId, taskNum, len, debugData);
     if (len < 0x0c) { //不够 0x0c 字节
-        STLogDebug_resp(@"analysis_finish_onece[%@](num:%lu) failed byte not enough", taskId, taskNum);
-        STLogDebug_file_resp(@"analysis_finish_onece[%@](num:%lu) failed byte not enough:%@", taskId, taskNum, debugData);
+//        STLogDebug_resp(@"analysis_finish_onece[%@](num:%lu) failed byte not enough", taskId, taskNum);
+//        STLogDebug_file_resp(@"analysis_finish_onece[%@](num:%lu) failed byte not enough:%@", taskId, taskNum, debugData);
         *usedLen = len;
         return nil;
     }
     
     if (byt[offset] != 0x0c) { //首字节不是 0xOC
         STLogDebug_resp(@"analysis_finish_onece[%@](num:%lu) failed B0 error[%02x]", taskId, taskNum, byt[offset]);
-        STLogDebug_file_resp(@"analysis_finish_onece[%@](num:%lu) failed B0 error[%02x]:%@", taskId, taskNum, byt[offset], debugData);
+//        STLogDebug_file_resp(@"analysis_finish_onece[%@](num:%lu) failed B0 error[%02x]:%@", taskId, taskNum, byt[offset], debugData);
         offset ++;
         *usedLen = offset;
         return nil;
@@ -105,8 +105,8 @@ const NSString *kTag_cmdRes = @"kTag_STAResponse";
         if (offset + header.cmdDataLen > len){ // data 域 数据不足
             *usedLen = len;
             result.analysisStatus = STRAnalysisResult_dataNotEnough;
-            STLogDebug_resp(@"analysis_finish_onece[%@](num:%lu) failed cmdDataNotEnough:%lu -->%lu resInfo: %@", taskId, taskNum, len, header.cmdDataLen, result.jsonString);
-            STLogDebug_file_resp(@"analysis_finish_onece[%@](num:%lu) failed cmdDataNotEnough:%@ resInfo: %@", taskId, taskNum, debugData, result.jsonString);
+//            STLogDebug_resp(@"analysis_finish_onece[%@](num:%lu) failed cmdDataNotEnough:%lu -->%lu resInfo: %@", taskId, taskNum, len, header.cmdDataLen, result.jsonString);
+//            STLogDebug_file_resp(@"analysis_finish_onece[%@](num:%lu) failed cmdDataNotEnough:%@ resInfo: %@", taskId, taskNum, debugData, result.jsonString);
             return nil;
         }
         
@@ -118,8 +118,8 @@ const NSString *kTag_cmdRes = @"kTag_STAResponse";
         if (offset + header.imageDataLen > len) { // image 域 数据不足
             *usedLen = len;
             result.analysisStatus = STRAnalysisResult_dataNotEnough;
-            STLogDebug_resp(@"analysis_finish_onece[%@](num:%lu) failed imageDataNotEnough:%lu --> %lu resInfo: %@", taskId, taskNum, len, header.imageDataLen, result.jsonString);
-            STLogDebug_file_resp(@"analysis_finish_onece[%@](num:%lu) failed imageDataNotEnough:%@ resInfo: %@", taskId, taskNum, debugData, result.jsonString);
+//            STLogDebug_resp(@"analysis_finish_onece[%@](num:%lu) failed imageDataNotEnough:%lu --> %lu resInfo: %@", taskId, taskNum, len, header.imageDataLen, result.jsonString);
+//            STLogDebug_file_resp(@"analysis_finish_onece[%@](num:%lu) failed imageDataNotEnough:%@ resInfo: %@", taskId, taskNum, debugData, result.jsonString);
             return nil;
         }
         result.imageData = [NSData dataWithBytes:byt + offset length:header.imageDataLen];
@@ -129,7 +129,7 @@ const NSString *kTag_cmdRes = @"kTag_STAResponse";
     result.analysisStatus = STRAnalysisResult_success;
     result.usedLength = offset;
     *usedLen = offset;
-    STLogDebug_resp(@"analysis_finish_onece[%@](num:%lu) len_to_analysis:%lu usedLen:%lu resInfo:%@", taskId, taskNum, len, offset, [result jsonString]);
+//    STLogDebug_resp(@"analysis_finish_onece[%@](num:%lu) len_to_analysis:%lu usedLen:%lu resInfo:%@", taskId, taskNum, len, offset, [result jsonString]);
     return result;
 }
 
