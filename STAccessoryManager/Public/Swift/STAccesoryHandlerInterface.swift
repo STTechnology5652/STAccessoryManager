@@ -30,6 +30,6 @@ public protocol STAccesoryHandlerInterface: NSObjectProtocol {
     @discardableResult func configImage(receiver: STAccesoryHandlerImageReceiver, protocol: String?, complete: STAComplete<String>?)
 }
 
-protocol STAccesoryHandlerInterface_pri: STAccesoryHandlerInterface {
+internal protocol STAccesoryHandlerInterface_pri: STAccesoryHandlerInterface {
     func deviceDisconnected(dev: EAAccessory)
 }

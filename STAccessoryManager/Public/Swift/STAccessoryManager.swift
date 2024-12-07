@@ -98,7 +98,7 @@ extension STAccessoryManager {
         connectedAccessory = manager.connectedAccessories
     }
     
-    @objc func didConnectDevice(_ noti: Notification) {
+    @objc private func didConnectDevice(_ noti: Notification) {
         guard let oneAccessory = noti.userInfo?[EAAccessoryKey] as? EAAccessory else {
             STLog.err(tag: STTag_STAccessoryModule, "no accessory")
             return
@@ -112,7 +112,7 @@ extension STAccessoryManager {
         }
     }
     
-    @objc func didDisconenctDevice(_ noti: Notification) {
+    @objc private func didDisconenctDevice(_ noti: Notification) {
         guard let oneAccessory = noti.userInfo?[EAAccessoryKey] as? EAAccessory else {
             STLog.err(tag: STTag_STAccessoryModule, "no accessory")
             return
