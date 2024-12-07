@@ -155,7 +155,10 @@ class STASendStream: NSObject {
         let dataToSend = curPara.dataToSend // 待发送的数据包， 数据长度在此处一定不为空
         
         let writedCount = dataToSend.withUnsafeBytes { buffer in
-            stream.write(buffer.bindMemory(to: UInt8.self).baseAddress!, maxLength: dataToSend.count)
+            guard let addr: UnsafePointer<UInt8> = buffer.bindMemory(to: UInt8.self).baseAddress else {
+                return 0
+            }
+            return stream.write(addr, maxLength: dataToSend.count)
         }
         
         if let err = stream.streamError { //写入失败
