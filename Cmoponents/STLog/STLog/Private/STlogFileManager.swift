@@ -34,11 +34,11 @@ class STlogFileManager {
     func openFileLog(_ openWriteLog: Bool) {
         isAllowWriteLog = openWriteLog
         if openWriteLog {
-            try? logHandle?.close()
+            try? logHandle?.closeFile()
             logHandle = nil
             checkLogHandle()
         } else {
-            try? logHandle?.close()
+            try? logHandle?.closeFile()
             logHandle = nil
         }
     }
@@ -51,7 +51,7 @@ class STlogFileManager {
         
         // 不能使用这个路径， 继续使用 默认路径
         fileDir = NSTemporaryDirectory()
-        try? logHandle?.close()
+        try? logHandle?.closeFile()
         logHandle = nil
         
         return false
@@ -81,7 +81,7 @@ class STlogFileManager {
             if let curLogPath, FileManager.default.fileExists(atPath: curLogPath) == true {
                 return logHandle
             } else { //关闭句柄， 重新创建log 文件
-                try? logHandle.close()
+                try? logHandle.closeFile()
                 self.logHandle = nil
                 configDefault()
                 return logHandle

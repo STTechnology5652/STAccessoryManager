@@ -6,25 +6,31 @@
 //
 
 import Foundation
-import Combine
 
 public class STASpeedTool {
     private var countPerSec: UInt64 = 0
-    private var timer: Cancellable?
+    private var timer: DispatchSourceTimer?
     private var displayAction: ((_: String)->Void)?
     
     public init() {}
     
     deinit {
         timer?.cancel()
+        timer = nil
     }
     
     public func startCaculted(_ action: @escaping ((_ speedDes: String)->Void)) {
         displayAction = action
-        timer = Timer.publish(every: 1.0, on: RunLoop.main, in: .common)
-            .autoconnect().sink { [weak self] _ in
-                self?.timerAction()
-            }
+        
+        // 创建GCD Timer
+        let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.main)
+        timer.schedule(deadline: .now(), repeating: .seconds(1))
+        timer.setEventHandler { [weak self] in
+            self?.timerAction()
+        }
+        timer.resume()
+        
+        self.timer = timer
     }
     
     public func appendCount(_ count: Int) {

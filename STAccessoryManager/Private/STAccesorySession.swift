@@ -122,11 +122,6 @@ class STAccesorySession: NSObject{
         commandQueue.cancelAll()
     }
     
-    @discardableResult func cancelWork() async -> STAccessoryWorkResult<Any> {
-        STLog.info()
-        return STAccessoryWorkResult()
-    }
-    
     private func configSession(_ session: EASession) {
         if let output = session.outputStream {
             let streamOut = STASendStream(stream: output)
@@ -156,12 +151,12 @@ extension STAccesorySession {
                 cmdAnalysisResult.resArr.forEach { (cmdRes: STAResponse) in
                     switch cmdRes.analysisStatus {
                     case .failed:
-                        STLog.err(tag: kTag_STAccesorySession, "workfailed, should delete anasysised data and wait one mor data: \(cmdRes.usedLength)")
+                        // STLog.err(tag: kTag_STAccesorySession, "workfailed, should delete anasysised data and wait one mor data: \(cmdRes.usedLength)")
                         analysisDevDataSuccess(response: cmdRes)
                     case .dataNotEnough:
                         STLog.warning(tag: kTag_STAccesorySession, "data not enough and wait one more data")
                     case .success:
-                        STLog.info(tag: kTag_STAccesorySession, "analysis success and wait one more data，analysisLen[\(cmdRes.usedLength)]")
+                        // STLog.info(tag: kTag_STAccesorySession, "analysis success and wait one more data，analysisLen[\(cmdRes.usedLength)]")
                         analysisDevDataSuccess(response: cmdRes)
                     @unknown default:
                         STLog.warning(tag: kTag_STAccesorySession, "data analysis not know result, delete all data and wait one more data")
@@ -205,23 +200,24 @@ extension STAccesorySession {
         imageReceiverArr.addPointer(Unmanaged.passUnretained(receiver).toOpaque())
     }
     
-    func sendData(_ data: Data, cmdTag: UInt8 = 0x08) async -> STAResponse? {
+    func sendData(_ data: Data, cmdTag: UInt8 = 0x08, complete: STAComplete<STAResponse>?) {
         guard let sender else {
             STLog.err(tag: kTag_STAccesorySession, "no sender")
-            return nil
+            return
         }
         
-        return await withCheckedContinuation { continuation in // block 回调 转为协程回调
-            sendDataExe(data, cmdTag: cmdTag) { resp in
-                return continuation.resume(returning: resp)
-            }
+        sendDataExe(data, cmdTag: cmdTag) { resp in
+            complete?(STAccessoryWorkResult(workData: resp))
         }
     }
     
-    private func sendDataExe(_ data: Data, cmdTag: UInt8, complete: @escaping ((_ resp: STAResponse) -> Void)) {
+    private func sendDataExe(_ data: Data, cmdTag: UInt8, complete: @escaping ((_ resp: STAResponse?) -> Void)) {
         commandQueue.appendCmdData(cmdTag: cmdTag, data: data, callBack: complete)
-        Task {
-            await sender?.sendData(data)
-        }
+        sender?.sendData(data, complete: { (result: STAccessoryWorkResult<String>?) in
+            if let result, result.status == false {
+                self.commandQueue.deleteCmd(tag: cmdTag)
+                complete(nil)
+            }
+        })
     }
 }

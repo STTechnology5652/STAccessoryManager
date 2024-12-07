@@ -54,21 +54,23 @@ extension STAccessoryManager: STAccessoryManagerInsterFace {
         return delegates
     }
     
-    public func accessoryHander(devSerialNumber: String) async -> STAccesoryHandlerInterface? {
+    public func accessoryHander(devSerialNumber: String, complete: STAComplete<STAccesoryHandlerInterface>?) {
         guard let dev = device(devSerialNumber) else { // 对应设备已经断开连接
             let des = "设备已经断开连接"
             STLog.err(des)
-            return nil
+            complete?(nil)
+            return
         }
         
         if let handler = deviceHandlerMap[devSerialNumber] { // 没有创建过session
-            return handler
+            complete?(STAccessoryWorkResult(workData: handler))
+            return
         } else {
-            let hanler = STAccesoryHandler(devSerinalNumber: devSerialNumber)
+            let handler = STAccesoryHandler(devSerinalNumber: devSerialNumber)
             DispatchQueue.main.async {
-                self.deviceHandlerMap[devSerialNumber] = hanler
+                self.deviceHandlerMap[devSerialNumber] = handler
             }
-            return hanler
+            complete?(STAccessoryWorkResult(workData: handler))
         }
     }
 }

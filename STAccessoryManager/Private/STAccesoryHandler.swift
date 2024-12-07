@@ -39,34 +39,46 @@ extension STAccesoryHandler: STAccesoryHandlerInterface_pri {
         return cmdTag.getNextCmdTag()
     }
     
-    func configImage(receiver: STAccesoryHandlerImageReceiver, protocol proStr: String?) async -> STAccessoryWorkResult<String> {
-        let sesionInfo = await getDevSession(proStr: proStr)
-        guard sesionInfo.status == true, let session: STAccesorySession = sesionInfo.workData else {
-            return STAccessoryWorkResult<String>(status: false, devSerialNumber: devSerinalNumber, workDes: sesionInfo.workDes)
+    func configImage(receiver: STAccesoryHandlerImageReceiver, protocol proStr: String?, complete: STAComplete<String>?) {
+        getDevSession(proStr: proStr) { [weak self] (sessionInfo:STAccessoryWorkResult<STAccesorySession>?) in
+            guard let sessionInfo, sessionInfo.status == true, let session: STAccesorySession = sessionInfo.workData, let self else {
+                complete?(STAccessoryWorkResult<String>(status: false, devSerialNumber: self?.devSerinalNumber ?? "", workDes: sessionInfo?.workDes ?? ""))
+                return
+            }
+            
+            session.configImageReceive(receiver)
+            complete?(STAccessoryWorkResult(devSerialNumber: devSerinalNumber, workDes: sessionInfo.workDes, workData: "config session delegate success"))
+            return
         }
+    }
+    
+    func sendCommand(_ cmdData: STAccesoryCmdData, protocol proStr: String?, complete: STAComplete<STAResponse>?) {
+        getDevSession(proStr: proStr) { [weak self] (sesionInfo:STAccessoryWorkResult<STAccesorySession>?) in
+            guard let sesionInfo, sesionInfo.status == true, let session: STAccesorySession = sesionInfo.workData else {
+                complete?(STAccessoryWorkResult<STAResponse>(status: false, devSerialNumber: self?.devSerinalNumber ?? "", workDes: sesionInfo?.workDes ?? ""))
+                return
+            }
+            
+            session.sendData(cmdData.data, cmdTag: cmdData.tag) { [weak self] (result:STAccessoryWorkResult<STAResponse>?) in
+                complete?(result)
+            }
+        }
+    }
+    
+    func openSteam(_ open: Bool, protocol proStr: String?, complete: STAComplete<STAResponse>?) {
+        
+        getDevSession(proStr: proStr) { [weak self] (sesionInfo:STAccessoryWorkResult<STAccesorySession>?) in
+            guard let self, let sesionInfo, sesionInfo.status == true, let session: STAccesorySession = sesionInfo.workData else {
+                complete?(STAccessoryWorkResult<STAResponse>(status: false, devSerialNumber: self?.devSerinalNumber ?? "", workDes: sesionInfo?.workDes ?? ""))
+                return
+            }
 
-        session.configImageReceive(receiver)
-        return STAccessoryWorkResult(devSerialNumber: devSerinalNumber, workDes: sesionInfo.workDes, workData: "config session delegate success")
-    }
-    
-    func sendCommand(_ cmgData: STAccesoryCmdData, protocol proStr: String?) async -> STAccessoryWorkResult<STAResponse> {
-        let sesionInfo = await getDevSession(proStr: proStr)
-        guard sesionInfo.status == true, let session: STAccesorySession = sesionInfo.workData else {
-            return STAccessoryWorkResult<STAResponse>(status: false, devSerialNumber: devSerinalNumber, workDes: sesionInfo.workDes)
+            let cmdTag = cmdTag.getNextCmdTag()
+            let cmdData: Data = STACommandserialization.openStreamCmd(withTag: cmdTag, open: open ? 0x01 : 0x00)
+            
+            let command = STAccesoryCmdData(tag: cmdTag, data: cmdData)
+            sendCommand(command, protocol: proStr, complete: complete)
         }
-        
-        let cmdResponse = await session.sendData(cmgData.data, cmdTag: cmgData.tag)
-        return STAccessoryWorkResult(workData: cmdResponse)
-    }
-    
-    func openSteam(_ open: Bool, protocol proStr: String?) async -> STAccessoryWorkResult<STAResponse> {
-        let sesionInfo = await getDevSession(proStr: proStr)
-        let cmdTag = cmdTag.getNextCmdTag()
-        let cmdData: Data = STACommandserialization.openStreamCmd(withTag: cmdTag, open: open ? 0x01 : 0x00)
-        
-        let command = STAccesoryCmdData(tag: cmdTag, data: cmdData)
-        let openResult = await sendCommand(command, protocol: proStr)
-        return openResult
     }
     
     func deviceDisconnected(dev: EAAccessory) {
@@ -85,11 +97,12 @@ extension STAccesoryHandler: STAccesoryHandlerInterface_pri {
 
 //MARK: - 内部方法
 extension STAccesoryHandler: EAAccessoryDelegate {
-    private func getDevSession(proStr: String?) async -> STAccessoryWorkResult<STAccesorySession> {
+    private func getDevSession(proStr: String?, complete: STAComplete<STAccesorySession>?) {
         guard let dev = STAccessoryManager.share().device(devSerinalNumber) else {
             let des = "设备已经断开连接"
             STLog.err(des)
-            return STAccessoryWorkResult(status: false, devSerialNumber: devSerinalNumber, workDes: des, workData: nil)
+            complete?(STAccessoryWorkResult(status: false, devSerialNumber: devSerinalNumber, workDes: des, workData: nil))
+            return
         }
         
         dev.delegate = self
@@ -97,18 +110,21 @@ extension STAccesoryHandler: EAAccessoryDelegate {
         guard dev.isConnected == true else {
             let des = "设备已经断开连接"
             STLog.err(des)
-            return STAccessoryWorkResult(status: false, devSerialNumber: devSerinalNumber, workDes: des)
+            complete?(STAccessoryWorkResult(status: false, devSerialNumber: devSerinalNumber, workDes: des))
+            return
         }
         
         let sessionProtocol = proStr ?? dev.protocolStrings.first
         guard let sessionProtocol else {
             let des = "设备协议为空"
             STLog.err(des)
-            return STAccessoryWorkResult(status: false, devSerialNumber: devSerinalNumber, workDes: des)
+            complete?(STAccessoryWorkResult(status: false, devSerialNumber: devSerinalNumber, workDes: des))
+            return
         }
         
         if let session = sessionMap[sessionProtocol] {
-            return STAccessoryWorkResult(devSerialNumber: devSerinalNumber, workData: session)
+            complete?(STAccessoryWorkResult(devSerialNumber: devSerinalNumber, workData: session))
+            return
         } else {
             STLog.debug("start create STAccesorySession")
             
@@ -116,7 +132,8 @@ extension STAccesoryHandler: EAAccessoryDelegate {
             let session = STAccesorySession(dev: dev, sessionProtocol: sessionProtocol, responseSerializer: responseSer)
             STLog.debug("finish create STAccesorySession")
             sessionMap[sessionProtocol] = session
-            return STAccessoryWorkResult(devSerialNumber: devSerinalNumber, workData: session)
+            complete?(STAccessoryWorkResult(devSerialNumber: devSerinalNumber, workData: session))
+            return
         }
     }
     

@@ -10,7 +10,7 @@ Pod::Spec.new do |spec|
   spec.homepage         = 'http://github.com/coder/STAccessoryManager'
   spec.license      = { :type => "MIT", :file => "FILE_LICENSE" }
   spec.author             = { "coder" => "123@gmail.com" }
-  spec.ios.deployment_target = '13.0'
+  spec.ios.deployment_target = '10.0'
 
   spec.source       = { :git => "http://github/coder/STAccessoryManager.git", :tag => "#{spec.version}" }
 
