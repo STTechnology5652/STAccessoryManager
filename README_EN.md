@@ -1,43 +1,43 @@
 # STAccessoryManager
 
-STAccessoryManager 是一个用于管理和控制 MFi 外部设备的 iOS SDK，主要用于处理设备连接、数据传输和视频流处理等功能。
+STAccessoryManager is an iOS SDK for managing and controlling MFi external devices, mainly used for device connection, data transmission and video stream processing.
 
-[English Version](README_EN.md)
+[中文版](README.md)
 
-## 目录
+## Table of Contents
 
 - [STAccessoryManager](#staccessorymanager)
-  - [目录](#目录)
-  - [架构设计](#架构设计)
-    - [类图](#类图)
+  - [Table of Contents](#table-of-contents)
+  - [Architecture Design](#architecture-design)
+    - [Class Diagram](#class-diagram)
       - [Mermaid](#mermaid)
       - [PlantUML](#plantuml)
-    - [时序图](#时序图)
+    - [Sequence Diagram](#sequence-diagram)
       - [Mermaid](#mermaid-1)
       - [PlantUML](#plantuml-1)
-  - [主要功能](#主要功能)
-  - [核心类和协议](#核心类和协议)
-    - [设备管理](#设备管理)
+  - [Main Features](#main-features)
+  - [Core Classes and Protocols](#core-classes-and-protocols)
+    - [Device Management](#device-management)
       - [STAccessoryManager](#staccessorymanager-1)
       - [STAccessoryConnectDelegate](#staccessoryconnectdelegate)
-    - [设备通信](#设备通信)
+    - [Device Communication](#device-communication)
       - [STAccesoryHandlerInterface](#staccesoryhandlerinterface)
-    - [工具类](#工具类)
+    - [Utility Classes](#utility-classes)
       - [STASpeedTool](#staspeedtool)
-    - [视频处理相关类](#视频处理相关类)
+    - [Video Processing Classes](#video-processing-classes)
       - [H264Decoder](#h264decoder)
       - [ViewForOpenGL](#viewforopengl)
-  - [使用示例](#使用示例)
-  - [注意事项](#注意事项)
-  - [系统要求](#系统要求)
-  - [依赖框架](#依赖框架)
-  - [安装](#安装)
+  - [Usage Examples](#usage-examples)
+  - [Notes](#notes)
+  - [Requirements](#requirements)
+  - [Dependencies](#dependencies)
+  - [Installation](#installation)
     - [CocoaPods](#cocoapods)
     - [Swift Package Manager](#swift-package-manager)
 
-## 架构设计
+## Architecture Design
 
-### 类图
+### Class Diagram
 
 #### Mermaid
 ```mermaid
@@ -145,7 +145,7 @@ H264Decoder ..> H264DecoderDelegate : uses
 @enduml
 ```
 
-### 时序图
+### Sequence Diagram
 
 #### Mermaid
 ```mermaid
@@ -158,37 +158,37 @@ sequenceDiagram
 
     autonumber
     rect rgb(173, 216, 230)
-    Note right of App: 1. 初始化阶段
+    Note right of App: 1. Initialization Phase
     App->>STAccessoryManager: share()
     App->>STAccessoryManager: config(delegate)
     end
 
     rect rgb(144, 238, 144)
-    Note right of App: 2. 连接阶段
-    MFIDevice->>STAccessoryManager: 设备接入
+    Note right of App: 2. Connection Phase
+    MFIDevice->>STAccessoryManager: Device Connected
     STAccessoryManager-->>App: didConnect(device)
     App->>STAccessoryManager: accessoryHander(devSerialNumber)
     STAccessoryManager-->>App: handler: STAccesoryHandlerInterface
     end
 
     rect rgb(255, 255, 224)
-    Note right of App: 3. 配置阶段
+    Note right of App: 3. Configuration Phase
     App->>STAccesoryHandlerInterface: configImage(receiver)
     App->>STAccesoryHandlerInterface: openSteam(true)
-    STAccesoryHandlerInterface->>MFIDevice: 打开数据流
+    STAccesoryHandlerInterface->>MFIDevice: Open Data Stream
     end
 
     rect rgb(255, 182, 193)
-    Note right of App: 4. 数据传输阶段
-    MFIDevice->>STAccesoryHandlerInterface: 发送视频数据
+    Note right of App: 4. Data Transfer Phase
+    MFIDevice->>STAccesoryHandlerInterface: Send Video Data
     STAccesoryHandlerInterface->>App: didReceiveDeviceImageResponse
     App->>MjpegUtil: receive(imageData)
     MjpegUtil-->>App: UIImage
     end
 
     rect rgb(211, 211, 211)
-    Note right of App: 5. 断开阶段
-    MFIDevice->>STAccessoryManager: 设备断开
+    Note right of App: 5. Disconnection Phase
+    MFIDevice->>STAccessoryManager: Device Disconnected
     STAccessoryManager-->>App: didDisconnect(device)
     end
 ```
@@ -196,246 +196,248 @@ sequenceDiagram
 #### PlantUML
 ```plantuml
 @startuml
+
 participant App
 participant STAccessoryManager
 participant STAccesoryHandlerInterface
 participant MFIDevice
 participant MjpegUtil
 
-== 初始化阶段 ==
+== Initialization Phase ==
 autonumber
 App -> STAccessoryManager: share()
 App -> STAccessoryManager: config(delegate)
 
-== 连接阶段 ==
-MFIDevice -> STAccessoryManager: 设备接入
+== Connection Phase ==
+MFIDevice -> STAccessoryManager: Device Connected
 STAccessoryManager --> App: didConnect(device)
 App -> STAccessoryManager: accessoryHander(devSerialNumber)
 STAccessoryManager --> App: handler: STAccesoryHandlerInterface
 
-== 配置阶段 ==
+== Configuration Phase ==
 App -> STAccesoryHandlerInterface: configImage(receiver)
 App -> STAccesoryHandlerInterface: openSteam(true)
-STAccesoryHandlerInterface -> MFIDevice: 打开数据流
+STAccesoryHandlerInterface -> MFIDevice: Open Data Stream
 
-== 数据传输阶段 ==
-MFIDevice -> STAccesoryHandlerInterface: 发送视频数据
+== Data Transfer Phase ==
+MFIDevice -> STAccesoryHandlerInterface: Send Video Data
 STAccesoryHandlerInterface -> App: didReceiveDeviceImageResponse
 App -> MjpegUtil: receive(imageData)
 MjpegUtil --> App: UIImage
 
-== 断开阶段 ==
-MFIDevice -> STAccessoryManager: 设备断开
+== Disconnection Phase ==
+MFIDevice -> STAccessoryManager: Device Disconnected
 STAccessoryManager --> App: didDisconnect(device)
+
 @enduml
 ```
 
-## 主要功能
+## Main Features
 
-- MFi 设备连接和会话管理
-- 设备指令收发
-- 视频流处理(支持H264/MJPEG)
-- 设备配置管理
+- MFi device connection and session management
+- Device command sending and receiving
+- Video stream processing (supports H264/MJPEG)
+- Device configuration management
 
-## 核心类和协议
+## Core Classes and Protocols
 
-### 设备管理
+### Device Management
 
 #### STAccessoryManager
 
-设备管理类,提供设备连接和会话管理:
+Device management class, provides device connection and session management:
 
 ```swift
 class STAccessoryManager {
-    // 获取单例
+    // Get singleton instance
     static func share() -> STAccessoryManager
     
-    // 获取指定设备
+    // Get specified device
     func device(_ serialNumber: String) -> EAAccessory?
     
-    // 配置连接状态监听
+    // Configure connection status listener
     func config(delegate: STAccessoryConnectDelegate)
     
-    // 获取设备处理器
+    // Get device handler
     func accessoryHander(devSerialNumber: String, complete: STAComplete<STAccesoryHandlerInterface>?)
 }
 ```
 
 #### STAccessoryConnectDelegate
 
-设备连接状态监听:
+Device connection status listener:
 
 ```swift
 protocol STAccessoryConnectDelegate {
-    // 设备连接
+    // Device connected
     func didConnect(device: EAAccessory)
     
-    // 设备断开
+    // Device disconnected
     func didDisconnect(device: EAAccessory) 
 }
 ```
 
-### 设备通信
+### Device Communication
 
 #### STAccesoryHandlerInterface
 
-设备处理器对外接口,定义了与设备交互的主要方法：
+Device handler interface, defines main methods for device interaction:
 
 ```swift
 protocol STAccesoryHandlerInterface {
-    // 获取命令标
+    // Get command tag
     func getNextCmdTag() -> UInt8
     
-    // 配置图像接收
+    // Configure image receiver
     func configImage(receiver: STAccesoryHandlerImageReceiver, 
                     protocol proStr: String?, 
                     complete: STAComplete<String>?)
     
-    // 发送命令
+    // Send command
     func sendCommand(_ cmdData: STAccesoryCmdData, 
                     protocol proStr: String?, 
                     complete: STAComplete<STAResponse>?)
     
-    // 打开/关闭数据流
+    // Open/Close data stream
     func openSteam(_ open: Bool, 
                   protocol proStr: String?, 
                   complete: STAComplete<STAResponse>?)
 }
 ```
 
-### 工具类
+### Utility Classes
 
 #### STASpeedTool
 
-速度统计工具:
+Speed statistics utility:
 
 ```swift
 class STASpeedTool {
-    // 开始统计
+    // Start statistics
     func startCaculted(_ complete: @escaping (_ speedDes: String) -> Void)
     
-    // 添加数据量
+    // Add data count
     func appendCount(_ count: Int)
 }
 ```
 
-### 视频处理相关类
+### Video Processing Classes
 
 #### H264Decoder
 
-H264视频解码器：
+H264 video decoder:
 
 ```objc
 @interface H264Decoder : NSObject
 @property (weak, nonatomic) id<H264DecoderDelegate> delegate;
 
-// 解码H264数据
+// Decode H264 frame data
 - (void)decodeNalu:(uint8_t *)frame withSize:(uint32_t)frameSize;
 
-// 解码MJPEG帧数据
+// Decode MJPEG frame data
 - (void)decodeMjpeg:(uint8_t *)frame withSize:(uint32_t)frameSize;
 @end
 ```
 
 #### ViewForOpenGL
 
-OpenGL视频渲染视图：
+OpenGL video rendering view:
 
 ```objc
 @interface ViewForOpenGL : UIView
-// 显示YUV数据
+// Display YUV data
 - (void)displayYUV420pData:(void *)data width:(NSInteger)w height:(NSInteger)h;
 
-// 设置视频尺寸
+// Set video size
 - (void)setVideoSize:(GLuint)width height:(GLuint)height;
 
-// 清除画面
+// Clear frame
 - (void)clearFrame;
 @end
 ```
 
-## 使用示例
+## Usage Examples
 
-1. 初始化并获取设备：
+1. Initialize and get device:
 
 ```swift
 let manager = STAccessoryManager.share()
 if let device = manager.device(serialNumber) {
-    // 使用设备
+    // Use device
 }
 ```
 
-2. 获取命令标签并发送命令：
+2. Get command tag and send command:
 
 ```swift
-// 获取命令标签
+// Get command tag
 let cmdTag = handler.getNextCmdTag()
 
-// 使用命令标签创建命令
+// Create command with tag
 let cmd = STACommandserialization.setStreamFormatter(cmdTag)
 let command = STAccesoryCmdData(tag: cmdTag, data: cmd)
 
-// 发送命令
+// Send command
 handler.sendCommand(command, protocol: nil) { response in
     if response.status {
-        print("命令发送成功")
+        print("Command sent successfully")
     }
 }
 ```
 
-3. 配置视频接收：
+3. Configure video receiver:
 
 ```swift
 handler.configImage(receiver: imageReceiver, protocol: nil) { result in
     if result.status {
-        print("配置成功")
+        print("Configuration successful")
     }
 }
 ```
 
-4. 打开数据流：
+4. Open data stream:
 
 ```swift
 let cmdData = STACommandserialization.openStreamCmd(withTag: tag, open: 0x01)
 handler.sendCommand(cmdData, protocol: nil) { response in
     if response.status {
-        print("命令发送成功")
+        print("Command sent successfully")
     }
 }
 ```
 
-5. 接收图像数据：
+5. Receive image data:
 
 ```swift
-// 实现 STAccesoryHandlerImageReceiver 协议
+// Implement STAccesoryHandlerImageReceiver protocol
 class YourClass: STAccesoryHandlerImageReceiver {
     func didReceiveDeviceImageResponse(_ imgRes: STAResponse) {
         guard let imgData = imgRes.imageData, imgData.count > 0 else { return }
         
-        // MJPEG 数据处理
+        // Process MJPEG data
         let mjpegUtil = MjpegUtil()
         mjpegUtil.receive(imgData) { (image: UIImage) in
-            // 显示图像
+            // Display image
             self.imageView.image = image
         }
         
-        // 或者 H264 数据处理
+        // Or process H264 data
         let h264Decoder = H264Decoder()
         h264Decoder.delegate = self
         h264Decoder.decodeNalu(imgData.bytes, withSize: UInt32(imgData.count))
     }
 }
 
-// H264 解码回调
+// H264 decode callback
 extension YourClass: H264DecoderDelegate {
     func decoder(_ decoder: H264Decoder, didOutput frame: CVPixelBuffer) {
-        // 处理解码后的帧数据
+        // Process decoded frame
         glView.displayYUV420pData(frame, width: width, height: height)
     }
 }
 ```
 
-6. 视频渲染：
+6. Video rendering:
 
 ```swift
 class STVideoView: UIView {
@@ -468,7 +470,7 @@ class STVideoView: UIView {
         addSubview(glView)
         glView.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            // 16:9 比例
+            // 16:9 aspect ratio
             make.width.equalTo(self.snp.width)
             make.height.equalTo(glView.snp.width).multipliedBy(9.0/16.0)
         }
@@ -481,19 +483,19 @@ class STVideoView: UIView {
     }
 }
 
-// 实现图像接收和渲染
+// Implement image receiving and rendering
 extension STVideoView: STAccesoryHandlerImageReceiver {
     func didReceiveDeviceImageResponse(_ imgRes: STAResponse) {
         guard let imgData = imgRes.imageData, imgData.count > 0 else { return }
         
-        // 解码并显示
+        // Decode and display
         h264Decoder.decodeNalu(imgData.bytes, withSize: UInt32(imgData.count))
     }
 }
 
 extension STVideoView: H264DecoderDelegate {
     func decoder(_ decoder: H264Decoder, didOutput frame: CVPixelBuffer) {
-        // 在主线程更新UI
+        // Update UI on main thread
         DispatchQueue.main.async {
             self.glView.displayYUV420pData(frame, width: self.videoWidth, height: self.videoHeight)
         }
@@ -501,7 +503,7 @@ extension STVideoView: H264DecoderDelegate {
 }
 ```
 
-7. 使用 UIImageView 显示图像：
+7. Display image using UIImageView:
 
 ```swift
 class STImageView: UIView {
@@ -528,21 +530,21 @@ class STImageView: UIView {
         addSubview(imageView)
         imageView.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            // 16:9 比例
+            // 16:9 aspect ratio
             make.width.equalTo(self.snp.width)
             make.height.equalTo(imageView.snp.width).multipliedBy(9.0/16.0)
         }
     }
 }
 
-// 实现图像接收和显示
+// Implement image receiving and display
 extension STImageView: STAccesoryHandlerImageReceiver {
     func didReceiveDeviceImageResponse(_ imgRes: STAResponse) {
         guard let imgData = imgRes.imageData, imgData.count > 0 else { return }
         
-        // MJPEG 数据处理
+        // Process MJPEG data
         mjpegUtil.receive(imgData) { [weak self] (image: UIImage) in
-            // 在主线程更新UI
+            // Update UI on main thread
             DispatchQueue.main.async {
                 self?.imageView.image = image
             }
@@ -551,26 +553,26 @@ extension STImageView: STAccesoryHandlerImageReceiver {
 }
 ```
 
-## 注意事项
+## Notes
 
-1. 所有涉及设备交互的操作都应该在正确的队列中执行
-2. 视频数据处理应注意内存管理，及时释放不需要的资源
-3. 不需要时及时关闭视频流和释放资源
-4. 视频渲染使用OpenGL注上下文管理
+1. All device interaction operations should be executed in the correct queue
+2. Pay attention to memory management when processing video data
+3. Close video stream and release resources when not needed
+4. Video rendering uses OpenGL, pay attention to context management
 
-## 系统要求
+## Requirements
 
 - iOS 11.0+
 - Xcode 12.0+
 
-## 依赖框架
+## Dependencies
 
 - ExternalAccessory.framework
 - OpenGLES.framework
 - VideoToolbox.framework
 - AVFoundation.framework
 
-## 安装
+## Installation
 
 ### CocoaPods
 
@@ -584,4 +586,4 @@ pod 'STAccessoryManager', :git => 'https://github.com/STTechnology5652/STAccesso
 dependencies: [
     .package(url: "https://github.com/STTechnology5652/STAccessoryManager.git", .upToNextMajor(from: "0.0.1"))
 ]
-```
+``` 
