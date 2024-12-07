@@ -72,12 +72,10 @@ class STASendStream: NSObject {
         }
     }
     
-    func sendData(_ data: Data) async -> (success: Bool, des: String) {
+    func sendData(_ data: Data, complete: STAComplete<String>?) {
         STLog.debug(tag: kTag_STStream_send, "add task, [total:\(data as NSData)]")
-        return await withCheckedContinuation { (continuation: CheckedContinuation<(Bool, String), Never>) in
-            sendDataExe(data) { success, des in
-                continuation.resume(returning: (success, des))
-            }
+        sendDataExe(data) { success, des in
+            complete?(STAccessoryWorkResult(status: success, workDes: des))
         }
     }
     

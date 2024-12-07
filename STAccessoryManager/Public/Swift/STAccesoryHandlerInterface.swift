@@ -20,12 +20,14 @@ public protocol STAccesoryHandlerImageReceiver: NSObjectProtocol {
     func didReceiveDeviceImageResponse(_ imgRes: STAResponse)
 }
 
+public typealias STAComplete<T> = ((_:STAccessoryWorkResult<T>?)->Void)
+
 /// 操作设备的接口
 public protocol STAccesoryHandlerInterface: NSObjectProtocol {
     func getNextCmdTag() -> UInt8
-    @discardableResult func openSteam(_ open: Bool, protocol: String?) async -> STAccessoryWorkResult<STAResponse>
-    @discardableResult func sendCommand(_ cmdData:STAccesoryCmdData, protocol: String?) async -> STAccessoryWorkResult<STAResponse>
-    @discardableResult func configImage(receiver: STAccesoryHandlerImageReceiver, protocol: String?) async -> STAccessoryWorkResult<String>
+    @discardableResult func openSteam(_ open: Bool, protocol: String?, complete: STAComplete<STAResponse>?)
+    @discardableResult func sendCommand(_ cmdData:STAccesoryCmdData, protocol: String?, complete: STAComplete<STAResponse>?)
+    @discardableResult func configImage(receiver: STAccesoryHandlerImageReceiver, protocol: String?, complete: STAComplete<String>?)
 }
 
 protocol STAccesoryHandlerInterface_pri: STAccesoryHandlerInterface {

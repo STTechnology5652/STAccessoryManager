@@ -87,7 +87,7 @@ public protocol STAccessoryManagerInsterFace {
     ///   - devSerialNumber: 设备标识
     ///   - protocolStr: 设备协议标识
     /// - Returns: 设备句柄
-    func accessoryHander(devSerialNumber: String) async -> STAccesoryHandlerInterface?
+    func accessoryHander(devSerialNumber: String, complete: STAComplete<STAccesoryHandlerInterface>?)
 }
 
 //MARK: - STAccessoryManager 连接代理

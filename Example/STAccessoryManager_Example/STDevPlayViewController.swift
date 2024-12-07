@@ -47,19 +47,19 @@ class STDevPlayViewController: UIViewController {
             labStreamInfo.text = "\(devIdentifier) \t: \(speedDes)/s"
         }
         
-        Task { [weak self] in
+        let manager = STAccessoryManager.share()
+        manager.config(delegate: self)
+        manager.accessoryHander(devSerialNumber: devIdentifier) { [weak self] (result: STAccessoryWorkResult<any STAccesoryHandlerInterface>?) in
             guard let self else {
                 return
             }
             
-            let manager = STAccessoryManager.share()
-            manager.config(delegate: self)
-            devHandler = await manager.accessoryHander(devSerialNumber: devIdentifier)
-            await devHandler?.configImage(receiver: self, protocol: nil)
-            
-            DispatchQueue.main.async { [weak self] in
-                self?.checkDevState()
-            }
+            devHandler = result?.workData
+            devHandler?.configImage(receiver: self, protocol: nil, complete: { (configResult:STAccessoryWorkResult<String>?) in
+                DispatchQueue.main.async { [weak self] in
+                    self?.checkDevState()
+                }
+            })
         }
     }
     
@@ -105,10 +105,9 @@ extension STDevPlayViewController {
         let cmdTag = devHandler.getNextCmdTag()
         let cmd = STACommandserialization.setStreamFormatter(cmdTag)
         let command = STAccesoryCmdData(tag: cmdTag, data: cmd)
-
-        Task{
-            let cmdResult: STAccessoryWorkResult<STAResponse> = await devHandler.sendCommand(command, protocol: nil)
-            STLog.debug("set stream formatter result:\(String(describing: cmdResult.workData?.jsonString()))")
+        
+        devHandler.sendCommand(command, protocol: nil) { (cmdResult:STAccessoryWorkResult<STAResponse>?) in
+            STLog.debug("set stream formatter result:\(String(describing: cmdResult?.workData?.jsonString()))")
         }
     }
     
@@ -123,10 +122,10 @@ extension STDevPlayViewController {
         let cmd = STACommandserialization.getDevConfig(cmdTag)
         let command = STAccesoryCmdData(tag: cmdTag, data: cmd)
         
-        Task{
-            let cmdResult: STAccessoryWorkResult<STAResponse> = await devHandler.sendCommand(command, protocol: nil)
-            STLog.debug("get device config result:\(String(describing: cmdResult.workData?.jsonString()))")
-            if let configData = cmdResult.workData?.responseData {
+        devHandler.sendCommand(command, protocol: nil) { (cmdResult:STAccessoryWorkResult<STAResponse>?) in
+            STLog.debug("get device config result:\(String(describing: cmdResult?.workData?.jsonString()))")
+            
+            if let configData = cmdResult?.workData?.responseData {
                 let devConfig: [STARespDevConfig] = STARespDevConfig.analysisConfigData(configData)
                 let devDes = devConfig.map{$0.jsonString()}
                 STLog.debug("device config info:\(devDes)")
@@ -136,18 +135,16 @@ extension STDevPlayViewController {
     
     @IBAction func uiActionOpenStream(_ sender: UIButton) {
         STLog.debug()
-        Task {
-            let openResult: STAccessoryWorkResult<STAResponse>? = await devHandler?.openSteam(true, protocol: nil)
-            STLog.debug("open stream result:\(openResult?.workData?.jsonString())")
-        }
+        devHandler?.openSteam(true, protocol: nil, complete: { (openResult:STAccessoryWorkResult<STAResponse>?) in
+            STLog.debug("open stream result:\(String(describing: openResult?.workData?.jsonString()))")
+        })
     }
     
     @IBAction func uiActionCloseStream(_ sender: UIButton) {
         STLog.debug()
-        Task {
-            let openResult: STAccessoryWorkResult<STAResponse>? = await devHandler?.openSteam(false, protocol: nil)
-            STLog.debug("close stream result:\(openResult?.workData?.jsonString())")
-        }
+        devHandler?.openSteam(false, protocol: nil, complete: { (openResult:STAccessoryWorkResult<STAResponse>?) in
+            STLog.debug("close stream result:\(String(describing: openResult?.workData?.jsonString()))")
+        })
     }
     
     @IBAction func uiActionBtnSaveLog(_ sender: UIButton) {
