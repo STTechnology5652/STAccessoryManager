@@ -133,8 +133,10 @@ class STASendStream: NSObject {
         
         if retryTime > 4 { //当前数据包发送失败， 需要开始下一个数据包的发送， 直到所有数据包都发送失败
             let callBack = sendingPara?.callBack
-            sendParamaterArr.removeFirst()
-            sendingPara = sendParamaterArr.first
+            sendingPara = nil
+            if sendParamaterArr.count > 0 {
+                sendParamaterArr.removeFirst()
+            }
             
             DispatchQueue.global().async {
                 callBack?(false, "send data failed")
@@ -152,29 +154,27 @@ class STASendStream: NSObject {
         
         let dataToSend = curPara.dataToSend // 待发送的数据包， 数据长度在此处一定不为空
         
-        guard let bufferPointer:UnsafePointer<UInt8> = dataToSend.withUnsafeBytes { (rawBufferPointer: UnsafeRawBufferPointer) -> UnsafePointer<UInt8>? in
-            return rawBufferPointer.baseAddress?.assumingMemoryBound(to: UInt8.self) // 将 UnsafeRawBufferPointer 转换为 UnsafePointer<UInt8>
-        } as? UnsafePointer<UInt8> else {
-            STLog.warning(tag: kTag_STStream_send, "write data failed, since read data byte failed, try one more")
-            startSendExe(retryTime: retryTime + 1) //再尝试一次
-            return
+        let writedCount = dataToSend.withUnsafeBytes { buffer in
+            stream.write(buffer.bindMemory(to: UInt8.self).baseAddress!, maxLength: dataToSend.count)
         }
         
-        let writedCount = stream.write(bufferPointer, maxLength: dataToSend.count)
         if let err = stream.streamError { //写入失败
             STLog.warning(tag: kTag_STStream_send, "write data failed, and retry 3 times, error: \(err) ")
             startSendExe(retryTime: retryTime + 1)
             return
         }
         
-        if writedCount <= 0 { //没有写入失败， 但是也没有发送出去数据， 重新尝试， 会尝试 3 次
-            STLog.debug(tag: kTag_STStream_send, "send data less than 1, should retry: \(retryTime + 1) ")
+        if writedCount < dataToSend.count { //没有写入失败， 但是也没有发送出去数据， 重新尝试， 会尝试 3 次
+            STLog.debug(tag: kTag_STStream_send, "send data less than \(dataToSend.count), should retry: \(retryTime + 1) ")
             startSendExe(retryTime: retryTime + 1)
             return
         }
         
-        let dataSuccess: Data = curPara.deleteSuccessBytes(writedCount) //删除已经发送成功的数据
-        STLog.debug(tag: kTag_STStream_send, "send data succees[\(curPara.paramaterId)]: \(dataSuccess as NSData)")
+        //本包发送成功
+        if sendParamaterArr.count > 0 {
+            sendParamaterArr.removeFirst()
+        }
+        sendingPara = nil
         startSendExe(retryTime: 0) // 继续发送数据
     }
 }
