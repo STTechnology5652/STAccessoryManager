@@ -34,6 +34,11 @@ target 'STAccessoryManager_Example' do
   pod 'SnapKit', :git => 'https://github.com/SnapKit/SnapKit.git', :tag => '5.7.1'
   pod 'Toast-Swift', :git => 'https://github.com/scalessec/Toast-Swift.git', :tag => '5.1.1'
   pod 'STLog', :path => '../Cmoponents/STLog'
+  pod 'RxSwift', :git => 'https://github.com/ReactiveX/RxSwift.git', :tag => '6.8.0'
+  pod 'RxCocoa', :git => "https://github.com/ReactiveX/RxSwift.git", :tag => '6.8.0'
+  pod 'RxRelay', :git => "https://github.com/ReactiveX/RxSwift.git", :tag => '6.8.0'
+  
+  
   pod_develop
 
 end

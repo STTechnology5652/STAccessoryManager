@@ -8,7 +8,8 @@
 import UIKit
 import STAccessoryManager
 import SnapKit
-import SwiftUI
+import RxSwift
+import RxRelay
 
 class STDevPlayViewController: UIViewController {
     var devIdentifier: String = ""
@@ -16,20 +17,36 @@ class STDevPlayViewController: UIViewController {
     private var speedTool = STASpeedTool()
     private let mjpegUtil = MjpegUtil()
     
+    private let disposeBag = DisposeBag()
+    
+    lazy var vm = {
+      STPreViewVM(devIdentifier: devIdentifier)
+    }()
+    
     @IBOutlet weak var labStreamInfo: UILabel!
     @IBOutlet weak var controlBackView: UIView!
     @IBOutlet weak var btnSaveLog: UIButton!
     @IBOutlet weak var imgPreView: UIImageView!
     
+    @IBOutlet weak var btnDevConfig: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpUI()
-        initData()
+//        initData()
+        bindVM()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         navigationController?.navigationBar.isHidden = false
+    }
+    
+    private func bindVM() {
+        let input = STPreViewInput(
+            getDevConfig: btnDevConfig.rx.tap.asObservable()
+        )
+        
+       let output = vm.transform(input: input)
     }
     
     private func setUpUI() {
@@ -112,6 +129,7 @@ extension STDevPlayViewController {
     }
     
     @IBAction func uiActionGetDevConfig(_ sender: UIButton) {
+        return
         STLog.debug()
         guard let devHandler else {
             STLog.err("no device handler")
@@ -177,14 +195,13 @@ extension STDevPlayViewController: STAccesoryHandlerImageReceiver {
         guard imgData.count > 0 else {
             return
         }
-        DispatchQueue.main.async { [weak self] in
-            guard let self else {return}
-            mjpegUtil.receive(NSData(data: imgData) as Data) { [weak self] (img: UIImage) in
-                STLog.debug("receive image to preview:\(img)")
-                self?.imgPreView.image = img
+        mjpegUtil.receive(NSData(data: imgData) as Data) {(img: UIImage) in
+            DispatchQueue.main.async { [weak self] in
+                guard let self else {return}
+                self.imgPreView.image = img
+                //                STLog.debug("did receive image data:\(imgData)")
+                speedTool.appendCount(imgData.count)
             }
-            STLog.debug("did receive image data:\(imgData)")
-            speedTool.appendCount(imgData.count)
         }
     }
 }

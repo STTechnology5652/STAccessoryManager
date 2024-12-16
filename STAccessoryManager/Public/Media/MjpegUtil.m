@@ -26,6 +26,7 @@ static NSData *_dhtMarkerData = nil;
 @interface MjpegUtil ()
 
 @property (nonatomic, strong) NSMutableData *receivedData;
+@property (nonatomic,strong) dispatch_queue_t analysisQueue;
 
 @end
 
@@ -54,14 +55,22 @@ static NSData *_dhtMarkerData = nil;
             _dhtMarkerData = [[NSData alloc] initWithBytes:dhtMarker length:2];
         }
         
+        self.analysisQueue = dispatch_queue_create("MJPEG_DATA_ANALYSIS_QUEUE", NULL); //数据解析线程
+        
         self.receivedData = [NSMutableData data];
     }
     
     return self;
 }
 
-- (void)receiveData:(NSData *)data image:(Result)image;
-{
+- (void)receiveData:(NSData *)data image:(Result)image {
+    __strong typeof(self)wself = self;
+    dispatch_async(self.analysisQueue, ^{
+        [wself pri_receiveData:data image:image];
+    });
+}
+
+- (void)pri_receiveData:(NSData *)data image:(Result)image {
     [self.receivedData appendData:data];
     NSRange beginRange = [_receivedData rangeOfData:_beginMarkerData
                                             options:0

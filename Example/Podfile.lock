@@ -2,6 +2,12 @@ PODS:
   - DoraemonKit (3.0.0):
     - DoraemonKit/Core (= 3.0.0)
   - DoraemonKit/Core (3.0.0)
+  - RxCocoa (6.8.0):
+    - RxRelay (= 6.8.0)
+    - RxSwift (= 6.8.0)
+  - RxRelay (6.8.0):
+    - RxSwift (= 6.8.0)
+  - RxSwift (6.8.0)
   - SnapKit (5.7.1)
   - STAccessoryManager (0.0.1):
     - STLog
@@ -10,6 +16,9 @@ PODS:
 
 DEPENDENCIES:
   - DoraemonKit (from `https://github.com/didi/DoraemonKit.git`, tag `3.0.0`)
+  - RxCocoa (from `https://github.com/ReactiveX/RxSwift.git`, tag `6.8.0`)
+  - RxRelay (from `https://github.com/ReactiveX/RxSwift.git`, tag `6.8.0`)
+  - RxSwift (from `https://github.com/ReactiveX/RxSwift.git`, tag `6.8.0`)
   - SnapKit (from `https://github.com/SnapKit/SnapKit.git`, tag `5.7.1`)
   - STAccessoryManager (from `../../STAccessoryManager`)
   - STLog (from `../Cmoponents/STLog`)
@@ -19,6 +28,15 @@ EXTERNAL SOURCES:
   DoraemonKit:
     :git: https://github.com/didi/DoraemonKit.git
     :tag: 3.0.0
+  RxCocoa:
+    :git: https://github.com/ReactiveX/RxSwift.git
+    :tag: 6.8.0
+  RxRelay:
+    :git: https://github.com/ReactiveX/RxSwift.git
+    :tag: 6.8.0
+  RxSwift:
+    :git: https://github.com/ReactiveX/RxSwift.git
+    :tag: 6.8.0
   SnapKit:
     :git: https://github.com/SnapKit/SnapKit.git
     :tag: 5.7.1
@@ -34,6 +52,15 @@ CHECKOUT OPTIONS:
   DoraemonKit:
     :git: https://github.com/didi/DoraemonKit.git
     :tag: 3.0.0
+  RxCocoa:
+    :git: https://github.com/ReactiveX/RxSwift.git
+    :tag: 6.8.0
+  RxRelay:
+    :git: https://github.com/ReactiveX/RxSwift.git
+    :tag: 6.8.0
+  RxSwift:
+    :git: https://github.com/ReactiveX/RxSwift.git
+    :tag: 6.8.0
   SnapKit:
     :git: https://github.com/SnapKit/SnapKit.git
     :tag: 5.7.1
@@ -43,11 +70,14 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   DoraemonKit: 4ad75a74374d836425e947f0f891157cacfdcf46
+  RxCocoa: 2d33c1e1e5d66492052ad46b11024ae287572880
+  RxRelay: 335c78b926a2aea8d863a6d25f1ed3b5ad8e8705
+  RxSwift: 4e28be97cbcfeee614af26d83415febbf2bf6f45
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
   STAccessoryManager: 9a1173691a1bb5408b56254d94371456bb2e9d24
   STLog: 2f46e6e919b59ddcd0779c3e2acb58985d8355df
   Toast-Swift: 7a03a532afe3a560d4044bc7c237e2864d295173
 
-PODFILE CHECKSUM: c7596d877a72c1ec0a6d67b55af38e4f92185a9b
+PODFILE CHECKSUM: 1079709406372ed6820147062efcd3292a1550e8
 
 COCOAPODS: 1.15.2
