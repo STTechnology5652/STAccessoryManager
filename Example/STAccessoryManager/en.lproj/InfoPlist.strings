@@ -1,0 +1,9 @@
+/* 
+  InfoPlist.strings
+  STAccessoryManager
+
+  Created by stephenchen on 2024/12/21.
+  
+*/
+
+CFBundleDisplayName = "Macro camera";

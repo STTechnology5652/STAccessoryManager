@@ -1,7 +1,19 @@
 PODS:
+  - CYLTabBarController (1.29.2):
+    - CYLTabBarController/Core (= 1.29.2)
+  - CYLTabBarController/Core (1.29.2)
   - DoraemonKit (3.0.0):
     - DoraemonKit/Core (= 3.0.0)
   - DoraemonKit/Core (3.0.0)
+  - Localize-Swift (3.2.0):
+    - Localize-Swift/LocalizeSwiftCore (= 3.2.0)
+    - Localize-Swift/UIKit (= 3.2.0)
+  - Localize-Swift/LocalizeSwiftCore (3.2.0)
+  - Localize-Swift/UIKit (3.2.0):
+    - Localize-Swift/LocalizeSwiftCore
+  - LookinServer (1.2.8):
+    - LookinServer/Core (= 1.2.8)
+  - LookinServer/Core (1.2.8)
   - RxCocoa (6.8.0):
     - RxRelay (= 6.8.0)
     - RxSwift (= 6.8.0)
@@ -9,25 +21,52 @@ PODS:
     - RxSwift (= 6.8.0)
   - RxSwift (6.8.0)
   - SnapKit (5.7.1)
+  - STABaseUI (0.0.1):
+    - CYLTabBarController
   - STAccessoryManager (0.0.1):
     - STLog
+  - STAllBase (0.0.1):
+    - RxCocoa
+    - RxRelay
+    - RxSwift
+    - SnapKit
+    - STABaseUI
+    - Then
+    - Toast-Swift
   - STLog (0.0.1)
+  - STResource (0.0.1):
+    - Localize-Swift (~> 3.2)
+  - Then (3.0.0)
   - Toast-Swift (5.1.1)
 
 DEPENDENCIES:
+  - CYLTabBarController (from `https://github.com/ChenYilong/CYLTabBarController.git`, tag `1.29.2`)
   - DoraemonKit (from `https://github.com/didi/DoraemonKit.git`, tag `3.0.0`)
+  - Localize-Swift (from `https://github.com/marmelroy/Localize-Swift.git`)
+  - LookinServer (from `https://github.com/QMUI/LookinServer.git`)
   - RxCocoa (from `https://github.com/ReactiveX/RxSwift.git`, tag `6.8.0`)
   - RxRelay (from `https://github.com/ReactiveX/RxSwift.git`, tag `6.8.0`)
   - RxSwift (from `https://github.com/ReactiveX/RxSwift.git`, tag `6.8.0`)
   - SnapKit (from `https://github.com/SnapKit/SnapKit.git`, tag `5.7.1`)
-  - STAccessoryManager (from `../../STAccessoryManager`)
+  - STABaseUI (from `../Cmoponents/STABaseUI`)
+  - STAccessoryManager (from `../`)
+  - STAllBase (from `../Cmoponents/STAllBase`)
   - STLog (from `../Cmoponents/STLog`)
+  - STResource (from `../Cmoponents/STResource`)
+  - Then (from `https://github.com/devxoul/Then.git`, tag `3.0.0`)
   - Toast-Swift (from `https://github.com/scalessec/Toast-Swift.git`, tag `5.1.1`)
 
 EXTERNAL SOURCES:
+  CYLTabBarController:
+    :git: https://github.com/ChenYilong/CYLTabBarController.git
+    :tag: 1.29.2
   DoraemonKit:
     :git: https://github.com/didi/DoraemonKit.git
     :tag: 3.0.0
+  Localize-Swift:
+    :git: https://github.com/marmelroy/Localize-Swift.git
+  LookinServer:
+    :git: https://github.com/QMUI/LookinServer.git
   RxCocoa:
     :git: https://github.com/ReactiveX/RxSwift.git
     :tag: 6.8.0
@@ -40,18 +79,36 @@ EXTERNAL SOURCES:
   SnapKit:
     :git: https://github.com/SnapKit/SnapKit.git
     :tag: 5.7.1
+  STABaseUI:
+    :path: "../Cmoponents/STABaseUI"
   STAccessoryManager:
-    :path: "../../STAccessoryManager"
+    :path: "../"
+  STAllBase:
+    :path: "../Cmoponents/STAllBase"
   STLog:
     :path: "../Cmoponents/STLog"
+  STResource:
+    :path: "../Cmoponents/STResource"
+  Then:
+    :git: https://github.com/devxoul/Then.git
+    :tag: 3.0.0
   Toast-Swift:
     :git: https://github.com/scalessec/Toast-Swift.git
     :tag: 5.1.1
 
 CHECKOUT OPTIONS:
+  CYLTabBarController:
+    :git: https://github.com/ChenYilong/CYLTabBarController.git
+    :tag: 1.29.2
   DoraemonKit:
     :git: https://github.com/didi/DoraemonKit.git
     :tag: 3.0.0
+  Localize-Swift:
+    :commit: 0aa221fed0512772eaad04171d966b8d77b15212
+    :git: https://github.com/marmelroy/Localize-Swift.git
+  LookinServer:
+    :commit: ae396132ce6494477457cf450116dc760518d8ad
+    :git: https://github.com/QMUI/LookinServer.git
   RxCocoa:
     :git: https://github.com/ReactiveX/RxSwift.git
     :tag: 6.8.0
@@ -64,20 +121,30 @@ CHECKOUT OPTIONS:
   SnapKit:
     :git: https://github.com/SnapKit/SnapKit.git
     :tag: 5.7.1
+  Then:
+    :git: https://github.com/devxoul/Then.git
+    :tag: 3.0.0
   Toast-Swift:
     :git: https://github.com/scalessec/Toast-Swift.git
     :tag: 5.1.1
 
 SPEC CHECKSUMS:
+  CYLTabBarController: db44b5901a28693a8a4279e4721b3aafdd36c178
   DoraemonKit: 4ad75a74374d836425e947f0f891157cacfdcf46
+  Localize-Swift: 6f4475136bdb0d7b2882ea3d4ea919d70142b232
+  LookinServer: 1b2b61c6402ae29fa22182d48f5cd067b4e99e80
   RxCocoa: 2d33c1e1e5d66492052ad46b11024ae287572880
   RxRelay: 335c78b926a2aea8d863a6d25f1ed3b5ad8e8705
   RxSwift: 4e28be97cbcfeee614af26d83415febbf2bf6f45
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
+  STABaseUI: 3557d7a42661a527db2c5be442d0f475ee140477
   STAccessoryManager: 9a1173691a1bb5408b56254d94371456bb2e9d24
+  STAllBase: 223ead27f9d453ea5339fc29804ee2d9c4e80484
   STLog: 2f46e6e919b59ddcd0779c3e2acb58985d8355df
+  STResource: a7f21c328a6feb2c5925393496c3b7e50954eefe
+  Then: 844265ae87834bbe1147d91d5d41a404da2ec27d
   Toast-Swift: 7a03a532afe3a560d4044bc7c237e2864d295173
 
-PODFILE CHECKSUM: 1079709406372ed6820147062efcd3292a1550e8
+PODFILE CHECKSUM: f3548d9908a804b033475e06bbb5bda3223d748b
 
 COCOAPODS: 1.15.2

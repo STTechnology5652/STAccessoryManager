@@ -1,0 +1,28 @@
+PODS:
+  - Localize-Swift (3.2.0):
+    - Localize-Swift/LocalizeSwiftCore (= 3.2.0)
+    - Localize-Swift/UIKit (= 3.2.0)
+  - Localize-Swift/LocalizeSwiftCore (3.2.0)
+  - Localize-Swift/UIKit (3.2.0):
+    - Localize-Swift/LocalizeSwiftCore
+  - STResource (0.0.1):
+    - Localize-Swift (~> 3.2)
+
+DEPENDENCIES:
+  - STResource (from `../../STResource`)
+
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - Localize-Swift
+
+EXTERNAL SOURCES:
+  STResource:
+    :path: "../../STResource"
+
+SPEC CHECKSUMS:
+  Localize-Swift: 6f4475136bdb0d7b2882ea3d4ea919d70142b232
+  STResource: a7f21c328a6feb2c5925393496c3b7e50954eefe
+
+PODFILE CHECKSUM: 5b99c20ce4d4534f3a8dc94007e9d6a814cbe1c7
+
+COCOAPODS: 1.15.2

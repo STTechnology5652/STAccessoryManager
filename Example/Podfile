@@ -6,42 +6,77 @@ source 'https://github.com/STTechnology5652/STSpecs.git'
 # source 'https://github.com/CocoaPods/Specs.git'
 
 # Uncomment the next line to define a global platform for your project
-platform :ios, '10.0'
+platform :ios, '12.0'
 
 inhibit_all_warnings!
+
+install! 'cocoapods', generate_multiple_pod_projects: true
 
 use_frameworks! :linkage => :static # 使用 framework形势的静态库， 注释可变为.a 静态库
 use_modular_headers! #此字段用于pod自动生成 swift module 伞文件
 
-def st_installLocalPods(dir, arr)
-  arr.each do |onePod|
-  pod  onePod, :path => File.join(dir, onePod)
-  end
-end
-
 def pod_develop
-  dir = '../../'
-  arr = [
-  'STAccessoryManager'
-  ]
-   st_installLocalPods(dir, arr)
+  pod 'STAccessoryManager', :path => '../'
 end
 
-project 'STAccessoryManager_Example.xcodeproj'
-target 'STAccessoryManager_Example' do
-  # Pods for STAccessoryManager_Example
-  pod 'DoraemonKit', :git => 'https://github.com/didi/DoraemonKit.git', :tag => '3.0.0'
-  pod 'SnapKit', :git => 'https://github.com/SnapKit/SnapKit.git', :tag => '5.7.1'
-  pod 'Toast-Swift', :git => 'https://github.com/scalessec/Toast-Swift.git', :tag => '5.1.1'
+def pod_local
   pod 'STLog', :path => '../Cmoponents/STLog'
+  pod 'STResource', :path => '../Cmoponents/STResource'
+  pod 'STAllBase', :path => '../Cmoponents/STAllBase'
+  pod 'STABaseUI', :path => '../Cmoponents/STABaseUI'
+end
+
+def pod_common
+  pod 'Localize-Swift', :git => 'https://github.com/marmelroy/Localize-Swift.git'
+  
+  pod 'SnapKit', :git => 'https://github.com/SnapKit/SnapKit.git', :tag => '5.7.1'
+  pod 'Then', :git => 'https://github.com/devxoul/Then.git', :tag => '3.0.0'
+  pod 'Toast-Swift', :git => 'https://github.com/scalessec/Toast-Swift.git', :tag => '5.1.1'
   pod 'RxSwift', :git => 'https://github.com/ReactiveX/RxSwift.git', :tag => '6.8.0'
   pod 'RxCocoa', :git => "https://github.com/ReactiveX/RxSwift.git", :tag => '6.8.0'
   pod 'RxRelay', :git => "https://github.com/ReactiveX/RxSwift.git", :tag => '6.8.0'
+  pod 'CYLTabBarController', :git => "https://github.com/ChenYilong/CYLTabBarController.git", :tag => '1.29.2'
   
-  
-  pod_develop
-
 end
+
+def pod_beta
+  pod 'DoraemonKit', :git => 'https://github.com/didi/DoraemonKit.git', :tag => '3.0.0'
+  pod 'LookinServer', :git => 'https://github.com/QMUI/LookinServer.git', :configurations => ['Debug']
+end
+
+
+project_path = './STAccessoryManager.xcodeproj'
+
+project project_path
+target 'STAccessoryManager_Beta' do
+  # Pods for STAccessoryManager_Beta
+  pod_develop
+  pod_local
+  pod_common
+  pod_beta
+  
+end
+
+
+project project_path
+target 'STAccessoryManager_Release' do
+  # Pods for STAccessoryManager_Release
+  pod_develop
+  pod_local
+  pod_common
+end
+
+project = Xcodeproj::Project.open(project_path)
+project.targets.each do |target|
+  if target.name == "STAccessoryManager_Beta"
+    target.build_configurations.each do |config|
+      config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] = '$(inherited) K_BETA' #添加 preview 宏
+    end
+  end
+end
+
+# 保存工程文件
+project.save
 
 def pod_string_item_appen(item_str, append_str)
   item_str = item_str.blank? ? "" : item_str
@@ -49,24 +84,32 @@ def pod_string_item_appen(item_str, append_str)
   return item_str
 end
 
+
 # cocoapods  pod install hook
 post_install do |installer|
-  # 添加创建时候类前缀
-  installer.pods_project.root_object.attributes["CLASSPREFIX"] = "ST" # 添加 class prefix
   # project编辑配置
-  installer.pods_project.build_configurations.each do |config|
-    config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0'
-    config.build_settings['CLANG_WARN_DOCUMENTATION_COMMENTS'] = 'NO'
-    # xcode15 支持 c++旧版链接器
-    # items_append = "$(inherited) -ld64 -ld_classic"
-    # config.build_settings['OTHER_LDFLAGS'] = pod_string_item_appen(config.build_settings['OTHER_LDFLAGS'], items_append)
+  
+  installer.pods_project.root_object.attributes["CLASSPREFIX"] = "ST" # 添加 class prefix
+  # 添加创建时候类前缀
+  installer.pod_target_subprojects.each do |onePodProject|
+    onePodProject.root_object.attributes["CLASSPREFIX"] = "ST" # 添加 class prefix
   end
 
-  # 单个target编辑配置
-  installer.pods_project.targets.each do |target|
+  installer.pod_target_subprojects.flat_map { |p| p.targets }.each do |target|
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0' #修改pod的最低版本
-
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+      config.build_settings['CLANG_WARN_DOCUMENTATION_COMMENTS'] = 'NO'
+      # xcode15 支持 c++旧版链接器
+      # items_append = "$(inherited) -ld64 -ld_classic"
+      # config.build_settings['OTHER_LDFLAGS'] = pod_string_item_appen(config.build_settings['OTHER_LDFLAGS'], items_append)
+    end
+  end
+  
+  # 单个target编辑配置
+  installer.pod_target_subprojects.flat_map { |p| p.targets }.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0' #修改pod的最低版本
+      
       # 以下是xcode14 忽略 bundle 类型pod签名
       config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ""
       config.build_settings['CODE_SIGNING_REQUIRED'] = "NO"
