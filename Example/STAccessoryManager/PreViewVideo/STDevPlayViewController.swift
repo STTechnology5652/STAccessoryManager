@@ -7,11 +7,9 @@
 
 import UIKit
 import STAccessoryManager
-import SnapKit
-import RxSwift
-import RxRelay
+import STAllBase
 
-class STDevPlayViewController: UIViewController {
+class STDevPlayViewController: STABaseVC {
     var devIdentifier: String = ""
     private var devHandler: STAccesoryHandlerInterface?
     private var speedTool = STASpeedTool()

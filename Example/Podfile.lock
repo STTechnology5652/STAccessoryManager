@@ -23,6 +23,7 @@ PODS:
   - SnapKit (5.7.1)
   - STABaseUI (0.0.1):
     - CYLTabBarController
+    - STResource
   - STAccessoryManager (0.0.1):
     - STLog
   - STAllBase (0.0.1):
@@ -137,7 +138,7 @@ SPEC CHECKSUMS:
   RxRelay: 335c78b926a2aea8d863a6d25f1ed3b5ad8e8705
   RxSwift: 4e28be97cbcfeee614af26d83415febbf2bf6f45
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
-  STABaseUI: 3d971621a235b49a2862711851ab150efbf3d390
+  STABaseUI: 75b5931857e916096ecd9224a858d08c6ee97876
   STAccessoryManager: 6c01326c1b31292f0f42fce8343c01787485011d
   STAllBase: 2a40e209e860ab62298116486dadf38bb1c84e40
   STLog: 2f46e6e919b59ddcd0779c3e2acb58985d8355df

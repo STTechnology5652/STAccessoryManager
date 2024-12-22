@@ -25,6 +25,16 @@
       "scale" : "1x"
     },
     {
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ],
       "filename" : "ico_light_camera_rotate@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
@@ -33,25 +43,24 @@
       "appearances" : [
         {
           "appearance" : "luminosity",
-          "value" : "light"
+          "value" : "dark"
         }
       ],
-      "filename" : "ico_light_camera_rotate@2x 1.png",
+      "filename" : "ico_dark_camera_rotate@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
     },
     {
       "appearances" : [
         {
           "appearance" : "luminosity",
-          "value" : "dark"
+          "value" : "light"
         }
       ],
-      "filename" : "ico_dark_camaer_rotate@2x.png",
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
       "filename" : "ico_light_camera_rotate@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
@@ -60,21 +69,10 @@
       "appearances" : [
         {
           "appearance" : "luminosity",
-          "value" : "light"
-        }
-      ],
-      "filename" : "ico_light_camera_rotate@3x 1.png",
-      "idiom" : "universal",
-      "scale" : "3x"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
           "value" : "dark"
         }
       ],
-      "filename" : "ico_dark_camaer_rotate@3x.png",
+      "filename" : "ico_dark_camera_rotate@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
