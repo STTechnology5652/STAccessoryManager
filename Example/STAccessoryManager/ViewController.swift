@@ -59,19 +59,14 @@ class ViewController: STABaseVC {
         stack.axis = .vertical
         stack.spacing = 0.1
         
-        // tableView 放的一个view中，然后再放到 stack， 防止tableView的尺寸不正确
-        let tableContainer = UIView()
-        stack.addArrangedSubview(tableContainer)
-        tableContainer.addSubview(tableView)
-        
+        stack.addArrangedSubview(tableView)
         stack.addArrangedSubview(labStatus)
         stack.snp.makeConstraints { make in
             make.edges.equalTo(UIEdgeInsets.zero)
         }
-        
+
         labStatus.snp.makeConstraints { make in
             make.height.equalTo(100)
-            make.top.equalTo(tableView.snp.bottom).offset(self.view.safeAreaInsets.bottom - 10)
         }
         
 #if K_BETA

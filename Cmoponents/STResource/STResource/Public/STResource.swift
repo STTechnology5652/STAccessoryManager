@@ -55,6 +55,13 @@ extension STResource {
     }()
 }
 
+extension UIImage {
+    public static func stImage(name: String) -> UIImage? {
+        let result = UIImage(named: name, in: STResource.resourceBundle, compatibleWith: nil)
+        return result
+    }
+}
+
 extension String {
     public var stLocalLized: String {
         return self.localized(using: STResource.languageTableName, in: STResource.resourceBundle)
