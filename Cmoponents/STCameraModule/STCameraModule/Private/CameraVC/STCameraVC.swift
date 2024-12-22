@@ -135,12 +135,21 @@ class STCameraVC: STABaseVC {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
-        // 强制恢复为竖直方向
-        if UIDevice.current.orientation != .portrait {
-            UIDevice.current.setValue(UIDeviceOrientation.portrait.rawValue, forKey: "orientation")
-            UIViewController.attemptRotationToDeviceOrientation()
+        if #available(iOS 16.0, *) {
+            // 获取当前窗口场景
+            if let windowScene = view.window?.windowScene {
+                // 强制恢复为竖直方向
+                let geometryPreferences = UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: .portrait)
+                windowScene.requestGeometryUpdate(geometryPreferences)
+            }
+        } else {
+            // 旧版本的处理方式
+            if UIDevice.current.orientation != .portrait {
+                UIDevice.current.setValue(UIDeviceOrientation.portrait.rawValue, forKey: "orientation")
+            }
         }
         
+        UIViewController.attemptRotationToDeviceOrientation()
         vm.viewDidDisappear()
     }
     
@@ -464,20 +473,45 @@ extension STCameraVC {
     
     private func handlePhoneRotate() {
         STLog.debug("手机旋转")
-        // 实现手机旋转逻辑
-        let currentOrientation = UIDevice.current.orientation
-        let newOrientation: UIDeviceOrientation
         
-        switch currentOrientation {
-        case .portrait:
-            newOrientation = .landscapeRight
-        case .landscapeRight:
-            newOrientation = .portrait
-        default:
-            newOrientation = .portrait
+        if #available(iOS 16.0, *) {
+            // 获取当前窗口场景
+            guard let windowScene = view.window?.windowScene else { return }
+            
+            // 确定新的方向
+            let currentOrientation = windowScene.interfaceOrientation
+            let geometryPreferences: UIWindowScene.GeometryPreferences
+            
+            switch currentOrientation {
+            case .portrait:
+                geometryPreferences = UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: .landscapeRight)
+            case .landscapeRight:
+                geometryPreferences = UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: .portrait)
+            default:
+                geometryPreferences = UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: .portrait)
+            }
+            
+            // 请求更新方向
+            windowScene.requestGeometryUpdate(geometryPreferences)
+            
+        } else {
+            // 旧版本的处理方式
+            let currentOrientation = UIDevice.current.orientation
+            let newOrientation: UIDeviceOrientation
+            
+            switch currentOrientation {
+            case .portrait:
+                newOrientation = .landscapeRight
+            case .landscapeRight:
+                newOrientation = .portrait
+            default:
+                newOrientation = .portrait
+            }
+            
+            UIDevice.current.setValue(newOrientation.rawValue, forKey: "orientation")
         }
         
-        UIDevice.current.setValue(newOrientation.rawValue, forKey: "orientation")
+        // 强制更新方向
         UIViewController.attemptRotationToDeviceOrientation()
     }
     
