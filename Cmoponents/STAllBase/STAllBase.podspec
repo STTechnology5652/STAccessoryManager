@@ -57,6 +57,7 @@ Pod::Spec.new do |spec|
   spec.dependency 'RxCocoa'
   spec.dependency 'RxRelay'
   spec.dependency 'STABaseUI'
+  spec.dependency 'STLog'
   
   spec.dependency "STComponentTools/STRouter"
   spec.dependency "STModuleService.swift"  #swift 服务中间件

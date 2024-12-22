@@ -18,6 +18,8 @@
 @_exported import RxCocoa
 @_exported import RxRelay
 @_exported import STABaseUI
+@_exported import STLog
+
 
 @_exported import STRouterServiceDefine
 @_exported import STComponentTools.STRouter

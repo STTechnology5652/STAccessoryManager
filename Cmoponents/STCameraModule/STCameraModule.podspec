@@ -59,5 +59,6 @@ Pod::Spec.new do |spec|
 #     end
 
 spec.dependency "STAllBase"
+spec.dependency 'STAccessoryManager'
 
 end

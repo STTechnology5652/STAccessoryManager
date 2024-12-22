@@ -36,12 +36,14 @@ PODS:
     - SnapKitExtend
     - STABaseUI
     - STComponentTools/STRouter
+    - STLog
     - STModuleService.swift
     - STRouterServiceDefine
     - Then
     - Toast-Swift
   - STAnnotation (0.0.1)
   - STCameraModule (0.0.1):
+    - STAccessoryManager
     - STAllBase
   - STComponentTools/STModuleService (0.0.4):
     - STAnnotation
@@ -185,9 +187,9 @@ SPEC CHECKSUMS:
   SnapKitExtend: aa30cf37196195fae9c4354686cc7710184ebfcc
   STABaseUI: 75b5931857e916096ecd9224a858d08c6ee97876
   STAccessoryManager: 6c01326c1b31292f0f42fce8343c01787485011d
-  STAllBase: 8baf5b5334d4aa5dbb4cf47326fc80baa23e86af
+  STAllBase: 42732f969a379397ec8e6bbe276f2bccb9401a7e
   STAnnotation: ea0dcdbf740b57237d29384c521e4887d00031df
-  STCameraModule: eccc58b00343b1cc7fea837f7ed76c7b57419b7c
+  STCameraModule: 3b947b8ba1affe8e614be029eb8d1c2e91da8d2c
   STComponentTools: 18392702fe5112d19fca12b29e159594f75045a4
   STLog: 2f46e6e919b59ddcd0779c3e2acb58985d8355df
   STModuleService.swift: 89031936975f616a759d8496e9d9ad757c04fba0

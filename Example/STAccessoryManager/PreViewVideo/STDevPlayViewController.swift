@@ -31,7 +31,7 @@ class STDevPlayViewController: STABaseVC {
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpUI()
-//        initData()
+        initData()
         bindVM()
     }
     

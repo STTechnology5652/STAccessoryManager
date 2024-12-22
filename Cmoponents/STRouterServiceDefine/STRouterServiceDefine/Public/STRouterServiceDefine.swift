@@ -6,7 +6,8 @@
 //
 // @_exported import XXXXXX //这个是为了对外暴露下层依赖的Pod
 
-@objc
+@objcMembers
 public class STRouterDefine: NSObject {
     public static let kCameraModul = "kCameraModul"
+    public static let kRouterPara_devIdentifier = "kDeviIdentifier"
 }

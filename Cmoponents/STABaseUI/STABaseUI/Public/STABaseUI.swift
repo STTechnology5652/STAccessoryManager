@@ -18,6 +18,10 @@ open class STABaseVC: CYLBaseViewController {
         return UIApplication.shared.keyWindow?.safeAreaInsets.top ?? 0
     }()
     
+    public var stSafeBottom: CGFloat = {
+        return UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0
+    }()
+
     open override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .c_theme_back

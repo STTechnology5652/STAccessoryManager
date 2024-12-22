@@ -138,9 +138,18 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if devList.count > indexPath.row {
             let dev = devList[indexPath.row]
-            let vc = STDevPlayViewController()
-            vc.devIdentifier = dev.serialNumber
-            navigationController?.pushViewController(vc, animated: true)
+            
+            let req = STRouterUrlRequest.instance { re in
+                re.fromVC = self
+                re.parameter = [STRouterDefine.kRouterPara_devIdentifier: dev.serialNumber]
+                re.urlToOpen = STRouterDefine.kCameraModul
+            }
+            
+            stRouterOpenUrlRequest(req) { _ in }
+            
+//            let vc = STDevPlayViewController()
+//            vc.devIdentifier = dev.serialNumber
+//            navigationController?.pushViewController(vc, animated: true)
         } else {
             STLog.err("数组越界，未跳转")
         }

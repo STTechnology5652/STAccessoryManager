@@ -26,8 +26,6 @@
 		7F1811DD2D16E049004C038C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1811C62D16E049004C038C /* ViewController.swift */; };
 		7F1B6B172D170D1800EB43E9 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7F1B6B152D170D1800EB43E9 /* InfoPlist.strings */; };
 		7F1B6B182D170D1800EB43E9 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7F1B6B152D170D1800EB43E9 /* InfoPlist.strings */; };
-		7F1B6F9C2D17EA3E00EB43E9 /* STCameraVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1B6F9B2D17EA3E00EB43E9 /* STCameraVC.swift */; };
-		7F1B6F9D2D17EA3E00EB43E9 /* STCameraVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1B6F9B2D17EA3E00EB43E9 /* STCameraVC.swift */; };
 		A14E8A0B4DAD76A3E42AD5AE /* Pods_STAccessoryManager_Beta.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 079A68C4014447185D15F952 /* Pods_STAccessoryManager_Beta.framework */; };
 /* End PBXBuildFile section */
 
@@ -50,7 +48,6 @@
 		7F1B6B162D170D1800EB43E9 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		7F1B6B192D170D1F00EB43E9 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		7F1B6B1A2D170E4A00EB43E9 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		7F1B6F9B2D17EA3E00EB43E9 /* STCameraVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = STCameraVC.swift; sourceTree = "<group>"; };
 		7F9A53542D1709FE00204280 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		A2B2755A50F14948CA934C80 /* Pods-STAccessoryManager_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-STAccessoryManager_Example.debug.xcconfig"; path = "Target Support Files/Pods-STAccessoryManager_Example/Pods-STAccessoryManager_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		AA7AACD17F58328B55757779 /* Pods-STAccessoryManager_Release.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-STAccessoryManager_Release.debug.xcconfig"; path = "Target Support Files/Pods-STAccessoryManager_Release/Pods-STAccessoryManager_Release.debug.xcconfig"; sourceTree = "<group>"; };
@@ -105,7 +102,6 @@
 		7F1811C72D16E049004C038C /* STAccessoryManager */ = {
 			isa = PBXGroup;
 			children = (
-				7F1B6F9A2D17E9FF00EB43E9 /* STCamaeraVC */,
 				7F1811BD2D16E049004C038C /* PreViewVideo */,
 				7F1811BE2D16E049004C038C /* AppDelegate.swift */,
 				7F1811C62D16E049004C038C /* ViewController.swift */,
@@ -115,14 +111,6 @@
 				7F1B6B152D170D1800EB43E9 /* InfoPlist.strings */,
 			);
 			path = STAccessoryManager;
-			sourceTree = "<group>";
-		};
-		7F1B6F9A2D17E9FF00EB43E9 /* STCamaeraVC */ = {
-			isa = PBXGroup;
-			children = (
-				7F1B6F9B2D17EA3E00EB43E9 /* STCameraVC.swift */,
-			);
-			path = STCamaeraVC;
 			sourceTree = "<group>";
 		};
 		E6A51BC864FFCB44AB73D76B /* Frameworks */ = {
@@ -343,7 +331,6 @@
 			files = (
 				7F1811DD2D16E049004C038C /* ViewController.swift in Sources */,
 				7F1811D12D16E049004C038C /* AppDelegate.swift in Sources */,
-				7F1B6F9D2D17EA3E00EB43E9 /* STCameraVC.swift in Sources */,
 				7F1811C92D16E049004C038C /* STAccessaryManagerRXInterface.swift in Sources */,
 				7F1811CB2D16E049004C038C /* STDevPlayViewController.swift in Sources */,
 				7F1811CF2D16E049004C038C /* STPreViewVM.swift in Sources */,
@@ -356,7 +343,6 @@
 			files = (
 				7F1811DC2D16E049004C038C /* ViewController.swift in Sources */,
 				7F1811D02D16E049004C038C /* AppDelegate.swift in Sources */,
-				7F1B6F9C2D17EA3E00EB43E9 /* STCameraVC.swift in Sources */,
 				7F1811C82D16E049004C038C /* STAccessaryManagerRXInterface.swift in Sources */,
 				7F1811CA2D16E049004C038C /* STDevPlayViewController.swift in Sources */,
 				7F1811CE2D16E049004C038C /* STPreViewVM.swift in Sources */,

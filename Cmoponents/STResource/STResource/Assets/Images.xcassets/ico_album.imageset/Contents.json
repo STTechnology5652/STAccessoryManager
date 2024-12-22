@@ -25,6 +25,7 @@
       "scale" : "1x"
     },
     {
+      "filename" : "ico_light_album@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
@@ -35,7 +36,7 @@
           "value" : "light"
         }
       ],
-      "filename" : "ico_light_album@2x.png",
+      "filename" : "ico_light_album@2x 1.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
@@ -51,6 +52,7 @@
       "scale" : "2x"
     },
     {
+      "filename" : "ico_light_album@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     },
@@ -61,7 +63,7 @@
           "value" : "light"
         }
       ],
-      "filename" : "ico_light_album@3x.png",
+      "filename" : "ico_light_album@3x 1.png",
       "idiom" : "universal",
       "scale" : "3x"
     },
