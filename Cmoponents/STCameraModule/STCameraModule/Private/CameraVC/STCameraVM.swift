@@ -61,6 +61,12 @@ final class STCameraVM: NSObject, STRxViewModelType {
     private let mjpegUtil = MjpegUtil()
     private var speedTool = STASpeedTool()
 
+    // 添加拍照事件的 Relay
+    private let capturePhotoRelay = PublishRelay<UIImage>()
+    
+    // 添加按钮禁用状态
+    private let shouldDisableButtonsRelay = BehaviorRelay<Bool>(value: false)
+    
     enum DeviceState {
         case connected
         case disconnected
@@ -124,18 +130,32 @@ extension STCameraVM {
         let displayImage: Driver<UIImage>  // 修改为显示图像输出
         let speedText: Driver<String>  // 添加速度文本输出
         let deviceState: Driver<DeviceState>  // 添加设备状态输出
+        let capturedPhoto: Driver<UIImage>  // 添加拍照输出
+        let shouldDisableButtons: Driver<Bool>  // 添加按钮禁用状态输出
     }
     
     typealias Input = STCameraInput
     typealias OutPut = STCameraOutput
     
     func transform(input: STCameraInput) -> STCameraOutput {
+        // 处理开始按钮点击
         input.btnStart
-            .drive(onNext: { [weak self] in
+            .withLatestFrom(isPhotoModeRelay.asDriver())
+            .do(onNext: { [weak self] isPhotoMode in
                 guard let self = self else { return }
-                let currentValue = self.isRecordingRelay.value
-                self.isRecordingRelay.accept(!currentValue)
+                if isPhotoMode {
+                    // 照片模式：拍照，不禁用按钮
+                    if let currentImage = self.originalImageRelay.value {
+                        self.capturePhotoRelay.accept(currentImage)
+                    }
+                } else {
+                    // 视频模式：切换录制状态，并更新按钮禁用状态
+                    let currentValue = self.isRecordingRelay.value
+                    self.isRecordingRelay.accept(!currentValue)
+                    self.shouldDisableButtonsRelay.accept(!currentValue)  // 录制时禁用按钮
+                }
             })
+            .drive()
             .disposed(by: disposeBag)
         
         input.controlTap
@@ -205,7 +225,9 @@ extension STCameraVM {
             isGrayscale: isGrayscaleRelay.asDriver(),
             displayImage: displayImage.asDriver(onErrorJustReturn: UIImage()),
             speedText: speedTextRelay.asDriver(),
-            deviceState: deviceStateRelay.asDriver(onErrorJustReturn: .disconnected)
+            deviceState: deviceStateRelay.asDriver(onErrorJustReturn: .disconnected),
+            capturedPhoto: capturePhotoRelay.asDriver(onErrorJustReturn: UIImage()),
+            shouldDisableButtons: shouldDisableButtonsRelay.asDriver()
         )
     }
     
@@ -375,5 +397,12 @@ extension STCameraVM: STAccesoryHandlerImageReceiver {
                 self.updatePreviewImage(img)
             }
         }
+    }
+}
+
+extension STCameraVM {
+    // 获取当前旋转角度
+    func getCurrentRotation() -> Int {
+        return cameraRotationRelay.value
     }
 }
