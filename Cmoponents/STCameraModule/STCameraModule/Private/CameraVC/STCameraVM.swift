@@ -13,13 +13,6 @@ import STLog
 
 import STAccessoryManager
 
-enum STAUiEvent {
-    case color
-    case rotateCamera
-    case rotatePhone
-    case back
-}
-
 protocol STAInput {}
 
 protocol STAOutPut {}
@@ -60,13 +53,13 @@ final class STCameraVM: NSObject, STRxViewModelType {
     
     //MARK: - STAccessoryManager -- 相关
     var devIdentifier: String = ""
-    private var devHandler: STAccesoryHandlerInterface?
+    var devHandler: STAccesoryHandlerInterface?
     
     // 添加设备状态管理
-    private let deviceStateRelay = PublishRelay<DeviceState>()
-    private let mjpegUtil = MjpegUtil()
-    private var speedTool = STASpeedTool()
-
+    let deviceStateRelay = PublishRelay<DeviceState>()
+    let mjpegUtil = MjpegUtil()
+    var speedTool = STASpeedTool()
+    
     // 添加拍照事件的 Relay
     private let capturePhotoRelay = PublishRelay<UIImage>()
     
@@ -75,6 +68,9 @@ final class STCameraVM: NSObject, STRxViewModelType {
     
     // 添加图像数据流
     private let imageSubject = PublishSubject<UIImage>()
+    
+    // 添加按钮状态管理
+    private let buttonStateRelay = BehaviorRelay<(isEnabled: Bool, alpha: CGFloat)>(value: (true, 1.0))
     
     enum DeviceState {
         case connected
@@ -105,17 +101,6 @@ extension STCameraVM {
         cleanupCamera()
     }
     
-    private func setupCamera() {
-        checkDevState()
-        closeStream()
-        setStreamFormatter()
-        openStream()
-    }
-    
-    private func cleanupCamera() {
-        closeStream()
-    }
-    
     // MARK: - Input/Output
     struct STCameraInput {
         let btnColor: Driver<Void>
@@ -142,6 +127,7 @@ extension STCameraVM {
         let deviceState: Driver<DeviceState>  // 添加设备状态输出
         let capturedPhoto: Driver<UIImage>  // 添加拍照输出
         let shouldDisableButtons: Driver<Bool>  // 添加按钮禁用状态输出
+        let buttonState: Driver<(isEnabled: Bool, alpha: CGFloat)>  // 添加按钮状态输出
     }
     
     typealias Input = STCameraInput
@@ -247,6 +233,19 @@ extension STCameraVM {
             }
         }
         
+        // 处理按钮状态
+        Observable.combineLatest(
+            isRecordingRelay.asObservable(),
+            isPhotoModeRelay.asObservable()
+        )
+        .map { isRecording, isPhotoMode -> (isEnabled: Bool, alpha: CGFloat) in
+            // 在视频模式下录制时禁用按钮
+            let shouldDisable = !isPhotoMode && isRecording
+            return (!shouldDisable, shouldDisable ? 0.5 : 1.0)
+        }
+        .bind(to: buttonStateRelay)
+        .disposed(by: disposeBag)
+        
         return STCameraOutput(
             btnColor: input.btnColor,
             btnRotateCamera: input.btnRotateCamera,
@@ -261,7 +260,8 @@ extension STCameraVM {
             speedText: speedTextRelay.asDriver(),
             deviceState: deviceStateRelay.asDriver(onErrorJustReturn: .disconnected),
             capturedPhoto: capturePhotoRelay.asDriver(onErrorJustReturn: UIImage()),
-            shouldDisableButtons: shouldDisableButtonsRelay.asDriver()
+            shouldDisableButtons: shouldDisableButtonsRelay.asDriver(),
+            buttonState: buttonStateRelay.asDriver()
         )
     }
     
@@ -287,144 +287,6 @@ extension STCameraVM {
         } else {
             // 使用原始图像
             filteredImageRelay.accept(originalImage)
-        }
-    }
-    
-}
-
-
-//MARK: - STAccessoryManager -- 相关
-extension STCameraVM {
-    func initData() {
-        speedTool.startCaculted { [weak self] (speedDes: String) in
-            guard let self else {
-                return
-            }
-           
-            speedTextRelay.accept("\(devIdentifier) \t: \(speedDes)/s")
-        }
-        
-        let manager = STAccessoryManager.share()
-        manager.config(delegate: self)
-        manager.accessoryHander(devSerialNumber: devIdentifier) { [weak self] (result: STAccessoryWorkResult<any STAccesoryHandlerInterface>?) in
-            guard let self else {
-                return
-            }
-            
-            devHandler = result?.workData
-            devHandler?.configImage(receiver: self, protocol: nil, complete: { [weak self] (configResult:STAccessoryWorkResult<String>?) in
-                DispatchQueue.main.async {
-                    self?.checkDevState()
-                }
-            })
-            closeStream()
-            getDevConfig()
-        }
-    }
-    
-    
-    private func setStreamFormatter() {
-        STLog.debug()
-        guard let devHandler else {
-            STLog.err("no device handler")
-            return
-        }
-        
-        let cmdTag = devHandler.getNextCmdTag()
-        let cmd = STACommandserialization.setStreamFormatter(cmdTag)
-        let command = STAccesoryCmdData(tag: cmdTag, data: cmd)
-        
-        devHandler.sendCommand(command, protocol: nil) { (cmdResult:STAccessoryWorkResult<STAResponse>?) in
-            STLog.debug("set stream formatter result:\(String(describing: cmdResult?.workData?.jsonString()))")
-        }
-    }
-    
-    private func getDevConfig() {
-        STLog.debug()
-        guard let devHandler else {
-            STLog.err("no device handler")
-            return
-        }
-        
-        let cmdTag = devHandler.getNextCmdTag()
-        let cmd = STACommandserialization.getDevConfig(cmdTag)
-        let command = STAccesoryCmdData(tag: cmdTag, data: cmd)
-        
-        devHandler.sendCommand(command, protocol: nil) { (cmdResult:STAccessoryWorkResult<STAResponse>?) in
-            STLog.debug("get device config result:\(String(describing: cmdResult?.workData?.jsonString()))")
-            
-            if let configData = cmdResult?.workData?.responseData {
-                let devConfig: [STARespDevConfig] = STARespDevConfig.analysisConfigData(configData)
-                let devDes = devConfig.map{$0.jsonString()}
-                STLog.debug("device config info:\(devDes)")
-            }
-        }
-    }
-    
-    private func openStream() {
-        STLog.debug()
-        devHandler?.openSteam(true, protocol: nil, complete: { (openResult:STAccessoryWorkResult<STAResponse>?) in
-            STLog.debug("open stream result:\(String(describing: openResult?.workData?.jsonString()))")
-        })
-    }
-    
-    private func closeStream() {
-        STLog.debug()
-        devHandler?.openSteam(false, protocol: nil, complete: { (openResult:STAccessoryWorkResult<STAResponse>?) in
-            STLog.debug("close stream result:\(String(describing: openResult?.workData?.jsonString()))")
-        })
-    }
-    
-    private func checkDevState() {
-        if let dev = STAccessoryManager.share().connectedAccessory.filter({$0.serialNumber == devIdentifier }).first,
-           dev.isConnected == true {
-            STLog.info("dev enable")
-            updateSpeedText("Device Connected")
-            deviceStateRelay.accept(.connected)
-        } else {
-            updateSpeedText("Device disconnectd")
-            deviceStateRelay.accept(.disconnected)
-        }
-    }
-    
-    // 更新速度文本
-    func updateSpeedText(_ text: String) {
-        speedTextRelay.accept(text)
-    }
-}
-
-
-//MARK: - STAccessoryManagerDelegate
-extension STCameraVM: STAccessoryConnectDelegate {
-    func didConnect(device: EAAccessory) {
-        checkDevState()
-    }
-    
-    func didDisconnect(device: EAAccessory) {
-        if devIdentifier == device.serialNumber { //当前正在错误的设备，需要关闭流
-            
-        }
-        
-        checkDevState()
-    }
-}
-
-//MARK: - image receiver
-extension STCameraVM: STAccesoryHandlerImageReceiver {
-    func didReceiveDeviceImageResponse(_ imgRes: STAResponse) {
-        let imgData = imgRes.imageData
-        guard imgData.count > 0 else { return }
-        
-        // 在子线程处理图像数据
-        autoreleasepool { [weak self] in
-            self?.mjpegUtil.receive(NSData(data: imgData) as Data) { [weak self] (img: UIImage) in
-                guard let self = self else { return }
-                
-                // 更新速度计数（在子线程）
-                self.speedTool.appendCount(imgData.count)
-                // 更新图像（在子线程）
-                self.updatePreviewImage(img)
-            }
         }
     }
 }

@@ -403,4 +403,4 @@ private extension UIImage {
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
         return buffer
     }
-} 
+}

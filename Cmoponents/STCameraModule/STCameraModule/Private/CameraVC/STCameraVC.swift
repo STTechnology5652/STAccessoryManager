@@ -161,7 +161,7 @@ private extension STCameraVC {
             })
             .drive(previewImageView.rx.image)
             .disposed(by: disposeBag)
-            
+        
         output.cameraRotation
             .drive(onNext: { [weak self] rotation in
                 self?.updatePreviewRotation(degrees: rotation)
@@ -183,31 +183,16 @@ private extension STCameraVC {
             .drive(btnStart.rx.backgroundImage())
             .disposed(by: disposeBag)
         
-        // 绑定录制状态到照片和视频按钮
-        let controlButtons = [btnPhoto, btnVideo]
-        controlButtons.forEach { button in
-            Observable.combineLatest(
-                output.isPhotoMode.asObservable(),
-                output.shouldDisableButtons.asObservable()
-            )
-            .map { isPhotoMode, shouldDisable in
-                isPhotoMode ? true : !shouldDisable
-            }
-            .asDriver(onErrorJustReturn: true)
-            .drive(button.rx.isEnabled)
+        // 绑定按钮状态
+        output.buttonState
+            .drive(onNext: { [weak self] state in
+                guard let self = self else { return }
+                [self.btnPhoto, self.btnVideo].forEach { button in
+                    button.isEnabled = state.isEnabled
+                    button.alpha = state.alpha
+                }
+            })
             .disposed(by: disposeBag)
-            
-            Observable.combineLatest(
-                output.isPhotoMode.asObservable(),
-                output.shouldDisableButtons.asObservable()
-            )
-            .map { isPhotoMode, shouldDisable in
-                isPhotoMode ? 1.0 : (shouldDisable ? 0.5 : 1.0)
-            }
-            .asDriver(onErrorJustReturn: 1.0)
-            .drive(button.rx.alpha)
-            .disposed(by: disposeBag)
-        }
     }
     
     func bindControlPanel(_ output: STCameraVM.STCameraOutput) {
