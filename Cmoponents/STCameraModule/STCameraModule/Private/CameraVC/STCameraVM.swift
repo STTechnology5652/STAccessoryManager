@@ -266,6 +266,8 @@ extension STCameraVM {
                     self?.checkDevState()
                 }
             })
+            closeStream()
+            getDevConfig()
         }
     }
     
@@ -287,7 +289,6 @@ extension STCameraVM {
     }
     
     private func getDevConfig() {
-        return
         STLog.debug()
         guard let devHandler else {
             STLog.err("no device handler")
@@ -357,21 +358,21 @@ extension STCameraVM: STAccessoryConnectDelegate {
     }
 }
 
-//MARK: - image receivew
+//MARK: - image receiver
 extension STCameraVM: STAccesoryHandlerImageReceiver {
     func didReceiveDeviceImageResponse(_ imgRes: STAResponse) {
         let imgData = imgRes.imageData
-        guard imgData.count > 0 else {
-            return
-        }
+        guard imgData.count > 0 else { return }
+        
+        // 在子线程处理图像数据
         autoreleasepool { [weak self] in
-            self?.mjpegUtil.receive(NSData(data: imgData) as Data) {(img: UIImage) in
-                DispatchQueue.main.async { [weak self] in
-                    guard let self else {return}
-                    self.updatePreviewImage(img)
-                    //                STLog.debug("did receive image data:\(imgData)")
-                    speedTool.appendCount(imgData.count)
-                }
+            self?.mjpegUtil.receive(NSData(data: imgData) as Data) { [weak self] (img: UIImage) in
+                guard let self = self else { return }
+                
+                // 更新速度计数（在子线程）
+                self.speedTool.appendCount(imgData.count)
+                // 更新图像（在子线程）
+                self.updatePreviewImage(img)
             }
         }
     }

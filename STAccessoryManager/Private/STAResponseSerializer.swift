@@ -7,7 +7,7 @@
 
 import Foundation
 
-private let kMaxPackageSize: UInt64 = 1024 * 1024 * 2
+private let kMaxPackageSize: UInt64 = 1024 * 512
 private let kMaxConcurentAnalysisCount: Int = 8
 private let kMaxPackageStoreCount: UInt64 = 512  //同时允许暂存 512 个包， 如果超过，就丢弃已经缓存的所有包
 
@@ -70,14 +70,14 @@ class STAResponseSeriaLizer: NSObject, STAResponseSeriaLizerProtocol {
         if concurruntCount > 0, let one = bufferStore.first {
             bufferStore.removeFirst()
             bufferTotalBytes -= UInt64(one.data.count)
+            analysisDataExe(onePackage: one)
+        } else { //并发任务过多， 不需要开新任务
             if bufferTotalBytes > kMaxPackageSize, bufferStore.count > kMaxPackageStoreCount { //数据累计过多， 开始丢弃累积的数据
                 STLog.info("Too more data to analysis, clear them")
                 bufferStore.removeAll()
                 bufferTotalBytes = 0
+                concurruntCount = kMaxConcurentAnalysisCount
             }
-            analysisDataExe(onePackage: one)
-        } else { //并发任务过多， 不需要开新任务
-            
         }
     }
     
@@ -95,9 +95,11 @@ class STAResponseSeriaLizer: NSObject, STAResponseSeriaLizerProtocol {
             analysisQueue.async { [weak self] in
                 guard let self else { return }
                 concurruntCount += 1
+                concurruntCount = concurruntCount > kMaxConcurentAnalysisCount ? kMaxConcurentAnalysisCount : concurruntCount
                 startAnalysisData() // 递归解析协议包
             }
         }
+        startAnalysisData()
     }
     
     private func backDevData(_ resultWork: STASerilaResultToBack) {

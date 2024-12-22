@@ -132,24 +132,47 @@ class STCameraVC: STABaseVC {
         vm.viewWillAppear()
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
         
         if #available(iOS 16.0, *) {
-            // 获取当前窗口场景
             if let windowScene = view.window?.windowScene {
                 // 强制恢复为竖直方向
                 let geometryPreferences = UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: .portrait)
-                windowScene.requestGeometryUpdate(geometryPreferences)
+                windowScene.requestGeometryUpdate(geometryPreferences) { error in
+                    // error 已经是非可选类型，直接使用
+                    STLog.err("Failed to update orientation: \(error)")
+                }
             }
         } else {
             // 旧版本的处理方式
             if UIDevice.current.orientation != .portrait {
                 UIDevice.current.setValue(UIDeviceOrientation.portrait.rawValue, forKey: "orientation")
+                // 添加延迟确保方向更新完成
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    UIViewController.attemptRotationToDeviceOrientation()
+                }
             }
         }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
         
-        UIViewController.attemptRotationToDeviceOrientation()
+        // 再次确认设备方向
+        if UIDevice.current.orientation != .portrait {
+            if #available(iOS 16.0, *) {
+                if let windowScene = view.window?.windowScene {
+                    let geometryPreferences = UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: .portrait)
+                    windowScene.requestGeometryUpdate(geometryPreferences)
+                }
+            } else {
+                UIDevice.current.setValue(UIDeviceOrientation.portrait.rawValue, forKey: "orientation")
+            }
+            UIViewController.attemptRotationToDeviceOrientation()
+        }
+        
+        // VM 清理放在这里
         vm.viewDidDisappear()
     }
     
@@ -173,10 +196,9 @@ class STCameraVC: STABaseVC {
         )
         let outPut = vm.transform(input: input)
         
-        // 绑定显示图像
+        // 绑定显示图像（Driver 已经确保在主线程执行）
         outPut.displayImage
             .do(onNext: { [weak self] image in
-                // 根据图像是否为空来显示/隐藏 Mediscope 图标
                 self?.imgMedi.isHidden = image.size != .zero
             })
             .drive(previewImageView.rx.image)
@@ -241,7 +263,7 @@ class STCameraVC: STABaseVC {
             })
             .disposed(by: disposeBag)
         
-        // 绑定速度文本到 label
+        // 绑定速度文本（Driver 已经确保在主线程执行）
         outPut.speedText
             .drive(labStreamInfo.rx.text)
             .disposed(by: disposeBag)
