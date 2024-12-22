@@ -10,8 +10,18 @@ import CYLTabBarController
 import STResource
 
 open class STABaseVC: CYLBaseViewController {
+    public var stNavHeihgt: CGFloat = {
+        return 44
+    }()
+    
+    public var stSafeTop: CGFloat = {
+        return UIApplication.shared.keyWindow?.safeAreaInsets.top ?? 0
+    }()
+    
     open override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .c_theme_back
+        
         let btn = UIButton(type: .custom)
         btn.setBackgroundImage(UIImage.stImage(name: "ico_back"), for: .normal)
         btn.addTarget(self, action: #selector(self.stNavBackItemAction), for: .touchUpInside)

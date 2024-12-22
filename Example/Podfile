@@ -26,17 +26,28 @@ def pod_local
   pod 'STABaseUI', :path => '../Cmoponents/STABaseUI'
 end
 
+def pod_business
+  path_business_dir = '../Cmoponents/'
+  pod 'STCameraModule', :path => File.join(path_business_dir, 'STCameraModule')
+  pod 'STRouterServiceDefine', :path => File.join(path_business_dir, 'STRouterServiceDefine')
+end
+
 def pod_common
   pod 'Localize-Swift', :git => 'https://github.com/marmelroy/Localize-Swift.git'
   
   pod 'SnapKit', :git => 'https://github.com/SnapKit/SnapKit.git', :tag => '5.7.1'
+  pod 'SnapKitExtend', :git => 'https://github.com/spicyShrimp/SnapKitExtend.git', :tag => '1.1.0'
   pod 'Then', :git => 'https://github.com/devxoul/Then.git', :tag => '3.0.0'
   pod 'Toast-Swift', :git => 'https://github.com/scalessec/Toast-Swift.git', :tag => '5.1.1'
   pod 'RxSwift', :git => 'https://github.com/ReactiveX/RxSwift.git', :tag => '6.8.0'
   pod 'RxCocoa', :git => "https://github.com/ReactiveX/RxSwift.git", :tag => '6.8.0'
   pod 'RxRelay', :git => "https://github.com/ReactiveX/RxSwift.git", :tag => '6.8.0'
   pod 'CYLTabBarController', :git => "https://github.com/ChenYilong/CYLTabBarController.git", :tag => '1.29.2'
+  pod 'YYModel', :git => "https://github.com/ibireme/YYModel.git", :tag => '1.0.4'
   
+  pod_develop
+  pod_business
+  pod_local
 end
 
 def pod_beta
@@ -50,19 +61,14 @@ project_path = './STAccessoryManager.xcodeproj'
 project project_path
 target 'STAccessoryManager_Beta' do
   # Pods for STAccessoryManager_Beta
-  pod_develop
-  pod_local
   pod_common
   pod_beta
-  
 end
 
 
 project project_path
 target 'STAccessoryManager_Release' do
   # Pods for STAccessoryManager_Release
-  pod_develop
-  pod_local
   pod_common
 end
 

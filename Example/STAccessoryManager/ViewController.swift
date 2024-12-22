@@ -92,9 +92,11 @@ class ViewController: STABaseVC {
 #if K_BETA
     @objc
     private func btnActionForceJump(_ sender: UIButton) {
-        let vc = STDevPlayViewController()
-        vc.devIdentifier = ""
-        navigationController?.pushViewController(vc, animated: true)
+        STRouter.shareInstance().stOpenUrlInstance(STRouterDefine.kCameraModul, fromVC: self)
+        
+//        let vc = STDevPlayViewController()
+//        vc.devIdentifier = ""
+//        navigationController?.pushViewController(vc, animated: true)
     }
 #endif
     
