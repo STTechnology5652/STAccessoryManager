@@ -293,7 +293,7 @@ private extension STCameraVC {
         stack.axis = .horizontal
         vTopNav.addSubview(stack)
         
-        let arr = [btnColor, btnCameraRotate, btnPhoneRotate]
+        let arr = [/*btnColor,*/ btnCameraRotate, btnPhoneRotate]
         var btnContainerArr = [UIView]()
         arr.forEach {
             let v = UIView()

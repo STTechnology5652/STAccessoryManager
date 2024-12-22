@@ -27,10 +27,7 @@ class STAReadStream: NSObject {
     
     deinit {
         STLog.info()
-        stream.close()
-        if let streamRunloop {
-            stream.remove(from: streamRunloop, forMode: .common)
-        }
+        closeStream()
     }
     
     init(stream: InputStream, delegate: STAReaderStreamDelegate) {
@@ -38,22 +35,34 @@ class STAReadStream: NSObject {
         self.delegate = delegate
         super.init()
         stream.delegate = self
-        
+        setupStream()
+    }
+    
+    private func setupStream() {
         DispatchQueue.global().async { [weak self] in
-            guard let self else {return}
+            guard let self else { return }
             let runloop = RunLoop.current
-            streamRunloop = runloop
-            stream.schedule(in: runloop, forMode: .common)
-            stream.open()
-            runloop.run()  // 确保 RunLoop 持续运行
+            self.streamRunloop = runloop
+            self.stream.schedule(in: runloop, forMode: .common)
+            self.stream.open()
+            runloop.run()
         }
-        
+    }
+    
+    private func closeStream() {
+        stream.close()
+        if let streamRunloop {
+            stream.remove(from: streamRunloop, forMode: .common)
+        }
+    }
+    
+    private func reconnectStream() {
+        closeStream()
+        setupStream()
     }
     
     private func readData() {
-        if stream.hasBytesAvailable {
-            readDataExe()
-        }
+        readDataExe()
     }
     
     // 必须是串行队列调用， 防止资源竞争
@@ -91,10 +100,19 @@ extension STAReadStream: StreamDelegate {
             readData()
         case .endEncountered:
             STLog.info(tag: kTag_STAReadStream, "endEncountered")
+            // 流结束时自动重连
+            reconnectStream()
         case .errorOccurred:
             STLog.info(tag: kTag_STAReadStream, "errorOccurred")
+            // 发生错误时也尝试重连
+            reconnectStream()
         default:
             STLog.err(tag: kTag_STAReadStream, "un deal status")
         }
     }
+}
+
+// 添加通知名称
+extension Notification.Name {
+    static let streamNeedsReconnection = Notification.Name("streamNeedsReconnection")
 }

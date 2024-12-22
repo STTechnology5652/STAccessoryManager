@@ -47,12 +47,32 @@ extension STCameraVC {
         let currentRotation = vm.getCurrentRotation()
         guard currentRotation != 0 else { return image }
         
+        // 获取当前设备方向
+        let isPortrait: Bool
+        if #available(iOS 16.0, *) {
+            isPortrait = view.window?.windowScene?.interfaceOrientation == .portrait
+        } else {
+            isPortrait = UIDevice.current.orientation == .portrait
+        }
+        
+        // 根据设备方向和相机旋转角度确定最终图片方向
         let orientation: UIImage.Orientation = {
-            switch currentRotation {
-            case 90: return .right
-            case 180: return .down
-            case 270: return .left
-            default: return .up
+            if isPortrait {
+                // 竖屏时的旋转
+                switch currentRotation {
+                case 90: return .right
+                case 180: return .down
+                case 270: return .left
+                default: return .up
+                }
+            } else {
+                // 横屏时的旋转需要考虑设备方向
+                switch currentRotation {
+                case 90: return .left
+                case 180: return .down
+                case 270: return .right
+                default: return .up
+                }
             }
         }()
         
@@ -63,7 +83,7 @@ extension STCameraVC {
     }
 }
 
-// MARK: - Alerts & Toasts
+// MARK: - Toast Methods
 private extension STCameraVC {
     func showPhotoLibraryAlert() {
         let alert = UIAlertController(
@@ -85,9 +105,11 @@ private extension STCameraVC {
     
     func showSaveSuccessToast() {
         STLog.debug("照片保存成功")
+        // TODO: 添加成功提示 UI
     }
     
     func showSaveFailureToast(_ error: String?) {
         STLog.err("照片保存失败: \(error ?? "unknown error")")
+        // TODO: 添加失败提示 UI
     }
 }
