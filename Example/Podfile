@@ -93,6 +93,15 @@ post_install do |installer|
   # 添加创建时候类前缀
   installer.pod_target_subprojects.each do |onePodProject|
     onePodProject.root_object.attributes["CLASSPREFIX"] = "ST" # 添加 class prefix
+    
+    # Pod project 编译配置
+    onePodProject.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+      config.build_settings['CLANG_WARN_DOCUMENTATION_COMMENTS'] = 'NO'
+      # xcode15 支持 c++旧版链接器
+      # items_append = "$(inherited) -ld64 -ld_classic"
+      # config.build_settings['OTHER_LDFLAGS'] = pod_string_item_appen(config.build_settings['OTHER_LDFLAGS'], items_append)
+    end
   end
 
   installer.pod_target_subprojects.flat_map { |p| p.targets }.each do |target|
@@ -109,11 +118,12 @@ post_install do |installer|
   installer.pod_target_subprojects.flat_map { |p| p.targets }.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0' #修改pod的最低版本
-      
+
       # 以下是xcode14 忽略 bundle 类型pod签名
       config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ""
       config.build_settings['CODE_SIGNING_REQUIRED'] = "NO"
       config.build_settings['CODE_SIGNING_ALLOWED'] = "NO"
+#      config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO' #修改pod的最低版本
     end
   end
 end

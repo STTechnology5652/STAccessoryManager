@@ -8,7 +8,7 @@ Pod::Spec.new do |spec|
   DESC
 
   spec.homepage         = 'http://github.com/coder/STAccessoryManager'
-  spec.license      = { :type => "MIT", :file => "FILE_LICENSE" }
+  spec.license      = { :type => "MIT", :file => "LICENSE" }
   spec.author             = { "coder" => "123@gmail.com" }
   spec.ios.deployment_target = '10.0'
 

@@ -37,7 +37,7 @@ extension STResource {
     private static let resoutceBundleName = "STResource"
     static let languageTableName: String = "STLan"
     
-    static let cur_bundle = {
+    private static let cur_bundle = {
         let bundle = Bundle(for: STResource.self)
         let result = bundle
         
