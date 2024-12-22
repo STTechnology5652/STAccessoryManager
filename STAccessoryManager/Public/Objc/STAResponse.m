@@ -38,7 +38,7 @@ const NSString *kTag_cmdRes = @"kTag_STAResponse";
     return self;
 }
 
-+ (NSArray<STAResponse *> *)new_analysisiBuffer:(NSData *)data byteUsed:(nonnull UInt64 *)byteUsed {
++ (NSArray<STAResponse *> *)new_analysisiBuffer:(NSData *)data byteUsed:(nonnull UInt64 *)byteUsed timeUsed:(NSTimeInterval *)secondUsed {
     NSThread *curThread = [NSThread currentThread];
     NSDate *startDate = [NSDate date];
     NSString *taskId = [NSUUID UUID].UUIDString;
@@ -65,13 +65,13 @@ const NSString *kTag_cmdRes = @"kTag_STAResponse";
                 [result addObject:oneRes];
             }
         }
-        
-        
-        NSTimeInterval timeUsed = [[NSDate date] timeIntervalSinceDate:startDate];
-        STLogDebug_resp(@"analysis_finish[%@][%.05fs] len_usefull:%lu oriLen:[%lu] usefullResCount:%lu thread: %@", taskId, timeUsed, useFullLen, len, result.count, curThread);
     }
     
+    NSTimeInterval timeUsed = [[NSDate date] timeIntervalSinceDate:startDate];
+    STLogDebug_resp(@"analysis_finish[%@][%.05fs] len_usefull:%lu oriLen:[%lu] usefullResCount:%lu thread: %@", taskId, timeUsed, useFullLen, len, result.count, curThread);
+    
     *byteUsed = offset;
+    *secondUsed = timeUsed;
     return result;
 }
 
@@ -79,7 +79,7 @@ const NSString *kTag_cmdRes = @"kTag_STAResponse";
     // 尝试解析一个报文包
     NSUInteger offset = 0;
     
-    NSData* debugData = [NSData dataWithBytes:byt length:len];
+//    NSData* debugData = [NSData dataWithBytes:byt length:len];
 //    STLogDebug_resp(@"analysis_start_onece[%@](num:%lu) len_to_analysis:%lu", taskId, taskNum, len);
 //    STLogDebug_file_resp(@"analysis_start_onece[%@](num:%lu) len_to_analysis[%lu]:%@", taskId, taskNum, len, debugData);
     if (len < 0x0c) { //不够 0x0c 字节
@@ -135,8 +135,8 @@ const NSString *kTag_cmdRes = @"kTag_STAResponse";
 
 
 
-+ (NSArray<STAResponse*> *)analysisiBuffer:(NSData *)data byteUsed:(UInt64 *)byteUsed {
-    return [self new_analysisiBuffer:data byteUsed:byteUsed];
++ (NSArray<STAResponse*> *)analysisiBuffer:(NSData *)data byteUsed:(UInt64 *)byteUsed timeUsed:(NSTimeInterval *)secondUsed {
+    return [self new_analysisiBuffer:data byteUsed:byteUsed timeUsed:secondUsed];
 }
 
 @end

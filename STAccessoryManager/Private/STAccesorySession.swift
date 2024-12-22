@@ -109,6 +109,8 @@ class STAccesorySession: NSObject{
         session = EASession(accessory: dev, forProtocol: sessionProtocol)
         super.init()
         
+        responseSerializer.delegate = self
+
         if let session {
             configSession(session)
         } else {
@@ -145,23 +147,7 @@ extension STAccesorySession {
                     STLog.err(tag: kTag_STAccesorySession, "analysis device data work failed, since no session")
                     return
                 }
-                let cmdAnalysisResult: (resArr:[STAResponse], usedByts: UInt64) = responseSerializer.shouldAnalysisBuffer(buffer: data)
-                STLog.err(tag: kTag_STAccesorySession, "anasysis device data success, total success: \(cmdAnalysisResult.usedByts)")
-                
-                cmdAnalysisResult.resArr.forEach { (cmdRes: STAResponse) in
-                    switch cmdRes.analysisStatus {
-                    case .failed:
-                        // STLog.err(tag: kTag_STAccesorySession, "workfailed, should delete anasysised data and wait one mor data: \(cmdRes.usedLength)")
-                        analysisDevDataSuccess(response: cmdRes)
-                    case .dataNotEnough:
-                        STLog.warning(tag: kTag_STAccesorySession, "data not enough and wait one more data")
-                    case .success:
-                        // STLog.info(tag: kTag_STAccesorySession, "analysis success and wait one more data，analysisLen[\(cmdRes.usedLength)]")
-                        analysisDevDataSuccess(response: cmdRes)
-                    @unknown default:
-                        STLog.warning(tag: kTag_STAccesorySession, "data analysis not know result, delete all data and wait one more data")
-                    }
-                }
+                responseSerializer.shouldAnalysisBuffer(buffer: data)
             }
         }
     }
@@ -180,6 +166,25 @@ extension STAccesorySession {
                         oneReceivew.didReceiveDeviceImageResponse(response)
                     }
                 }
+            }
+        }
+    }
+}
+
+extension STAccesorySession: STASerialResultDelegate {
+    func didAnalysisOnePackage(resArr: [STAResponse]) {
+        resArr.forEach { (cmdRes: STAResponse) in
+            switch cmdRes.analysisStatus {
+            case .failed:
+                // STLog.err(tag: kTag_STAccesorySession, "workfailed, should delete anasysised data and wait one mor data: \(cmdRes.usedLength)")
+                analysisDevDataSuccess(response: cmdRes)
+            case .dataNotEnough:
+                STLog.warning(tag: kTag_STAccesorySession, "data not enough and wait one more data")
+            case .success:
+                // STLog.info(tag: kTag_STAccesorySession, "analysis success and wait one more data，analysisLen[\(cmdRes.usedLength)]")
+                analysisDevDataSuccess(response: cmdRes)
+            @unknown default:
+                STLog.warning(tag: kTag_STAccesorySession, "data analysis not know result, delete all data and wait one more data")
             }
         }
     }

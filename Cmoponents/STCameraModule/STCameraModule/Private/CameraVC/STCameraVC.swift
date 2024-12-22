@@ -273,7 +273,7 @@ class STCameraVC: STABaseVC {
         // 3. 添加控制面板，确保在显示容器之上
         view.addSubview(vControl)
         vControl.snp.makeConstraints { make in
-            make.edges.equalTo(UIEdgeInsets(top: stSafeTop, left: 0, bottom: -stSafeBottom, right: 0))
+            make.edges.equalTo(UIEdgeInsets(top: stSafeTop, left: 0, bottom: stSafeBottom, right: 0))
         }
         
         // 4. 最后添加顶部导航栏，确保在最上层

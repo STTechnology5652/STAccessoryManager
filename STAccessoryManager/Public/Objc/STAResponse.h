@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)jsonDict;
 - (NSString *)jsonString;
 
-+ (NSArray<STAResponse*> *)analysisiBuffer:(NSData *)data byteUsed:(UInt64 *)byteUsed;
++ (NSArray<STAResponse*> *)analysisiBuffer:(NSData *)data byteUsed:(UInt64 *)byteUsed timeUsed:(NSTimeInterval *)secondUsed;
 @end
 
 NS_ASSUME_NONNULL_END

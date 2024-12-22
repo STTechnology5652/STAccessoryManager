@@ -364,12 +364,14 @@ extension STCameraVM: STAccesoryHandlerImageReceiver {
         guard imgData.count > 0 else {
             return
         }
-        mjpegUtil.receive(NSData(data: imgData) as Data) {(img: UIImage) in
-            DispatchQueue.main.async { [weak self] in
-                guard let self else {return}
-                self.updatePreviewImage(img)
-                //                STLog.debug("did receive image data:\(imgData)")
-                speedTool.appendCount(imgData.count)
+        autoreleasepool { [weak self] in
+            self?.mjpegUtil.receive(NSData(data: imgData) as Data) {(img: UIImage) in
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else {return}
+                    self.updatePreviewImage(img)
+                    //                STLog.debug("did receive image data:\(imgData)")
+                    speedTool.appendCount(imgData.count)
+                }
             }
         }
     }

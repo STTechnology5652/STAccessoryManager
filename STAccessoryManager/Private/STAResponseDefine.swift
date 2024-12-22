@@ -7,7 +7,12 @@
 
 import Foundation
 
+protocol STASerialResultDelegate {
+    func didAnalysisOnePackage(resArr: [STAResponse])
+}
+
 protocol STAResponseSeriaLizerProtocol: NSObjectProtocol {
-    func shouldAnalysisBuffer(buffer: Data) -> (resArr: [STAResponse], usedByts: UInt64)
+    var delegate: (NSObject & STASerialResultDelegate)? {set get}
+    func shouldAnalysisBuffer(buffer: Data)
 }
 

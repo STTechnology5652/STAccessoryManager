@@ -71,6 +71,7 @@ class STAReadStream: NSObject {
 //                STLog.debug(tag: kTag_STAReadStream, justLogFile: true, "read stream get bytes [\(dataRead.count)]: \((dataRead as NSData).hexString())")
                 STLog.info(tag: kTag_STAReadStream, "read stream get byte <<<<< : \(dataRead)")
                 self?.delegate?.didReadData(data: dataRead)
+                readData()
             }
             else { // 没有读取到字节，尝试再次读取
                 STLog.warning(tag: kTag_STAReadStream, "read stream get empty bytes")
