@@ -122,7 +122,7 @@ extension STAccesoryHandler: EAAccessoryDelegate {
             return
         }
         
-        if let session = sessionMap[sessionProtocol] {
+        if let session = sessionMap[sessionProtocol], session.sender != nil, session.reader != nil {
             complete?(STAccessoryWorkResult(devSerialNumber: devSerinalNumber, workData: session))
             return
         } else {

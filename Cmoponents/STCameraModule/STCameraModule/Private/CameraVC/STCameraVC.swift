@@ -8,122 +8,87 @@
 import STAllBase
 
 class STCameraVC: STABaseVC {
+    // MARK: - Properties
     let vm = STCameraVM()
     var devIdentifier = ""
-    
-    lazy var btnBack = {
-        UIButton(type: .custom).then { btn in
-            btn.setBackgroundImage(UIImage.stImage(name: "ico_back"), for: .normal)
-        }
-    }()
-    
-    lazy var btnColor = {
-        UIButton(type: .custom).then { btn in
-            btn.setBackgroundImage(UIImage.stImage(name: "ico_color"), for: .normal)
-        }
-    }()
-    
-    lazy var btnCameraRotate = {
-        UIButton(type: .custom).then { btn in
-            btn.setBackgroundImage(UIImage.stImage(name: "ico_camera_rotate"), for: .normal)
-        }
-    }()
-    
-    lazy var btnPhoneRotate = {
-        UIButton(type: .custom).then { btn in
-            btn.setBackgroundImage(UIImage.stImage(name: "ico_phone_rotate"), for: .normal)
-        }
-    }()
-    
-    lazy var vTopNav = {
-        UIView().then { v in
-            v.backgroundColor = .c_333333
-        }
-    }()
-    
-    lazy var vDisplayContainer = {
-        UIView().then { v in
-            v.backgroundColor = .c_theme_back
-        }
-    }()
-    
-    lazy var imgMedi = {
-        UIImageView().then { v in
-            v.image = UIImage.stImage(name: "ico_mediscope")
-        }
-    }()
-    
-    
-    lazy var vControl = {
-        UIView().then { v in
-            v.backgroundColor = .clear
-        }
-    }()
-    
-    lazy var btnStart = {
-        UIButton().then { v in
-            v.setBackgroundImage(UIImage.stImage(name: "ico_start_record"), for: .normal)
-        }
-    }()
-    
-    lazy var btnPhoto = {
-        UIButton().then { v in
-            v.setBackgroundImage(UIImage.stImage(name: "ico_photo"), for: .normal)
-        }
-    }()
-    
-    lazy var btnVideo = {
-        UIButton().then { v in
-            v.setBackgroundImage(UIImage.stImage(name: "ico_video"), for: .normal)
-        }
-    }()
-    
-    
-    lazy var btnAlbum = {
-        UIButton().then { v in
-            v.setBackgroundImage(UIImage.stImage(name: "ico_album"), for: .normal)
-        }
-    }()
-    
-    lazy var btnFocalPoint = {
-        UIButton().then { v in
-            v.setBackgroundImage(UIImage.stImage(name: "ico_focal_point"), for: .normal)
-        }
-    }()
-
     private let disposeBag = DisposeBag()
-    
-    // 添加一个 Subject 用于发送点击事件
     private let controlTapSubject = PublishSubject<Void>()
     
-    // 添加预览 ImageView
-    private lazy var previewImageView = {
-        UIImageView().then { iv in
-            iv.contentMode = .scaleAspectFit
-            iv.backgroundColor = .c_theme_back
-        }
-    }()
+    // MARK: - UI Components
+    // Navigation Components
+    private let btnBack = UIButton(type: .custom).then {
+        $0.setBackgroundImage(UIImage.stImage(name: "ico_back"), for: .normal)
+    }
     
-    // 添加显示速度的 label
-    private lazy var labStreamInfo: UILabel = {
-        UILabel().then { label in
-            label.textColor = .c_text
-            label.font = .systemFont(ofSize: 12)
-            label.textAlignment = .center
-            label.backgroundColor = .clear
-            label.text = "Waiting..."
-        }
-    }()
+    private let btnColor = UIButton(type: .custom).then {
+        $0.setBackgroundImage(UIImage.stImage(name: "ico_color"), for: .normal)
+    }
     
+    private let btnCameraRotate = UIButton(type: .custom).then {
+        $0.setBackgroundImage(UIImage.stImage(name: "ico_camera_rotate"), for: .normal)
+    }
+    
+    private let btnPhoneRotate = UIButton(type: .custom).then {
+        $0.setBackgroundImage(UIImage.stImage(name: "ico_phone_rotate"), for: .normal)
+    }
+    
+    private let vTopNav = UIView().then {
+        $0.backgroundColor = .c_333333
+    }
+    
+    // Display Components
+    private let vDisplayContainer = UIView().then {
+        $0.backgroundColor = .c_theme_back
+    }
+    
+    private let previewImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFit
+        $0.backgroundColor = .c_theme_back
+    }
+    
+    private let imgMedi = UIImageView().then {
+        $0.image = UIImage.stImage(name: "ico_mediscope")
+    }
+    
+    // Control Components
+    private let vControl = UIView().then {
+        $0.backgroundColor = .clear
+    }
+    
+    private let btnStart = UIButton().then {
+        $0.setBackgroundImage(UIImage.stImage(name: "ico_start_record"), for: .normal)
+    }
+    
+    private let btnPhoto = UIButton().then {
+        $0.setBackgroundImage(UIImage.stImage(name: "ico_photo"), for: .normal)
+    }
+    
+    private let btnVideo = UIButton().then {
+        $0.setBackgroundImage(UIImage.stImage(name: "ico_video"), for: .normal)
+    }
+    
+    private let btnAlbum = UIButton().then {
+        $0.setBackgroundImage(UIImage.stImage(name: "ico_album"), for: .normal)
+    }
+    
+    private let btnFocalPoint = UIButton().then {
+        $0.setBackgroundImage(UIImage.stImage(name: "ico_focal_point"), for: .normal)
+    }
+    
+    private let labStreamInfo = UILabel().then {
+        $0.textColor = .c_text
+        $0.font = .systemFont(ofSize: 12)
+        $0.textAlignment = .center
+        $0.backgroundColor = .clear
+        $0.text = "Waiting..."
+    }
+    
+    // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        cyl_navigationBarHidden = true
-        
-        setUpUI()
-        
-        vm.devIdentifier = devIdentifier
-        vm.initData()
-        bindVM()
+        setupBasicConfig()
+        setupUI()
+        setupVM()
         bindActions()
     }
     
@@ -132,27 +97,31 @@ class STCameraVC: STABaseVC {
         vm.viewWillAppear()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        resetDeviceOrientation()
+    }
+    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        
-        // 强制恢复为竖直方向
-        if UIDevice.current.orientation != .portrait {
-            UIDevice.current.setValue(UIDeviceOrientation.portrait.rawValue, forKey: "orientation")
-            UIViewController.attemptRotationToDeviceOrientation()
-        }
-        
         vm.viewDidDisappear()
     }
     
-    private func bindActions() {
-        btnBack.rx.tap
-            .subscribe(onNext: { [weak self] in
-                self?.navigationController?.popViewController(animated: true)
-            })
-            .disposed(by: disposeBag)
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        handleScreenTouch(touch)
+    }
+}
+
+// MARK: - Setup Methods
+private extension STCameraVC {
+    func setupBasicConfig() {
+        cyl_navigationBarHidden = true
+        vm.devIdentifier = devIdentifier
+        vm.initData()
     }
     
-    private func bindVM() {
+    func setupVM() {
         let input = STCameraVM.STCameraInput(
             btnColor: btnColor.rx.tap.asDriver(),
             btnRotateCamera: btnCameraRotate.rx.tap.asDriver(),
@@ -162,121 +131,146 @@ class STCameraVC: STABaseVC {
             btnPhoto: btnPhoto.rx.tap.asDriver(),
             btnVideo: btnVideo.rx.tap.asDriver()
         )
-        let outPut = vm.transform(input: input)
         
-        // 绑定显示图像
-        outPut.displayImage
+        bindVMOutput(vm.transform(input: input))
+    }
+}
+
+// MARK: - Binding Methods
+private extension STCameraVC {
+    func bindActions() {
+        btnBack.rx.tap
+            .subscribe(onNext: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    func bindVMOutput(_ output: STCameraVM.STCameraOutput) {
+        bindImageDisplay(output)
+        bindButtonStates(output)
+        bindControlPanel(output)
+        bindDeviceState(output)
+        bindTopButtons(output)
+    }
+    
+    func bindImageDisplay(_ output: STCameraVM.STCameraOutput) {
+        output.displayImage
             .do(onNext: { [weak self] image in
-                // 根据图像是否为空来显示/隐藏 Mediscope 图标
                 self?.imgMedi.isHidden = image.size != .zero
             })
             .drive(previewImageView.rx.image)
             .disposed(by: disposeBag)
         
+        output.cameraRotation
+            .drive(onNext: { [weak self] rotation in
+                self?.updatePreviewRotation(degrees: rotation)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    func bindButtonStates(_ output: STCameraVM.STCameraOutput) {
         // 绑定拍摄模式到按钮状态
-        outPut.isPhotoMode
+        output.isPhotoMode
             .drive(onNext: { [weak self] isPhotoMode in
                 self?.updateShootingMode(isPhotoMode)
             })
             .disposed(by: disposeBag)
         
-        // 绑定控制面板显示状态
-        outPut.isControlShow
-            .drive(onNext: { [weak self] isShow in
-                self?.updateControlVisibility(isShow)
-            })
-            .disposed(by: disposeBag)
-        
         // 绑定录制状态到开始/停止按钮图像
-        outPut.isRecording
+        output.isRecording
             .map { UIImage.stImage(name: $0 ? "ico_stop" : "ico_start_record") }
             .drive(btnStart.rx.backgroundImage())
             .disposed(by: disposeBag)
         
-        // 绑定录制状态到照片和视频按钮
-        let controlButtons = [btnPhoto, btnVideo]
-        controlButtons.forEach { button in
-            outPut.isRecording
-                .map { !$0 }
-                .drive(button.rx.isEnabled)
-                .disposed(by: disposeBag)
-            
-            outPut.isRecording
-                .map { $0 ? 0.5 : 1.0 }
-                .drive(button.rx.alpha)
-                .disposed(by: disposeBag)
-        }
-        
-        outPut.btnColor
-            .drive(onNext: { [weak self] in
-                self?.handleColorButtonTap()
-            })
-            .disposed(by: disposeBag)
-        
-        outPut.btnRotateCamera
-            .drive(onNext: { [weak self] in
-                self?.handleCameraRotate()
-            })
-            .disposed(by: disposeBag)
-        
-        outPut.btnRotatePhone
-            .drive(onNext: { [weak self] in
-                self?.handlePhoneRotate()
-            })
-            .disposed(by: disposeBag)
-        
-        // 绑定相机旋转角度
-        outPut.cameraRotation
-            .drive(onNext: { [weak self] rotation in
-                self?.updatePreviewRotation(degrees: rotation)
-            })
-            .disposed(by: disposeBag)
-        
-        // 绑定速度文本到 label
-        outPut.speedText
-            .drive(labStreamInfo.rx.text)
-            .disposed(by: disposeBag)
-        
-        // 绑定设备状态
-        outPut.deviceState
+        // 绑定按钮状态
+        output.buttonState
             .drive(onNext: { [weak self] state in
-                switch state {
-                case .disconnected:
-                    self?.showDeviceAlert()
-                case .connected:
-                    break
+                guard let self = self else { return }
+                [self.btnPhoto, self.btnVideo].forEach { button in
+                    button.isEnabled = state.isEnabled
+                    button.alpha = state.alpha
                 }
             })
             .disposed(by: disposeBag)
     }
     
-    private func setUpUI() {
-        // 1. 先添加显示容器
+    func bindControlPanel(_ output: STCameraVM.STCameraOutput) {
+        output.isControlShow
+            .drive(onNext: { [weak self] isShow in
+                self?.updateControlVisibility(isShow)
+            })
+            .disposed(by: disposeBag)
+        
+        output.speedText
+            .drive(labStreamInfo.rx.text)
+            .disposed(by: disposeBag)
+        
+        output.capturedPhoto
+            .drive(onNext: { [weak self] image in
+                self?.savePhotoToAlbum(image)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    func bindDeviceState(_ output: STCameraVM.STCameraOutput) {
+        output.deviceState
+            .drive(onNext: { [weak self] state in
+                if case .disconnected = state {
+                    self?.showDeviceAlert()
+                }
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    func bindTopButtons(_ output: STCameraVM.STCameraOutput) {
+        output.btnColor
+            .drive(onNext: { [weak self] in
+                self?.handleColorButtonTap()
+            })
+            .disposed(by: disposeBag)
+        
+        output.btnRotateCamera
+            .drive(onNext: { [weak self] in
+                self?.handleCameraRotate()
+            })
+            .disposed(by: disposeBag)
+        
+        output.btnRotatePhone
+            .drive(onNext: { [weak self] in
+                self?.handlePhoneRotate()
+            })
+            .disposed(by: disposeBag)
+    }
+}
+
+// MARK: - UI Layout Methods
+private extension STCameraVC {
+    func setupUI() {
+        setupDisplayContainer()
+        setupTopNavigation()
+        setupControlPanel()
+    }
+    
+    func setupDisplayContainer() {
         view.addSubview(vDisplayContainer)
         vDisplayContainer.snp.makeConstraints { make in
             make.edges.equalTo(UIEdgeInsets.zero)
         }
         
-        // 添加预览 ImageView 到显示容器
         vDisplayContainer.addSubview(previewImageView)
         previewImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
         
-        // 2. 添加 Mediscope 图标
         view.addSubview(imgMedi)
         imgMedi.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.size.equalTo(CGSize(width: 185, height: 64))
         }
-        
-        // 3. 添加控制面板，确保在显示容器之上
-        view.addSubview(vControl)
-        vControl.snp.makeConstraints { make in
-            make.edges.equalTo(UIEdgeInsets(top: stSafeTop, left: 0, bottom: stSafeBottom, right: 0))
-        }
-        
-        // 4. 最后添加顶部导航栏，确保在最上层
+    }
+    
+    func setupTopNavigation() {
         view.addSubview(vTopNav)
         vTopNav.addSubview(btnBack)
         
@@ -284,7 +278,7 @@ class STCameraVC: STABaseVC {
         stack.axis = .horizontal
         vTopNav.addSubview(stack)
         
-        let arr = [/*btnColor, */btnCameraRotate, btnPhoneRotate]
+        let arr = [/*btnColor,*/ btnCameraRotate, btnPhoneRotate]
         var btnContainerArr = [UIView]()
         arr.forEach {
             let v = UIView()
@@ -297,22 +291,22 @@ class STCameraVC: STABaseVC {
         }
         
         btnBack.snp.makeConstraints { make in
-            make.left.equalTo(20)
+            make.left.equalTo(view.safeAreaLayoutGuide).offset(20)
             make.width.equalTo(30)
             make.bottom.equalToSuperview()
             make.centerY.equalTo(stack)
         }
         
         stack.snp.makeConstraints { make in
-            make.top.equalTo(stSafeTop)
+            make.top.equalTo(view.safeAreaLayoutGuide)
             make.left.equalTo(btnBack.snp.right).offset(10)
-            make.right.equalToSuperview().offset(-10)
+            make.right.equalTo(view.safeAreaLayoutGuide).offset(-10)
             make.bottom.equalToSuperview()
         }
         
         vTopNav.snp.makeConstraints { make in
             make.left.top.right.equalTo(view)
-            make.height.equalTo(stSafeTop + stNavHeihgt)
+            make.bottom.equalTo(stack)
         }
         
         if btnContainerArr.count > 1, let firstV = btnContainerArr.first {
@@ -323,21 +317,26 @@ class STCameraVC: STABaseVC {
                 }
             }
         }
-        
-        setUpControl()
     }
     
-    private func setUpControl(){
+    func setupControlPanel() {
+        view.insertSubview(vControl, belowSubview: vTopNav)
+        vControl.snp.makeConstraints { make in
+            make.top.equalTo(vTopNav.snp.bottom)
+            make.left.equalTo(view.safeAreaLayoutGuide)
+            make.right.equalTo(view.safeAreaLayoutGuide)
+            make.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+        
         let arrControl = [btnStart, btnAlbum, btnPhoto, btnVideo, btnFocalPoint]
         arrControl.forEach {
             vControl.addSubview($0)
         }
         
-        // 添加速度显示 label 到 vControl
         vControl.addSubview(labStreamInfo)
         labStreamInfo.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.bottom.equalTo(btnPhoto.snp.top).offset(-10)  // 放在照片按钮上方
+            make.bottom.equalTo(btnPhoto.snp.top).offset(-10)
             make.height.equalTo(20)
             make.width.equalTo(200)
         }
@@ -356,10 +355,7 @@ class STCameraVC: STABaseVC {
         }
         
         stackH.snp.makeConstraints { make in
-            make.width.lessThanOrEqualToSuperview().offset(-40)
-            make.bottom.equalToSuperview().offset(-20)
-            make.centerX.equalToSuperview()
-            make.height.equalTo(40)
+            updateStackHConstraints(stackH, isPortrait: true)
         }
         
         let stackSwitch = UIStackView()
@@ -375,132 +371,207 @@ class STCameraVC: STABaseVC {
         }
     }
     
-    private func updateControlVisibility(_ isShow: Bool) {
+    private func updateStackHConstraints(_ stackH: UIStackView, isPortrait: Bool) {
+        stackH.snp.remakeConstraints { make in
+            make.width.lessThanOrEqualToSuperview().offset(-40)
+            make.centerX.equalToSuperview()
+            make.height.equalTo(40)
+            
+            if isPortrait {
+                make.bottom.equalToSuperview().offset(-20)
+            } else {
+                make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
+            }
+        }
+        
+        if let stackSwitch = vControl.subviews.first(where: { ($0 as? UIStackView)?.arrangedSubviews.contains(btnPhoto) == true }) {
+            stackSwitch.snp.updateConstraints { make in
+                make.bottom.equalTo(stackH.snp.top).offset(isPortrait ? -15 : -10)
+            }
+        }
+    }
+}
+
+// MARK: - UI Update Methods
+private extension STCameraVC {
+    func updateControlVisibility(_ isShow: Bool) {
         UIView.animate(withDuration: 0.3) {
             self.vControl.alpha = isShow ? 1.0 : 0.0
             self.vTopNav.alpha = isShow ? 1.0 : 0.0
         }
     }
     
-    // 重写 touchesBegan 方法
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
-        let location = touch.location(in: view)
-        
-        // 检查点击位置是否在控制面板的子视图或导航栏的子视图内
-        let isInControlButtons = [btnStart, btnAlbum, btnPhoto, btnVideo, btnFocalPoint].contains { button in
-            let buttonFrame = button.convert(button.bounds, to: view)
-            return buttonFrame.contains(location)
-        }
-        
-        let isInNavButtons = [btnBack, btnColor, btnCameraRotate, btnPhoneRotate].contains { button in
-            let buttonFrame = button.convert(button.bounds, to: view)
-            return buttonFrame.contains(location)
-        }
-        
-        // 如果点击不在任何按钮上，触发显示/隐藏
-        if !isInControlButtons && !isInNavButtons {
-            controlTapSubject.onNext(())
-        }
-    }
-    
-    private func updatePreviewRotation(degrees: Int) {
-        // 将角度转换为弧度
+    func updatePreviewRotation(degrees: Int) {
         let radians = CGFloat(degrees) * .pi / 180.0
         
-        // 使用动画旋转预览视图
         UIView.animate(withDuration: 0.3) {
             self.previewImageView.transform = CGAffineTransform(rotationAngle: radians)
         }
         
-        // 根据旋转角度调整预览视图的约束
-        if degrees == 90 || degrees == 270 {
-            // 横向显示时调整约束
-            previewImageView.snp.remakeConstraints { make in
+        previewImageView.snp.remakeConstraints { make in
+            if degrees == 90 || degrees == 270 {
                 make.center.equalToSuperview()
-                // 交换宽高比
                 make.width.equalTo(vDisplayContainer.snp.height)
                 make.height.equalTo(vDisplayContainer.snp.width)
-            }
-        } else {
-            // 竖向显示时恢复原始约束
-            previewImageView.snp.remakeConstraints { make in
+            } else {
                 make.edges.equalToSuperview()
             }
         }
         
-        // 强制布局更新
         view.layoutIfNeeded()
     }
     
-    private func showDeviceAlert() {
-        let alert = UIAlertController(title: "提示", message: "设备连接断开", preferredStyle: .alert)
+    func updateShootingMode(_ isPhotoMode: Bool) {
+        btnPhoto.setBackgroundImage(
+            UIImage.stImage(name: isPhotoMode ? "ico_camera_taped" : "ico_photo"),
+            for: .normal
+        )
         
-        let sure = UIAlertAction(title: "确定", style: .default) { [weak self] _ in
-            self?.navigationController?.popViewController(animated: true)
+        btnVideo.setBackgroundImage(
+            UIImage.stImage(name: isPhotoMode ? "ico_video" : "ico_video_taped"),
+            for: .normal
+        )
+    }
+}
+
+// MARK: - Touch Handling
+private extension STCameraVC {
+    func handleScreenTouch(_ touch: UITouch) {
+        let location = touch.location(in: view)
+        let controlButtons = [btnStart, btnAlbum, btnPhoto, btnVideo, btnFocalPoint]
+        let navButtons = [btnBack, btnColor, btnCameraRotate, btnPhoneRotate]
+        
+        let isInControlButtons = controlButtons.contains { button in
+            button.convert(button.bounds, to: view).contains(location)
         }
         
-        let cancel = UIAlertAction(title: "知道了", style: .cancel)
+        let isInNavButtons = navButtons.contains { button in
+            button.convert(button.bounds, to: view).contains(location)
+        }
         
-        alert.addAction(sure)
-        alert.addAction(cancel)
+        if !isInControlButtons && !isInNavButtons {
+            controlTapSubject.onNext(())
+        }
+    }
+}
+
+// MARK: - Device Orientation
+private extension STCameraVC {
+    func resetDeviceOrientation() {
+        if #available(iOS 16.0, *) {
+            resetOrientationIOS16()
+        } else {
+            resetOrientationLegacy()
+        }
+        
+        // 强制等待一小段时间确保方向更新完成
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            UIViewController.attemptRotationToDeviceOrientation()
+        }
+    }
+    
+    @available(iOS 16.0, *)
+    func resetOrientationIOS16() {
+        if let windowScene = view.window?.windowScene {
+            let geometryPreferences = UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: .portrait)
+            windowScene.requestGeometryUpdate(geometryPreferences) { error in
+                STLog.err("Failed to update orientation: \(error)")
+            }
+        }
+    }
+    
+    func resetOrientationLegacy() {
+        if UIDevice.current.orientation != .portrait {
+            UIDevice.current.setValue(UIDeviceOrientation.portrait.rawValue, forKey: "orientation")
+        }
+    }
+}
+
+// MARK: - Alert Methods
+private extension STCameraVC {
+    func showDeviceAlert() {
+        let alert = UIAlertController(
+            title: "提示",
+            message: "设备连接断开",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "确定", style: .default) { [weak self] _ in
+            self?.navigationController?.popViewController(animated: true)
+        })
+        
+        alert.addAction(UIAlertAction(title: "知道了", style: .cancel))
         
         present(alert, animated: true)
     }
 }
 
 // MARK: - UI Actions
-extension STCameraVC {
-    // 添加处理方法
-    private func handleColorButtonTap() {
+private extension STCameraVC {
+    func handleColorButtonTap() {
         STLog.debug("颜色按钮点击")
         // 滤镜切换由 VM 处理
     }
     
-    private func handleCameraRotate() {
+    func handleCameraRotate() {
         STLog.debug("相机旋转")
         // 实际的相机旋转逻辑由 VM 处理
     }
     
-    private func handlePhoneRotate() {
+    func handlePhoneRotate() {
         STLog.debug("手机旋转")
-        // 实现手机旋转逻辑
-        let currentOrientation = UIDevice.current.orientation
-        let newOrientation: UIDeviceOrientation
         
-        switch currentOrientation {
-        case .portrait:
-            newOrientation = .landscapeRight
-        case .landscapeRight:
-            newOrientation = .portrait
-        default:
-            newOrientation = .portrait
+        if #available(iOS 16.0, *) {
+            guard let windowScene = view.window?.windowScene else { return }
+            
+            let currentOrientation = windowScene.interfaceOrientation
+            let geometryPreferences: UIWindowScene.GeometryPreferences
+            let isPortrait: Bool
+            
+            switch currentOrientation {
+            case .portrait:
+                geometryPreferences = UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: .landscapeRight)
+                isPortrait = false
+            case .landscapeRight:
+                geometryPreferences = UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: .portrait)
+                isPortrait = true
+            default:
+                geometryPreferences = UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: .portrait)
+                isPortrait = true
+            }
+            
+            windowScene.requestGeometryUpdate(geometryPreferences)
+            
+            // 更新底部按钮布局
+            if let stackH = vControl.subviews.first(where: { $0 is UIStackView }) as? UIStackView {
+                updateStackHConstraints(stackH, isPortrait: isPortrait)
+            }
+            
+        } else {
+            let currentOrientation = UIDevice.current.orientation
+            let newOrientation: UIDeviceOrientation
+            let isPortrait: Bool
+            
+            switch currentOrientation {
+            case .portrait:
+                newOrientation = .landscapeRight
+                isPortrait = false
+            case .landscapeRight:
+                newOrientation = .portrait
+                isPortrait = true
+            default:
+                newOrientation = .portrait
+                isPortrait = true
+            }
+            
+            UIDevice.current.setValue(newOrientation.rawValue, forKey: "orientation")
+            
+            // 更新底部按钮布局
+            if let stackH = vControl.subviews.first(where: { $0 is UIStackView }) as? UIStackView {
+                updateStackHConstraints(stackH, isPortrait: isPortrait)
+            }
         }
         
-        UIDevice.current.setValue(newOrientation.rawValue, forKey: "orientation")
         UIViewController.attemptRotationToDeviceOrientation()
-    }
-    
-    private func rotateCamera() {
-        // 切换前后摄像头
-        // TODO: 调用相机管理类进行摄像头切换
-    }
-    
-    private func rotateDeviceOrientation() {
-        
-    }
-    
-    private func updateShootingMode(_ isPhotoMode: Bool) {
-        // 更新照片按钮状态
-        btnPhoto.setBackgroundImage(
-            UIImage.stImage(name: isPhotoMode ? "ico_camera_taped" : "ico_photo"),
-            for: .normal
-        )
-        
-        // 更新视频按钮状态
-        btnVideo.setBackgroundImage(
-            UIImage.stImage(name: isPhotoMode ? "ico_video" : "ico_video_taped"),
-            for: .normal
-        )
     }
 }

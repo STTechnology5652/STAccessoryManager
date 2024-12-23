@@ -77,8 +77,8 @@ class STAccesorySession: NSObject{
     private let commandQueue =  CommandToSendQueue()
     
     private let session: EASession?
-    private var sender: STASendStream?
-    private var reader: STAReadStream?
+    private(set) var sender: STASendStream?
+    private(set) var reader: STAReadStream?
     private let responseSerializer: STAResponseSeriaLizerProtocol
     // 解析指令的线程
     private let analysisQueue = {

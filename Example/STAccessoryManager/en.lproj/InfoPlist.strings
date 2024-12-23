@@ -7,3 +7,5 @@
 */
 
 CFBundleDisplayName = "Macro camera";
+NSPhotoLibraryUsageDescription = "Photo Library access is required to save captured photos";
+NSPhotoLibraryAddUsageDescription = "Photo Library access is required to save captured photos";

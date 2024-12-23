@@ -6,5 +6,9 @@
 	<array>
 		<string>com.icSpring.protocol-X00</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>需要访问相册权限以保存拍摄的照片</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>需要访问相册权限以保存拍摄的照片</string>
 </dict>
 </plist>
