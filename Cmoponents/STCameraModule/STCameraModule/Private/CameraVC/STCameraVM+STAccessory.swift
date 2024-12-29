@@ -86,10 +86,65 @@ extension STCameraVM {
     }
     
     private func openStream() {
-        STLog.debug()
-        devHandler?.openSteam(true, protocol: nil, complete: { (openResult:STAccessoryWorkResult<STAResponse>?) in
-            STLog.debug("open stream result:\(String(describing: openResult?.workData?.jsonString()))")
-        })
+        guard let devHandler = devHandler else {
+            STLog.err("设备未连接")
+            handleDeviceError(.deviceNotFound)
+            return
+        }
+        
+        // 更新UI状态
+        buttonStateRelay.accept((false, 0.5))
+        cameraStateRelay.accept(.processing)
+        STLog.debug("开始打开设备流")
+        
+        // 创建超时定时器
+        let timeoutTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
+            self?.handleDeviceError(.timeout)
+        }
+        
+        devHandler.openSteam(true, protocol: nil) { [weak self] (openResult: STAccessoryWorkResult<STAResponse>?) in
+            // 取消超时定时器
+            timeoutTimer.invalidate()
+            
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                
+                if let response = openResult?.workData {
+                    STLog.debug("设备流打开成功")
+                    self.handleStreamOpenSuccess(response)
+                } else {
+                    let error = DeviceOperationError.openStreamFailed(openResult?.workDes)
+                    self.handleDeviceError(error)
+                }
+            }
+        }
+    }
+    
+    private func handleStreamOpenSuccess(_ response: STAResponse) {
+        STLog.debug("Stream opened successfully: \(response.jsonString())")
+        buttonStateRelay.accept((true, 1.0))
+        cameraStateRelay.accept(.ready)
+    }
+    
+    private func handleDeviceError(_ error: DeviceOperationError) {
+        STLog.err(error.message)
+        
+        // 更新状态
+        buttonStateRelay.accept((true, 1.0))
+        cameraStateRelay.accept(.error(error))
+        
+        // 发送错误通知
+        let alert = DeviceAlert(
+            title: "设备错误".stLocalLized,
+            message: error.message,
+            actions: [
+                ("重试".stLocalLized, false),
+                ("退出".stLocalLized, true)
+            ]
+        )
+        
+        // 通知 UI 显示错误
+        deviceAlertRelay.accept(alert)
     }
     
     private func closeStream() {
@@ -103,10 +158,10 @@ extension STCameraVM {
         if let dev = STAccessoryManager.share().connectedAccessory.filter({$0.serialNumber == devIdentifier }).first,
            dev.isConnected == true {
             STLog.info("dev enable")
-            updateSpeedText("Device Connected")
+            updateSpeedText("设备已连接".stLocalLized)
             deviceStateRelay.accept(.connected)
         } else {
-            updateSpeedText("Device disconnectd")
+            updateSpeedText("设备已断开".stLocalLized)
             deviceStateRelay.accept(.disconnected)
         }
     }
@@ -114,6 +169,11 @@ extension STCameraVM {
     // 更新速度文本
     private func updateSpeedText(_ text: String) {
         speedTextRelay.accept(text)
+    }
+    
+    func retryOpenStream() {
+        STLog.debug("重试打开设备流")
+        openStream()
     }
 }
 
@@ -149,6 +209,25 @@ extension STCameraVM: STAccesoryHandlerImageReceiver {
                 // 更新图像（在子线程）
                 self.updatePreviewImage(img)
             }
+        }
+    }
+}
+
+// 添加设备操作错误类型
+enum DeviceOperationError: Error {
+    case timeout
+    case openStreamFailed(String?)
+    case deviceNotFound
+    
+    var message: String {
+        switch self {
+        case .timeout:
+            return "开启设备超时".stLocalLized
+        case .openStreamFailed(let error):
+            return String(format: "开启设备失败: %@".stLocalLized, 
+                        error ?? "未知错误".stLocalLized)
+        case .deviceNotFound:
+            return "设备未连接".stLocalLized
         }
     }
 }

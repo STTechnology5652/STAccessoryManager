@@ -152,6 +152,13 @@ private extension STCameraVC {
         bindControlPanel(output)
         bindDeviceState(output)
         bindTopButtons(output)
+        
+        // 绑定设备警告
+        output.deviceAlert
+            .drive(onNext: { [weak self] alert in
+                self?.showDeviceAlert(alert)
+            })
+            .disposed(by: disposeBag)
     }
     
     func bindImageDisplay(_ output: STCameraVM.STCameraOutput) {
@@ -574,4 +581,29 @@ private extension STCameraVC {
         
         UIViewController.attemptRotationToDeviceOrientation()
     }
+    
+    private func showDeviceAlert(_ alert: STCameraVM.DeviceAlert) {
+        let alertController = UIAlertController(
+            title: alert.title,
+            message: alert.message,
+            preferredStyle: .alert
+        )
+        
+        for (title, isCancel) in alert.actions {
+            let style: UIAlertAction.Style = isCancel ? .cancel : .default
+            let action = UIAlertAction(title: title, style: style) { [weak self] _ in
+                if !isCancel {
+                    // 重试操作
+                    self?.vm.retryOpenStream()
+                } else {
+                    // 退出操作
+                    self?.navigationController?.popViewController(animated: true)
+                }
+            }
+            alertController.addAction(action)
+        }
+        
+        present(alertController, animated: true)
+    }
 }
+

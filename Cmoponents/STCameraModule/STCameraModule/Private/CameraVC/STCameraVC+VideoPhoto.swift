@@ -9,23 +9,46 @@ import Foundation
 import Photos
 import STAllBase
 
+// 添加自定义错误类型
+enum PhotoSaveError: Error {
+    case noPhotoLibraryAccess  // 无相册访问权限
+    case saveFailed(String)    // 保存失败
+    case imageInvalid          // 图片无效
+}
+
 extension STCameraVC {
     func savePhotoToAlbum(_ image: UIImage) {
         let rotatedImage = adjustImageOrientation(image)
-        requestPhotoLibraryAccess { [weak self] in
-            self?.saveImage(rotatedImage)
+        requestPhotoLibraryAccess { [weak self] result in
+            switch result {
+            case .success:
+                self?.saveImage(rotatedImage)
+            case .failure(let error):
+                self?.handlePhotoSaveError(error)
+            }
         }
     }
     
-    private func requestPhotoLibraryAccess(completion: @escaping () -> Void) {
-        PHPhotoLibrary.requestAuthorization { [weak self] status in
+    private func requestPhotoLibraryAccess(completion: @escaping (Result<Void, PhotoSaveError>) -> Void) {
+        PHPhotoLibrary.requestAuthorization { status in
             DispatchQueue.main.async {
                 if status == .authorized {
-                    completion()
+                    completion(.success(()))
                 } else {
-                    self?.showPhotoLibraryAlert()
+                    completion(.failure(.noPhotoLibraryAccess))
                 }
             }
+        }
+    }
+    
+    private func handlePhotoSaveError(_ error: PhotoSaveError) {
+        switch error {
+        case .noPhotoLibraryAccess:
+            showPhotoLibraryAlert()
+        case .saveFailed(let message):
+            showSaveFailureToast(message)
+        case .imageInvalid:
+            showSaveFailureToast("图片无效")
         }
     }
     

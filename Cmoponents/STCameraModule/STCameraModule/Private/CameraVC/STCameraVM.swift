@@ -33,6 +33,17 @@ final class STCameraVM: NSObject, STRxViewModelType {
     let isPhotoModeRelay = BehaviorRelay<Bool>(value: false)
     let speedTextRelay = BehaviorRelay<String>(value: "Waiting...")
     let previewImageRelay = PublishRelay<UIImage>()
+    let deviceStateRelay = PublishRelay<DeviceState>()
+    let buttonStateRelay = BehaviorRelay<(isEnabled: Bool, alpha: CGFloat)>(value: (true, 1.0))
+    let cameraStateRelay = BehaviorRelay<CameraState>(value: .initial)
+    let deviceAlertRelay = PublishRelay<DeviceAlert>()
+    private let capturePhotoRelay = PublishRelay<UIImage>()
+    private let shouldDisableButtonsRelay = BehaviorRelay<Bool>(value: false)
+    private let originalImageRelay = BehaviorRelay<UIImage?>(value: nil)
+    private let filteredImageRelay = PublishRelay<UIImage>()
+    private let imageSubject = PublishSubject<UIImage>()
+    private let cameraRotationRelay = BehaviorRelay<Int>(value: 0)
+    private let isGrayscaleRelay = BehaviorRelay<Bool>(value: false)
     
     // 视频录制相关属性
     var videoWriter: AVAssetWriter?
@@ -41,36 +52,39 @@ final class STCameraVM: NSObject, STRxViewModelType {
     var recordingStartTime: Date?
     var recordingTimer: Timer?
     
-    // 添加相机旋转角度状态，默认为0度
-    private let cameraRotationRelay = BehaviorRelay<Int>(value: 0)
-    
-    // 添加滤镜状态，true 表示使用黑白滤镜
-    private let isGrayscaleRelay = BehaviorRelay<Bool>(value: false)
-    
-    // 添加原始图像和滤镜后图像的管理
-    private let originalImageRelay = BehaviorRelay<UIImage?>(value: nil)
-    private let filteredImageRelay = PublishRelay<UIImage>()
-    
     //MARK: - STAccessoryManager -- 相关
     var devIdentifier: String = ""
     var devHandler: STAccesoryHandlerInterface?
     
     // 添加设备状态管理
-    let deviceStateRelay = PublishRelay<DeviceState>()
     let mjpegUtil = MjpegUtil()
     var speedTool = STASpeedTool()
     
-    // 添加拍照事件的 Relay
-    private let capturePhotoRelay = PublishRelay<UIImage>()
-    
-    // 添加按钮禁用状态
-    private let shouldDisableButtonsRelay = BehaviorRelay<Bool>(value: false)
-    
-    // 添加图像数据流
-    private let imageSubject = PublishSubject<UIImage>()
-    
-    // 添加按钮状态管理
-    private let buttonStateRelay = BehaviorRelay<(isEnabled: Bool, alpha: CGFloat)>(value: (true, 1.0))
+    // 添加相机状态枚举
+    enum CameraState: Equatable {
+        case initial        // 初始状态
+        case ready         // 准备就绪
+        case capturing     // 拍照中
+        case recording     // 录制中
+        case processing    // 处理中
+        case error(Error)  // 错误状态
+        
+        // 实现 Equatable 协议
+        static func == (lhs: CameraState, rhs: CameraState) -> Bool {
+            switch (lhs, rhs) {
+            case (.initial, .initial),
+                 (.ready, .ready),
+                 (.capturing, .capturing),
+                 (.recording, .recording),
+                 (.processing, .processing):
+                return true
+            case (.error(let lhsError), .error(let rhsError)):
+                return lhsError.localizedDescription == rhsError.localizedDescription
+            default:
+                return false
+            }
+        }
+    }
     
     enum DeviceState {
         case connected
@@ -85,6 +99,7 @@ final class STCameraVM: NSObject, STRxViewModelType {
     
     deinit {
         STLog.debug("STCameraVM deinit")
+        cleanupResources()
     }
 }
 
@@ -120,14 +135,15 @@ extension STCameraVM {
         let isControlShow: Driver<Bool>
         let isPhotoMode: Driver<Bool>
         let previewImage: Driver<UIImage>
-        let cameraRotation: Driver<Int>  // 添加相机旋转角度输出
-        let isGrayscale: Driver<Bool>  // 添加滤镜状态输出
-        let displayImage: Driver<UIImage>  // 修改为显示图像输出
-        let speedText: Driver<String>  // 添加速度文本输出
-        let deviceState: Driver<DeviceState>  // 添加设备状态输出
-        let capturedPhoto: Driver<UIImage>  // 添加拍照输出
-        let shouldDisableButtons: Driver<Bool>  // 添加按钮禁用状态输出
-        let buttonState: Driver<(isEnabled: Bool, alpha: CGFloat)>  // 添加按钮状态输出
+        let cameraRotation: Driver<Int>
+        let isGrayscale: Driver<Bool>
+        let displayImage: Driver<UIImage>
+        let speedText: Driver<String>
+        let deviceState: Driver<DeviceState>
+        let capturedPhoto: Driver<UIImage>
+        let shouldDisableButtons: Driver<Bool>
+        let buttonState: Driver<(isEnabled: Bool, alpha: CGFloat)>
+        let deviceAlert: Driver<DeviceAlert>
     }
     
     typealias Input = STCameraInput
@@ -261,7 +277,12 @@ extension STCameraVM {
             deviceState: deviceStateRelay.asDriver(onErrorJustReturn: .disconnected),
             capturedPhoto: capturePhotoRelay.asDriver(onErrorJustReturn: UIImage()),
             shouldDisableButtons: shouldDisableButtonsRelay.asDriver(),
-            buttonState: buttonStateRelay.asDriver()
+            buttonState: buttonStateRelay.asDriver(),
+            deviceAlert: deviceAlertRelay.asDriver(onErrorJustReturn: DeviceAlert(
+                title: "错误",
+                message: "未知错误",
+                actions: [("确定", true)]
+            ))
         )
     }
     
@@ -288,6 +309,48 @@ extension STCameraVM {
             // 使用原始图像
             filteredImageRelay.accept(originalImage)
         }
+    }
+    
+    // 添加状态监听
+    private func observeCameraState() {
+        cameraStateRelay
+            .distinctUntilChanged()
+            .subscribe(onNext: { [weak self] state in
+                self?.handleCameraStateChange(state)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    private func handleCameraStateChange(_ state: CameraState) {
+        switch state {
+        case .initial:
+            buttonStateRelay.accept((true, 1.0))
+        case .ready:
+            buttonStateRelay.accept((true, 1.0))
+        case .capturing, .recording, .processing:
+            buttonStateRelay.accept((false, 0.5))
+        case .error:
+            buttonStateRelay.accept((true, 1.0))
+            // 显示错误提示
+        }
+    }
+    
+    // 添加资源清理方法
+    private func cleanupResources() {
+        // 停止定时器
+        recordingTimer?.invalidate()
+        recordingTimer = nil
+        
+        // 清理视频相关资源
+        videoWriter = nil
+        videoWriterInput = nil
+        
+        // 清理图像缓存
+        originalImageRelay.accept(nil)
+        
+        // 重置状态
+        isRecordingRelay.accept(false)
+        cameraStateRelay.accept(.initial)
     }
 }
 

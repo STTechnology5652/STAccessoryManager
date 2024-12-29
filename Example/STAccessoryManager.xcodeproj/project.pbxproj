@@ -582,10 +582,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4HJB36A5NC;
+				DEVELOPMENT_TEAM = BJ3HFBW42L;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "$(inherited)";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "需要访问相册";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "需要访问相册权限以保存拍摄的照片";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "需要访问相册权限以保存拍摄的照片";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -596,7 +597,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "yk.STAccessoryManager-Example.st";
+				PRODUCT_BUNDLE_IDENTIFIER = "yk.STAccessoryManager-Example.sd";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) K_BETA";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -613,10 +614,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4HJB36A5NC;
+				DEVELOPMENT_TEAM = BJ3HFBW42L;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "$(inherited)";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "需要访问相册";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "需要访问相册权限以保存拍摄的照片";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "需要访问相册权限以保存拍摄的照片";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -627,7 +629,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "yk.STAccessoryManager-Example.st";
+				PRODUCT_BUNDLE_IDENTIFIER = "yk.STAccessoryManager-Example.sd";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) K_BETA";
 				SWIFT_EMIT_LOC_STRINGS = YES;
