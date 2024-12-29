@@ -10,15 +10,9 @@ import RxSwift
 import RxCocoa
 import RxRelay
 import STLog
+import AVFoundation
 
 import STAccessoryManager
-
-enum STAUiEvent {
-    case color
-    case rotateCamera
-    case rotatePhone
-    case back
-}
 
 protocol STAInput {}
 
@@ -31,36 +25,68 @@ protocol STRxViewModelType {
 }
 
 final class STCameraVM: NSObject, STRxViewModelType {
+    // MARK: - Properties
     private let disposeBag = DisposeBag()
     
-    private let isRecordingRelay = BehaviorRelay<Bool>(value: false)
-    private let isControlShowRelay = BehaviorRelay<Bool>(value: true)
-    private let isPhotoModeRelay = BehaviorRelay<Bool>(value: false)
-    
-    private let previewImageRelay = PublishRelay<UIImage>()
-    
-    // 添加相机旋转角度状态，默认为0度
-    private let cameraRotationRelay = BehaviorRelay<Int>(value: 0)
-    
-    // 添加滤镜状态，true 表示使用黑白滤镜
-    private let isGrayscaleRelay = BehaviorRelay<Bool>(value: false)
-    
-    // 添加原始图像和滤镜后图像的管理
-    private let originalImageRelay = BehaviorRelay<UIImage?>(value: nil)
+    // Relay Properties
+    let isRecordingRelay = BehaviorRelay<Bool>(value: false)
+    let isControlShowRelay = BehaviorRelay<Bool>(value: true)
+    let isPhotoModeRelay = BehaviorRelay<Bool>(value: false)
+    let speedTextRelay = BehaviorRelay<String>(value: "Waiting...")
+    let previewImageRelay = PublishRelay<UIImage>()
+    let deviceStateRelay = PublishRelay<DeviceState>()
+    let buttonStateRelay = BehaviorRelay<(isEnabled: Bool, alpha: CGFloat)>(value: (true, 1.0))
+    let cameraStateRelay = BehaviorRelay<CameraState>(value: .initial)
+    let deviceAlertRelay = PublishRelay<DeviceAlert>()
+    private let capturePhotoRelay = PublishRelay<UIImage>()
+    private let shouldDisableButtonsRelay = BehaviorRelay<Bool>(value: false)
     private let filteredImageRelay = PublishRelay<UIImage>()
+    private let imageSubject = PublishSubject<UIImage>()
+    private let cameraRotationRelay = BehaviorRelay<Int>(value: 0)
+    private let isGrayscaleRelay = BehaviorRelay<Bool>(value: false)
+    private let h264DataRelay = PublishRelay<Data>()
+    
+    // 视频录制相关属性
+    var videoWriter: AVAssetWriter?
+    var videoWriterInput: AVAssetWriterInput?
+    var currentVideoURL: URL?
+    var recordingStartTime: Date?
+    var recordingTimer: Timer?
     
     //MARK: - STAccessoryManager -- 相关
     var devIdentifier: String = ""
-    private var devHandler: STAccesoryHandlerInterface?
-    
-    // 添加速度文本状态
-    private let speedTextRelay = BehaviorRelay<String>(value: "Waiting...")
+    var devHandler: STAccesoryHandlerInterface?
     
     // 添加设备状态管理
-    private let deviceStateRelay = PublishRelay<DeviceState>()
-    private let mjpegUtil = MjpegUtil()
-    private var speedTool = STASpeedTool()
-
+    let mjpegUtil = MjpegUtil()
+    var speedTool = STASpeedTool()
+    
+    // 添加相机状态枚举
+    enum CameraState: Equatable {
+        case initial        // 初始状态
+        case ready         // 准备就绪
+        case capturing     // 拍照中
+        case recording     // 录制中
+        case processing    // 处理中
+        case error(Error)  // 错误状态
+        
+        // 实现 Equatable 协议
+        static func == (lhs: CameraState, rhs: CameraState) -> Bool {
+            switch (lhs, rhs) {
+            case (.initial, .initial),
+                 (.ready, .ready),
+                 (.capturing, .capturing),
+                 (.recording, .recording),
+                 (.processing, .processing):
+                return true
+            case (.error(let lhsError), .error(let rhsError)):
+                return lhsError.localizedDescription == rhsError.localizedDescription
+            default:
+                return false
+            }
+        }
+    }
+    
     enum DeviceState {
         case connected
         case disconnected
@@ -74,7 +100,10 @@ final class STCameraVM: NSObject, STRxViewModelType {
     
     deinit {
         STLog.debug("STCameraVM deinit")
+        cleanupResources()
     }
+    
+    private var h264Converter: STH264Converter?
 }
 
 extension STCameraVM {
@@ -90,17 +119,7 @@ extension STCameraVM {
         cleanupCamera()
     }
     
-    private func setupCamera() {
-        checkDevState()
-        closeStream()
-        setStreamFormatter()
-        openStream()
-    }
-    
-    private func cleanupCamera() {
-        closeStream()
-    }
-    
+    // MARK: - Input/Output
     struct STCameraInput {
         let btnColor: Driver<Void>
         let btnRotateCamera: Driver<Void>
@@ -119,23 +138,46 @@ extension STCameraVM {
         let isControlShow: Driver<Bool>
         let isPhotoMode: Driver<Bool>
         let previewImage: Driver<UIImage>
-        let cameraRotation: Driver<Int>  // 添加相机旋转角度输出
-        let isGrayscale: Driver<Bool>  // 添加滤镜状态输出
-        let displayImage: Driver<UIImage>  // 修改为显示图像输出
-        let speedText: Driver<String>  // 添加速度文本输出
-        let deviceState: Driver<DeviceState>  // 添加设备状态输出
+        let cameraRotation: Driver<Int>
+        let isGrayscale: Driver<Bool>
+        let displayImage: Driver<UIImage>
+        let speedText: Driver<String>
+        let deviceState: Driver<DeviceState>
+        let capturedPhoto: Driver<UIImage>
+        let shouldDisableButtons: Driver<Bool>
+        let buttonState: Driver<(isEnabled: Bool, alpha: CGFloat)>
+        let deviceAlert: Driver<DeviceAlert>
+        let h264Data: Driver<Data>
     }
     
     typealias Input = STCameraInput
     typealias OutPut = STCameraOutput
     
     func transform(input: STCameraInput) -> STCameraOutput {
+        // 处理开始按钮点击
         input.btnStart
-            .drive(onNext: { [weak self] in
+            .withLatestFrom(isPhotoModeRelay.asDriver())
+            .do(onNext: { [weak self] isPhotoMode in
                 guard let self = self else { return }
-                let currentValue = self.isRecordingRelay.value
-                self.isRecordingRelay.accept(!currentValue)
+                if isPhotoMode {
+                    // 如果是照片模式，使用 imageSubject 的最新值
+                    imageSubject
+                        .take(1)
+                        .subscribe(onNext: { [weak self] image in
+                            self?.capturePhotoRelay.accept(image)
+                        })
+                        .disposed(by: disposeBag)
+                } else {
+                    // 如果是视频模式，切换录制状态
+                    let currentValue = self.isRecordingRelay.value
+                    if currentValue {
+                        self.stopRecording { _ in }
+                    } else {
+                        self.startRecording()
+                    }
+                }
             })
+            .drive()
             .disposed(by: disposeBag)
         
         input.controlTap
@@ -187,11 +229,42 @@ extension STCameraVM {
             })
             .disposed(by: disposeBag)
         
-        // 合并原始图像和滤镜后的图像
-        let displayImage = Observable.merge(
-            originalImageRelay.compactMap { $0 }.asObservable(),
-            filteredImageRelay.asObservable()
+        // 处理图像数据流
+        imageSubject
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] image in
+                guard let self = self else { return }
+                
+                // 如果正在录制视频，处理视频帧
+                if self.isRecordingRelay.value {
+                    self.processVideoFrame(image)
+                }
+                
+                self.filteredImageRelay.accept(image)
+            })
+            .disposed(by: disposeBag)
+        
+        // 移除 speedTool.rxSpeed 相关代码，使用原有的回调
+        speedTool.startCaculted { [weak self] speedDes in
+            guard let self = self else { return }
+            // 只在非录制状态下显示速度
+            if !self.isRecordingRelay.value {
+                self.speedTextRelay.accept("\(self.devIdentifier) \t: \(speedDes)/s")
+            }
+        }
+        
+        // 处理按钮状态
+        Observable.combineLatest(
+            isRecordingRelay.asObservable(),
+            isPhotoModeRelay.asObservable()
         )
+        .map { isRecording, isPhotoMode -> (isEnabled: Bool, alpha: CGFloat) in
+            // 在视频模式下录制时禁用按钮
+            let shouldDisable = !isPhotoMode && isRecording
+            return (!shouldDisable, shouldDisable ? 0.5 : 1.0)
+        }
+        .bind(to: buttonStateRelay)
+        .disposed(by: disposeBag)
         
         return STCameraOutput(
             btnColor: input.btnColor,
@@ -203,174 +276,119 @@ extension STCameraVM {
             previewImage: previewImageRelay.asDriver(onErrorJustReturn: UIImage()),
             cameraRotation: cameraRotationRelay.asDriver(),
             isGrayscale: isGrayscaleRelay.asDriver(),
-            displayImage: displayImage.asDriver(onErrorJustReturn: UIImage()),
+            displayImage: filteredImageRelay.asDriver(onErrorJustReturn: UIImage()),
             speedText: speedTextRelay.asDriver(),
-            deviceState: deviceStateRelay.asDriver(onErrorJustReturn: .disconnected)
+            deviceState: deviceStateRelay.asDriver(onErrorJustReturn: .disconnected),
+            capturedPhoto: capturePhotoRelay.asDriver(onErrorJustReturn: UIImage()),
+            shouldDisableButtons: shouldDisableButtonsRelay.asDriver(),
+            buttonState: buttonStateRelay.asDriver(),
+            deviceAlert: deviceAlertRelay.asDriver(onErrorJustReturn: DeviceAlert(
+                title: "错误",
+                message: "未知错误",
+                actions: [("确定", true)]
+            )),
+            h264Data: h264DataRelay.asDriver(onErrorJustReturn: Data())
         )
     }
     
     func updatePreviewImage(_ image: UIImage) {
-        if isGrayscaleRelay.value {
-            updateFilteredImage()
+        // 更新设备状态为已连接
+        deviceStateRelay.accept(.connected)
+        
+        imageSubject.onNext(image)
+        
+        // 转换为 H264
+        if h264Converter == nil {
+            STLog.debug("Creating H264 converter with size: \(image.size)")
+            h264Converter = STH264Converter(width: Int32(image.size.width), height: Int32(image.size.height))
+            h264Converter?.setCallback { [weak self] data in
+                STLog.debug("H264 data received: \(data.count) bytes")
+                self?.h264DataRelay.accept(data)
+            }
+        }
+        
+        if let pixelBuffer = image.toPixelBuffer() {
+            h264Converter?.encode(pixelBuffer: pixelBuffer)
         } else {
-            originalImageRelay.accept(image)
+            STLog.err("Failed to create pixel buffer from image")
         }
     }
     
     private func updateFilteredImage() {
-        guard let originalImage = originalImageRelay.value else { return }
-        
-        if isGrayscaleRelay.value {
-            // 应用黑白滤镜
-            let ciImage = CIImage(image: originalImage)
-            let filter = CIFilter(name: "CIColorMonochrome")
-            filter?.setValue(ciImage, forKey: kCIInputImageKey)
-            filter?.setValue(CIColor(red: 0.7, green: 0.7, blue: 0.7), forKey: kCIInputColorKey)
-            filter?.setValue(1.0, forKey: kCIInputIntensityKey)
-            
-            if let outputImage = filter?.outputImage,
-               let cgImage = CIContext().createCGImage(outputImage, from: outputImage.extent) {
-                filteredImageRelay.accept(UIImage(cgImage: cgImage))
-            }
-        } else {
-            // 使用原始图像
-            filteredImageRelay.accept(originalImage)
-        }
-    }
-    
-    
-}
-
-
-//MARK: - STAccessoryManager -- 相关
-extension STCameraVM {
-    func initData() {
-        speedTool.startCaculted { [weak self] (speedDes: String) in
-            guard let self else {
-                return
-            }
-           
-            speedTextRelay.accept("\(devIdentifier) \t: \(speedDes)/s")
-        }
-        
-        let manager = STAccessoryManager.share()
-        manager.config(delegate: self)
-        manager.accessoryHander(devSerialNumber: devIdentifier) { [weak self] (result: STAccessoryWorkResult<any STAccesoryHandlerInterface>?) in
-            guard let self else {
-                return
-            }
-            
-            devHandler = result?.workData
-            devHandler?.configImage(receiver: self, protocol: nil, complete: { [weak self] (configResult:STAccessoryWorkResult<String>?) in
-                DispatchQueue.main.async {
-                    self?.checkDevState()
+        imageSubject
+            .take(1)
+            .subscribe(onNext: { [weak self] image in
+                guard let self = self else { return }
+                
+                if self.isGrayscaleRelay.value {
+                    // 应用黑白滤镜
+                    let ciImage = CIImage(image: image)
+                    let filter = CIFilter(name: "CIColorMonochrome")
+                    filter?.setValue(ciImage, forKey: kCIInputImageKey)
+                    filter?.setValue(CIColor(red: 0.7, green: 0.7, blue: 0.7), forKey: kCIInputColorKey)
+                    filter?.setValue(1.0, forKey: kCIInputIntensityKey)
+                    
+                    if let outputImage = filter?.outputImage,
+                       let cgImage = CIContext().createCGImage(outputImage, from: outputImage.extent) {
+                        self.filteredImageRelay.accept(UIImage(cgImage: cgImage))
+                    }
+                } else {
+                    // 使用原始图像
+                    self.filteredImageRelay.accept(image)
                 }
             })
+            .disposed(by: disposeBag)
+    }
+    
+    // 添加状态监听
+    private func observeCameraState() {
+        cameraStateRelay
+            .distinctUntilChanged()
+            .subscribe(onNext: { [weak self] state in
+                self?.handleCameraStateChange(state)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    private func handleCameraStateChange(_ state: CameraState) {
+        switch state {
+        case .initial:
+            buttonStateRelay.accept((true, 1.0))
+        case .ready:
+            buttonStateRelay.accept((true, 1.0))
+        case .capturing, .recording, .processing:
+            buttonStateRelay.accept((false, 0.5))
+        case .error:
+            buttonStateRelay.accept((true, 1.0))
+            // 显示错误提示
         }
     }
     
-    
-    private func setStreamFormatter() {
-        STLog.debug()
-        guard let devHandler else {
-            STLog.err("no device handler")
-            return
-        }
+    // 添加资源清理方法
+    private func cleanupResources() {
+        // 停止定时器
+        recordingTimer?.invalidate()
+        recordingTimer = nil
         
-        let cmdTag = devHandler.getNextCmdTag()
-        let cmd = STACommandserialization.setStreamFormatter(cmdTag)
-        let command = STAccesoryCmdData(tag: cmdTag, data: cmd)
+        // 清理视频相关资源
+        videoWriter = nil
+        videoWriterInput = nil
         
-        devHandler.sendCommand(command, protocol: nil) { (cmdResult:STAccessoryWorkResult<STAResponse>?) in
-            STLog.debug("set stream formatter result:\(String(describing: cmdResult?.workData?.jsonString()))")
-        }
-    }
-    
-    private func getDevConfig() {
-        return
-        STLog.debug()
-        guard let devHandler else {
-            STLog.err("no device handler")
-            return
-        }
+        // 清理 H264 编码器
+        h264Converter = nil
         
-        let cmdTag = devHandler.getNextCmdTag()
-        let cmd = STACommandserialization.getDevConfig(cmdTag)
-        let command = STAccesoryCmdData(tag: cmdTag, data: cmd)
+        // 重置状态
+        isRecordingRelay.accept(false)
+        cameraStateRelay.accept(.initial)
         
-        devHandler.sendCommand(command, protocol: nil) { (cmdResult:STAccessoryWorkResult<STAResponse>?) in
-            STLog.debug("get device config result:\(String(describing: cmdResult?.workData?.jsonString()))")
-            
-            if let configData = cmdResult?.workData?.responseData {
-                let devConfig: [STARespDevConfig] = STARespDevConfig.analysisConfigData(configData)
-                let devDes = devConfig.map{$0.jsonString()}
-                STLog.debug("device config info:\(devDes)")
-            }
-        }
-    }
-    
-    private func openStream() {
-        STLog.debug()
-        devHandler?.openSteam(true, protocol: nil, complete: { (openResult:STAccessoryWorkResult<STAResponse>?) in
-            STLog.debug("open stream result:\(String(describing: openResult?.workData?.jsonString()))")
-        })
-    }
-    
-    private func closeStream() {
-        STLog.debug()
-        devHandler?.openSteam(false, protocol: nil, complete: { (openResult:STAccessoryWorkResult<STAResponse>?) in
-            STLog.debug("close stream result:\(String(describing: openResult?.workData?.jsonString()))")
-        })
-    }
-    
-    private func checkDevState() {
-        if let dev = STAccessoryManager.share().connectedAccessory.filter({$0.serialNumber == devIdentifier }).first,
-           dev.isConnected == true {
-            STLog.info("dev enable")
-            updateSpeedText("Device Connected")
-            deviceStateRelay.accept(.connected)
-        } else {
-            updateSpeedText("Device disconnectd")
-            deviceStateRelay.accept(.disconnected)
-        }
-    }
-    
-    // 更新速度文本
-    func updateSpeedText(_ text: String) {
-        speedTextRelay.accept(text)
+        // 更新设备状态为断开连接
+        deviceStateRelay.accept(.disconnected)
     }
 }
 
-
-//MARK: - STAccessoryManagerDelegate
-extension STCameraVM: STAccessoryConnectDelegate {
-    func didConnect(device: EAAccessory) {
-        checkDevState()
-    }
-    
-    func didDisconnect(device: EAAccessory) {
-        if devIdentifier == device.serialNumber { //当前正在错误的设备，需要关闭流
-            
-        }
-        
-        checkDevState()
-    }
-}
-
-//MARK: - image receivew
-extension STCameraVM: STAccesoryHandlerImageReceiver {
-    func didReceiveDeviceImageResponse(_ imgRes: STAResponse) {
-        let imgData = imgRes.imageData
-        guard imgData.count > 0 else {
-            return
-        }
-        mjpegUtil.receive(NSData(data: imgData) as Data) {(img: UIImage) in
-            DispatchQueue.main.async { [weak self] in
-                guard let self else {return}
-                self.updatePreviewImage(img)
-                //                STLog.debug("did receive image data:\(imgData)")
-                speedTool.appendCount(imgData.count)
-            }
-        }
+extension STCameraVM {
+    // 获取当前旋转角度
+    func getCurrentRotation() -> Int {
+        return cameraRotationRelay.value
     }
 }

@@ -1,0 +1,45 @@
+// 添加相机模块的错误文案
+"camera_device_error" = {
+    "en" = "Device Error";
+    "zh-Hans" = "设备错误";
+};
+
+"camera_device_not_connected" = {
+    "en" = "Device Not Connected";
+    "zh-Hans" = "设备未连接";
+};
+
+"camera_device_timeout" = {
+    "en" = "Device Connection Timeout";
+    "zh-Hans" = "开启设备超时";
+};
+
+"camera_device_open_failed" = {
+    "en" = "Failed to Open Device: %@";
+    "zh-Hans" = "开启设备失败: %@";
+};
+
+"camera_device_unknown_error" = {
+    "en" = "Unknown Error";
+    "zh-Hans" = "未知错误";
+};
+
+"camera_retry" = {
+    "en" = "Retry";
+    "zh-Hans" = "重试";
+};
+
+"camera_exit" = {
+    "en" = "Exit";
+    "zh-Hans" = "退出";
+};
+
+"camera_device_connected" = {
+    "en" = "Device Connected";
+    "zh-Hans" = "设备已连接";
+};
+
+"camera_device_disconnected" = {
+    "en" = "Device Disconnected";
+    "zh-Hans" = "设备已断开";
+}; 

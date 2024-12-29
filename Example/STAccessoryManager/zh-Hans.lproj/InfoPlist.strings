@@ -5,4 +5,6 @@
   Created by stephenchen on 2024/12/21.
   
 */
-CFBundleDisplayName = "微距摄像机";
+CFBundleDisplayName = "显微相机";
+NSPhotoLibraryUsageDescription = "需要访问相册以保存拍摄的照片";
+NSPhotoLibraryAddUsageDescription = "需要访问相册以保存拍摄的照片";

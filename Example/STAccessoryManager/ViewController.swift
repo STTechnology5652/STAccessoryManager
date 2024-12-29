@@ -24,6 +24,12 @@ class ViewController: STABaseVC {
         }
     }()
     
+    lazy var settingBtn = {
+        UIButton(type: .custom).then { btn in
+            btn.setBackgroundImage(UIImage.stImage(name: "ico_setting"), for: .normal)
+        }
+    }()
+    
 #if K_BETA
     lazy var btnForceJump = {
         UIButton(type: .custom).then {
@@ -54,6 +60,13 @@ class ViewController: STABaseVC {
     private func setUpUI() {
         view.backgroundColor = UIColor.c_theme_back
         
+        let icon = UIImageView(image: UIImage.stImage(name: "img_home_back"))
+        view.addSubview(icon)
+        icon.snp.makeConstraints { make in
+            make.edges.equalTo(UIEdgeInsets.zero)
+
+        }
+        
         let stack = UIStackView()
         view.addSubview(stack)
         stack.axis = .vertical
@@ -69,6 +82,16 @@ class ViewController: STABaseVC {
             make.height.equalTo(100)
         }
         
+        view.addSubview(self.settingBtn)
+        settingBtn.snp.makeConstraints { make in
+            make.right.equalTo(-16)
+            make.top.equalTo(stNavHeihgt + 10)
+            make.width.equalTo(42)
+            make.height.equalTo(52)
+        }
+        settingBtn.addTarget(self, action: #selector(settingAction), for: .touchUpInside)
+        
+        
 #if K_BETA
         stack.addArrangedSubview(btnForceJump)
         btnForceJump.addTarget(self, action: #selector(self.btnActionForceJump(_:)), for: .touchUpInside)
@@ -76,6 +99,12 @@ class ViewController: STABaseVC {
             make.height.equalTo(50)
         }
 #endif
+    }
+    
+    @objc func settingAction(){
+        let vc = STSettingVC()
+        self.navigationController?.pushViewController(vc, animated: true)
+        
     }
     
     private func initData() {

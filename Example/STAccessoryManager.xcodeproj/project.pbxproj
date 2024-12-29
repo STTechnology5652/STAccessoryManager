@@ -27,6 +27,9 @@
 		7F1B6B172D170D1800EB43E9 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7F1B6B152D170D1800EB43E9 /* InfoPlist.strings */; };
 		7F1B6B182D170D1800EB43E9 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7F1B6B152D170D1800EB43E9 /* InfoPlist.strings */; };
 		A14E8A0B4DAD76A3E42AD5AE /* Pods_STAccessoryManager_Beta.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 079A68C4014447185D15F952 /* Pods_STAccessoryManager_Beta.framework */; };
+		E073340F2D18611A0000C0F5 /* STSettingVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E073340E2D18611A0000C0F5 /* STSettingVC.swift */; };
+		E07334122D1865010000C0F5 /* STSetItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E07334102D1865010000C0F5 /* STSetItemCell.swift */; };
+		E07334132D1865010000C0F5 /* STSetItemCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E07334112D1865010000C0F5 /* STSetItemCell.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,6 +54,9 @@
 		7F9A53542D1709FE00204280 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		A2B2755A50F14948CA934C80 /* Pods-STAccessoryManager_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-STAccessoryManager_Example.debug.xcconfig"; path = "Target Support Files/Pods-STAccessoryManager_Example/Pods-STAccessoryManager_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		AA7AACD17F58328B55757779 /* Pods-STAccessoryManager_Release.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-STAccessoryManager_Release.debug.xcconfig"; path = "Target Support Files/Pods-STAccessoryManager_Release/Pods-STAccessoryManager_Release.debug.xcconfig"; sourceTree = "<group>"; };
+		E073340E2D18611A0000C0F5 /* STSettingVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = STSettingVC.swift; sourceTree = "<group>"; };
+		E07334102D1865010000C0F5 /* STSetItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = STSetItemCell.swift; sourceTree = "<group>"; };
+		E07334112D1865010000C0F5 /* STSetItemCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = STSetItemCell.xib; sourceTree = "<group>"; };
 		E5458529DE2FBDFB295CB4CF /* Pods-STAccessoryManager_Beta.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-STAccessoryManager_Beta.release.xcconfig"; path = "Target Support Files/Pods-STAccessoryManager_Beta/Pods-STAccessoryManager_Beta.release.xcconfig"; sourceTree = "<group>"; };
 		FDDD8562299DED6500EAB62E /* STAccessoryManager_Beta.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = STAccessoryManager_Beta.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -105,12 +111,23 @@
 				7F1811BD2D16E049004C038C /* PreViewVideo */,
 				7F1811BE2D16E049004C038C /* AppDelegate.swift */,
 				7F1811C62D16E049004C038C /* ViewController.swift */,
+				E07334142D18650B0000C0F5 /* Setting */,
 				7F1811BF2D16E049004C038C /* Assets.xcassets */,
 				7F1811C22D16E049004C038C /* LaunchScreen.storyboard */,
 				7F1B6B1A2D170E4A00EB43E9 /* Info.plist */,
 				7F1B6B152D170D1800EB43E9 /* InfoPlist.strings */,
 			);
 			path = STAccessoryManager;
+			sourceTree = "<group>";
+		};
+		E07334142D18650B0000C0F5 /* Setting */ = {
+			isa = PBXGroup;
+			children = (
+				E073340E2D18611A0000C0F5 /* STSettingVC.swift */,
+				E07334102D1865010000C0F5 /* STSetItemCell.swift */,
+				E07334112D1865010000C0F5 /* STSetItemCell.xib */,
+			);
+			path = Setting;
 			sourceTree = "<group>";
 		};
 		E6A51BC864FFCB44AB73D76B /* Frameworks */ = {
@@ -236,6 +253,7 @@
 			files = (
 				7F1811D22D16E049004C038C /* Assets.xcassets in Resources */,
 				7F1811D62D16E049004C038C /* LaunchScreen.storyboard in Resources */,
+				E07334132D1865010000C0F5 /* STSetItemCell.xib in Resources */,
 				7F1811CC2D16E049004C038C /* STDevPlayViewController.xib in Resources */,
 				7F1B6B172D170D1800EB43E9 /* InfoPlist.strings in Resources */,
 			);
@@ -343,7 +361,9 @@
 			files = (
 				7F1811DC2D16E049004C038C /* ViewController.swift in Sources */,
 				7F1811D02D16E049004C038C /* AppDelegate.swift in Sources */,
+				E073340F2D18611A0000C0F5 /* STSettingVC.swift in Sources */,
 				7F1811C82D16E049004C038C /* STAccessaryManagerRXInterface.swift in Sources */,
+				E07334122D1865010000C0F5 /* STSetItemCell.swift in Sources */,
 				7F1811CA2D16E049004C038C /* STDevPlayViewController.swift in Sources */,
 				7F1811CE2D16E049004C038C /* STPreViewVM.swift in Sources */,
 			);
@@ -565,7 +585,8 @@
 				DEVELOPMENT_TEAM = BJ3HFBW42L;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "$(inherited)";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "需要访问相册";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "需要访问相册权限以保存拍摄的照片";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "需要访问相册权限以保存拍摄的照片";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -576,7 +597,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "yk.STAccessoryManager-Example.st";
+				PRODUCT_BUNDLE_IDENTIFIER = "yk.STAccessoryManager-Example.sd";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) K_BETA";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -596,7 +617,8 @@
 				DEVELOPMENT_TEAM = BJ3HFBW42L;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "$(inherited)";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "需要访问相册";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "需要访问相册权限以保存拍摄的照片";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "需要访问相册权限以保存拍摄的照片";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -607,7 +629,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "yk.STAccessoryManager-Example.st";
+				PRODUCT_BUNDLE_IDENTIFIER = "yk.STAccessoryManager-Example.sd";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) K_BETA";
 				SWIFT_EMIT_LOC_STRINGS = YES;
