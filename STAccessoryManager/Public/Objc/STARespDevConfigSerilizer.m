@@ -20,7 +20,7 @@
 
 @implementation STARespDevConfig
 + (NSArray<STARespDevConfig*> *) analysisConfigData:(NSData *)data {
-    STLogDebug(@"start analysis devconfig:%@", data.hexString);
+    STLogDebug(@"start analysis devconfig[bytesCount:%lu]:%@", data.length, data.hexString);
     NSMutableArray<STARespDevConfig*> *result = [NSMutableArray new];
     /*
      | Format ID          | Res ID        | Width       | Height       | FPS              |

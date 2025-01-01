@@ -14,33 +14,39 @@ protocol STAReaderStreamDelegate: NSObject {
 }
 
 private let kTag_STAReadStream = "kTag_STAReadStream"
+
 class STAReadStream: NSObject {
     private weak var delegate: STAReaderStreamDelegate?
-
     private var streamRunloop: RunLoop?
     let stream: InputStream
+    
+    // 读取回调队列
     let readCallBackQueue: DispatchQueue = {
         let uuidStr = UUID().uuidString
-        let queue = DispatchQueue(label: "com.stream.stMfi.read_\(uuidStr)", qos: .default)
-        return queue
+        return DispatchQueue(label: "com.stream.stMfi.read_\(uuidStr)", qos: .userInitiated)
     }()
     
-    deinit {
-        STLog.info()
-        closeStream()
-    }
+    // 读取缓冲区
+    private let readBufferSize = 1024 * 1024  // 512KB
+    private let readBuffer: UnsafeMutablePointer<UInt8>
     
     init(stream: InputStream, delegate: STAReaderStreamDelegate) {
         self.stream = stream
         self.delegate = delegate
+        self.readBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: readBufferSize)
         super.init()
         stream.delegate = self
         setupStream()
     }
     
+    deinit {
+        readBuffer.deallocate()
+        closeStream()
+    }
+    
     private func setupStream() {
-        DispatchQueue.global().async { [weak self] in
-            guard let self else { return }
+        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
+            guard let self = self else { return }
             let runloop = RunLoop.current
             self.streamRunloop = runloop
             self.stream.schedule(in: runloop, forMode: .common)
@@ -61,31 +67,49 @@ class STAReadStream: NSObject {
         setupStream()
     }
     
-    private func readData() {
-        readDataExe()
-    }
-    
-    // 必须是串行队列调用， 防止资源竞争
     private func readDataExe() {
-        if stream.hasBytesAvailable == false {
+        guard self.stream.hasBytesAvailable else {
             STLog.info(tag: kTag_STAReadStream, "stream has no bytes, wait reading")
             return
         }
         
-        autoreleasepool { [weak self] in
-            var byts = [UInt8](repeating: 0, count: maxReadBufferSize)  // 1KB buffer
-            let bytesRead = stream.read(&byts, maxLength: byts.count)
-            if bytesRead > 0 { // 读取到字节
-                let dataRead = Data(byts.prefix(bytesRead))
-//                STLog.debug(tag: kTag_STAReadStream, justLogFile: true, "read stream get bytes [\(dataRead.count)]: \((dataRead as NSData).hexString())")
-                STLog.info(tag: kTag_STAReadStream, "read stream get byte <<<<< : \(dataRead)")
-                self?.delegate?.didReadData(data: dataRead)
-                readData()
+        // 在当前线程直接读取，避免线程切换开销
+        autoreleasepool {
+            let bytesRead = self.stream.read(self.readBuffer, maxLength: self.readBufferSize)
+            
+            if bytesRead > 0 {
+                // 使用 bytesNoCopy 避免内存复制
+                let data = Data(bytesNoCopy: self.readBuffer,
+                              count: bytesRead,
+                              deallocator: .none)
+                
+                STLog.info(tag: kTag_STAReadStream, "read stream get byte <<<<< : \(bytesRead) bytes")
+                
+                // 异步通知代理
+                self.readCallBackQueue.async {
+                    self.delegate?.didReadData(data: data)
+                }
+                
+                // 如果还有数据，继续读取
+                if self.stream.hasBytesAvailable {
+                    self.readDataExe()
+                }
+            } else if bytesRead < 0 {
+                if let error = self.stream.streamError {
+                    STLog.err(tag: kTag_STAReadStream, "Read error: \(error)")
+                    self.handleStreamError(error)
+                }
             }
-            else { // 没有读取到字节，尝试再次读取
-                STLog.warning(tag: kTag_STAReadStream, "read stream get empty bytes")
-                return
-            }
+        }
+    }
+    
+    private func handleStreamError(_ error: Error) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            // 发送重连通知
+            NotificationCenter.default.post(name: .streamNeedsReconnection, object: self)
+            // 尝试重连
+            self.reconnectStream()
         }
     }
 }
@@ -97,22 +121,21 @@ extension STAReadStream: StreamDelegate {
             STLog.info(tag: kTag_STAReadStream, "openCompleted")
         case .hasBytesAvailable:
             STLog.info(tag: kTag_STAReadStream, "hasBytesAvailable")
-            readData()
+            readDataExe()
         case .endEncountered:
             STLog.info(tag: kTag_STAReadStream, "endEncountered")
-            // 流结束时自动重连
             reconnectStream()
         case .errorOccurred:
             STLog.info(tag: kTag_STAReadStream, "errorOccurred")
-            // 发生错误时也尝试重连
-            reconnectStream()
+            if let error = aStream.streamError {
+                handleStreamError(error)
+            }
         default:
             STLog.err(tag: kTag_STAReadStream, "un deal status")
         }
     }
 }
 
-// 添加通知名称
 extension Notification.Name {
     static let streamNeedsReconnection = Notification.Name("streamNeedsReconnection")
 }

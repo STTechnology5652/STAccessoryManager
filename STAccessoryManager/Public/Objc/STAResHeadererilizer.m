@@ -9,34 +9,9 @@
 
 #import <STLog/STLogTool.h>
 
-@interface STAResHeader()
-@property(nonatomic, assign) UInt8 cmdId;
-@property(nonatomic, assign) UInt8 cmdStatus;
-@property(nonatomic, assign) UInt8 cmdTag;
-@property(nonatomic, assign) UInt32 cmdDataLen;
-@property(nonatomic, strong) NSData *responseContent;
-
-@property(nonatomic, assign) UInt8 cmdEOH;
-@property(nonatomic, assign) UInt8 cmdERR;
-@property(nonatomic, assign) UInt8 cmdSTI;
-@property(nonatomic, assign) UInt8 cmdRES;
-@property(nonatomic, assign) UInt8 cmdSCR;
-@property(nonatomic, assign) UInt8 cmdPTS;
-@property(nonatomic, assign) UInt8 cmdEOF;
-@property(nonatomic, assign) UInt8 cmdFID;
-
-@property(nonatomic, assign) UInt32 imageDataLen;
-
-@property(nonatomic, assign) UInt8 b2;
-@property(nonatomic, assign) UInt8 b3;
-@property(nonatomic, assign) UInt8 b4;
-@property(nonatomic, assign) UInt8 b5;
-@property(nonatomic, assign) UInt8 headerLen;
-@end
-
 @implementation STAResHeader
 
-- (STARespCmdStatus) resCmdStatus {return self.cmdStatus;}
+- (UInt8) resCmdStatus {return self.cmdStatus;}
 
 - (NSDictionary *)headerDict {
     NSDictionary *map = @{

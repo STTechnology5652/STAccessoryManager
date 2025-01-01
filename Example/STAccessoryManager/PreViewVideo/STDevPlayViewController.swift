@@ -141,7 +141,7 @@ extension STDevPlayViewController {
         devHandler.sendCommand(command, protocol: nil) { (cmdResult:STAccessoryWorkResult<STAResponse>?) in
             STLog.debug("get device config result:\(String(describing: cmdResult?.workData?.jsonString()))")
             
-            if let configData = cmdResult?.workData?.responseData {
+            if let configData = cmdResult?.workData?.responseContent {
                 let devConfig: [STARespDevConfig] = STARespDevConfig.analysisConfigData(configData)
                 let devDes = devConfig.map{$0.jsonString()}
                 STLog.debug("device config info:\(devDes)")

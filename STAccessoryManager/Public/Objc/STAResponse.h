@@ -6,24 +6,24 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "STAResponseTypes.h"
 #import "STAResHeadererilizer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface STAResponse : NSObject
-@property(nonatomic, readonly, assign) STRAnalysisResult analysisStatus;
-@property(nonatomic, readonly, strong) STAResHeader *resHeader;
-@property(nonatomic, readonly, assign) NSUInteger usedLength;
-@property(nonatomic, readonly, strong) NSString *des;
 
-@property(nonatomic, readonly, strong) NSData *responseData;
-@property(nonatomic, readonly, strong) NSData *imageData;
+@property (nonatomic, assign) STRAnalysisResult analysisStatus;
+@property (nonatomic, strong) STAResHeader *resHeader;
+@property (nonatomic, strong) NSData *responseContent;
+@property (nonatomic, strong) NSData *imageData;
+@property (nonatomic, assign) NSUInteger usedLength;
+@property (nonatomic, copy) NSString *des;
 
+- (instancetype)init;
 - (NSDictionary *)jsonDict;
 - (NSString *)jsonString;
 
-+ (NSArray<STAResponse*> *)analysisiBuffer:(NSData *)data byteUsed:(UInt64 *)byteUsed timeUsed:(NSTimeInterval *)secondUsed;
 @end
 
 NS_ASSUME_NONNULL_END

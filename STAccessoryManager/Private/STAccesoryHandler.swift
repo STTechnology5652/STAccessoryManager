@@ -128,7 +128,7 @@ extension STAccesoryHandler: EAAccessoryDelegate {
         } else {
             STLog.debug("start create STAccesorySession")
             
-            let responseSer = STAResponseSeriaLizer(devSerial: devSerinalNumber, protocolIdv: sessionProtocol)
+            let responseSer = STAResponseSeriaLizer()
             let session = STAccesorySession(dev: dev, sessionProtocol: sessionProtocol, responseSerializer: responseSer)
             STLog.debug("finish create STAccesorySession")
             sessionMap[sessionProtocol] = session

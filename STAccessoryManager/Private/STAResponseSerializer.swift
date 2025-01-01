@@ -7,9 +7,11 @@
 
 import Foundation
 
-private let kMaxPackageSize: UInt64 = 1024 * 512
+private let kMaxPackageSize: UInt64 = 1024 * 1024
 private let kMaxConcurentAnalysisCount: Int = 8
-private let kMaxPackageStoreCount: UInt64 = 512  //同时允许暂存 512 个包， 如果超过，就丢弃已经缓存的所有包
+private let kMaxPackageStoreCount: UInt64 = 512
+private let kCleanupThreshold: UInt64 = 500
+private let kMaxPendingResults: Int = 1000 // 最大待处理结果数
 
 private class STASerialWork {
     let data: Data
@@ -31,82 +33,134 @@ private class STASerilaResultToBack {
 }
 
 class STAResponseSeriaLizer: NSObject, STAResponseSeriaLizerProtocol {
-    let devSerial: String
-    let protocolIdv: String
-    let analysisQueue = DispatchQueue(label: "STAResponseSerialLizerWorkQueue")
-    let delegateQueue = DispatchQueue(label: "STAResponseSerialLizerBackQueue")
-    weak var delegate: (NSObject & STASerialResultDelegate)?
+    weak var delegate: (any NSObject & STASerialResultDelegate)?
     
-    private var analysisSerilaNumber: UInt64 = 0
-    private var concurruntCount = kMaxConcurentAnalysisCount //任务并发数，同时允许n个解包任务
+    // 1. 使用串行队列避免竞争条件
+    private let processingQueue = DispatchQueue(label: "com.sta.serializer.processing",
+                                              qos: .userInitiated)
+    private let callbackQueue = DispatchQueue.main
     
-    init(devSerial: String, protocolIdv: String) {
-        self.devSerial = devSerial
-        self.protocolIdv = protocolIdv
-    }
+    // 2. 使用批处理来提高效率
+    private var pendingData = Data()
+    private let batchSize = 64 * 1024 // 64KB batch size
+    private let maxPendingSize = 1024 * 1024 // 1MB max pending
     
-    private var bufferStore = [STASerialWork]()
-    private var resultToBack = [STASerialWork]()
+    // 3. 使用信号量控制并发
+    private let semaphore = DispatchSemaphore(value: 3)
     
-    private var bufferTotalBytes: UInt64 = 0
+    // 4. 跟踪处理状态
+    private var currentSerialNum: UInt64 = 0
+    private var pendingResults = [STASerilaResultToBack]()
     
-    deinit {
-        bufferStore.removeAll()
+    override init() {
+        super.init()
     }
     
     func shouldAnalysisBuffer(buffer: Data) {
-        analysisQueue.async { [weak self] in
-            guard let self, buffer.count > 0 else { return }
-            self.analysisSerilaNumber += 1
-            let oneWork = STASerialWork(data: buffer, workSerialNum: self.analysisSerilaNumber)
-            bufferStore.append(oneWork)
-            bufferTotalBytes += UInt64(buffer.count)
-            startAnalysisData()
-        }
-    }
-    
-    private func startAnalysisData() {
-        // 递归解包
-        if concurruntCount > 0, let one = bufferStore.first {
-            bufferStore.removeFirst()
-            bufferTotalBytes -= UInt64(one.data.count)
-            analysisDataExe(onePackage: one)
-        } else { //并发任务过多， 不需要开新任务
-            if bufferTotalBytes > kMaxPackageSize, bufferStore.count > kMaxPackageStoreCount { //数据累计过多， 开始丢弃累积的数据
-                STLog.info("Too more data to analysis, clear them")
-                bufferStore.removeAll()
-                bufferTotalBytes = 0
-                concurruntCount = kMaxConcurentAnalysisCount
-            }
-        }
-    }
-    
-    private func analysisDataExe(onePackage one: STASerialWork) {
-        concurruntCount -= 1
-        DispatchQueue.global().async { [weak self] in
-            guard let self else { return }
-            STLog.debug("start analysis data: \(one.data.count)")
-            var usedLength: UInt64 = 0
-            var secondsUsed: TimeInterval = 0
-            let responseArr: [STAResponse] = STAResponse.analysisiBuffer(one.data, byteUsed: &usedLength, timeUsed: &secondsUsed)
+        processingQueue.async { [weak self] in
+            guard let self = self else { return }
             
-            let resultToBack = STASerilaResultToBack(resultArr: responseArr, serialNum: one.workSerialNum)
-            backDevData(resultToBack)
-            analysisQueue.async { [weak self] in
-                guard let self else { return }
-                concurruntCount += 1
-                concurruntCount = concurruntCount > kMaxConcurentAnalysisCount ? kMaxConcurentAnalysisCount : concurruntCount
-                startAnalysisData() // 递归解析协议包
+            // 5. 添加流控制
+            if self.pendingData.count > self.maxPendingSize {
+                print("[Warning] Pending data exceeds limit, dropping data")
+                return
+            }
+            
+            // 6. 批处理数据
+            self.pendingData.append(buffer)
+            
+            while self.pendingData.count >= self.batchSize {
+                autoreleasepool {
+                    // 7. 使用信号量控制并发
+                    self.semaphore.wait()
+                    
+                    let batch = self.pendingData.prefix(self.batchSize)
+                    self.pendingData.removeFirst(self.batchSize)
+                    
+                    // 8. 处理数据批次
+                    self.processBatch(Data(batch)) { [weak self] responses in
+                        self?.deliverResponses(responses)
+                        self?.semaphore.signal()
+                    }
+                }
             }
         }
-        startAnalysisData()
     }
     
-    private func backDevData(_ resultWork: STASerilaResultToBack) {
-        if let delegate {
-            delegateQueue.async {
-                delegate.didAnalysisOnePackage(resArr: resultWork.resultArr)
-            }
+    private func processBatch(_ data: Data, completion: @escaping ([STAResponse]) -> Void) {
+        autoreleasepool {
+            let startTime = CFAbsoluteTimeGetCurrent()
+            var usedLength: UInt64 = 0
+            let responses = STAProtocolParserBridge.parseBuffer(data, bytesUsed: &usedLength)
+            let duration = CFAbsoluteTimeGetCurrent() - startTime
+            
+            STLog.info(tag: "Parser", "Parse stats: used \(usedLength)/\(data.count) bytes, \(responses.count) packets, time: \(duration)s")
+            
+            completion(responses)
         }
+    }
+    
+    private func deliverResponses(_ responses: [STAResponse]) {
+        guard !responses.isEmpty else { return }
+        
+        callbackQueue.async { [weak self] in
+            self?.delegate?.didAnalysisOnePackage(resArr: responses)
+        }
+    }
+}
+
+// 8. 高效的环形缓冲区实现
+private class RingBuffer {
+    private var buffer: UnsafeMutableBufferPointer<UInt8>
+    private var writeIndex = 0
+    private var readIndex = 0
+    private let capacity: Int
+    
+    init(capacity: Int) {
+        self.capacity = capacity
+        buffer = .allocate(capacity: capacity)
+    }
+    
+    deinit {
+        buffer.deallocate()
+    }
+    
+    var availableBytes: Int {
+        return writeIndex - readIndex
+    }
+    
+    func write(_ data: Data) {
+        data.withUnsafeBytes { ptr in
+            let count = min(data.count, capacity - (writeIndex % capacity))
+            memcpy(buffer.baseAddress?.advanced(by: writeIndex % capacity),
+                  ptr.baseAddress!,
+                  count)
+            writeIndex += count
+        }
+    }
+    
+    func read(size: Int) -> Data? {
+        guard availableBytes > 0,
+              let baseAddress = buffer.baseAddress else { 
+            return nil 
+        }
+        
+        let count = min(size, availableBytes)
+        let start = readIndex % capacity
+        
+        // 创建一个临时缓冲区来存储读取的数据
+        let tempBuffer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: count)
+        defer { tempBuffer.deallocate() }
+        
+        // 复制数据到临时缓冲区
+        memcpy(tempBuffer.baseAddress!,
+               baseAddress.advanced(by: start),
+               count)
+        
+        // 使用临时缓冲区创建 Data
+        let data = Data(bytes: tempBuffer.baseAddress!, count: count)
+        readIndex += count
+        
+        return data
     }
 }

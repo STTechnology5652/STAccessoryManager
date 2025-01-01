@@ -77,11 +77,11 @@ extension STCameraVM {
         devHandler.sendCommand(command, protocol: nil) { (cmdResult:STAccessoryWorkResult<STAResponse>?) in
             STLog.debug("get device config result:\(String(describing: cmdResult?.workData?.jsonString()))")
             
-            if let configData = cmdResult?.workData?.responseData {
-                let devConfig: [STARespDevConfig] = STARespDevConfig.analysisConfigData(configData)
-                let devDes = devConfig.map{$0.jsonString()}
-                STLog.debug("device config info:\(devDes)")
-            }
+//            if let configData = cmdResult?.workData?.responseContent {
+//                let devConfig: [STARespDevConfig] = STARespDevConfig.analysisConfigData(configData)
+//                let devDes = devConfig.map{$0.jsonString()}
+//                STLog.debug("device config info:\(devDes)")
+//            }
         }
     }
     
@@ -147,7 +147,8 @@ extension STCameraVM: STAccesoryHandlerImageReceiver {
                 // 更新速度计数（在子线程）
                 self.speedTool.appendCount(imgData.count)
                 // 更新图像（在子线程）
-                self.updatePreviewImage(img)
+                STLog.debug(tag: "STVC", "get on image frome device:\(img)")
+//                self.updatePreviewImage(img)
             }
         }
     }
